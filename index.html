@@ -1,0 +1,1318 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VetSim | Simulador Clínico Veterinário</title>
+<style>
+:root{
+ --bg:#f3f6fa;--surface:#fff;--surface2:#f8fafc;--ink:#17263c;--muted:#65758b;
+ --line:#e2e8f0;--nav:#10283f;--nav2:#183b56;--teal:#16a394;--teal2:#0f8278;
+ --blue:#3678d4;--green:#16845b;--yellow:#b8790a;--red:#c94343;--purple:#7359c7;
+ --shadow:0 12px 32px rgba(21,42,68,.07);--radius:18px
+}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
+button,input,select,textarea{font:inherit}button{cursor:pointer}
+.app{min-height:100vh;display:grid;grid-template-columns:258px minmax(0,1fr)}
+.sidebar{background:linear-gradient(180deg,var(--nav),#0c1f32);color:#e8f2fb;padding:22px 15px;display:flex;flex-direction:column;gap:24px;min-height:100vh}
+.brand{display:flex;gap:12px;align-items:center;padding:4px 10px 20px;border-bottom:1px solid #ffffff1a}
+.brand-mark{width:43px;height:43px;border-radius:14px;background:linear-gradient(135deg,#24c4b1,#147e91);display:grid;place-items:center;font-size:24px;box-shadow:0 8px 18px #0002}
+.brand strong{font-size:22px;letter-spacing:-.7px;display:block}.brand small{color:#9bb4c9;font-size:11px;letter-spacing:1.2px;text-transform:uppercase}
+.nav-label{color:#7993a9;font-size:10px;font-weight:800;letter-spacing:1.4px;padding:0 12px;margin-bottom:-14px}
+.nav{display:grid;gap:6px}.nav button{background:transparent;border:0;color:#b9cbd9;text-align:left;padding:12px 13px;border-radius:11px;display:flex;align-items:center;gap:12px;font-weight:600;transition:.2s}
+.nav button:hover,.nav button.active{background:#ffffff14;color:white}.nav button.active{box-shadow:inset 3px 0 var(--teal)}
+.nav .ico{width:22px;text-align:center;font-size:17px}
+.sidebar-bottom{margin-top:auto;border:1px solid #ffffff20;border-radius:14px;padding:14px;color:#b9cbd9;font-size:12px;background:#ffffff08}
+.sidebar-bottom strong{color:white;display:block;margin-bottom:4px}
+.main{min-width:0;padding:28px clamp(16px,3vw,42px) 48px}
+.topbar{display:flex;justify-content:space-between;gap:18px;align-items:center;margin-bottom:26px}
+.eyebrow{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--teal2);font-weight:800}
+h1{font-size:clamp(25px,3vw,34px);letter-spacing:-1px;line-height:1.12;margin:5px 0 8px}
+h2{font-size:21px;letter-spacing:-.5px;margin:0 0 6px}h3{font-size:16px;margin:0 0 12px}p{margin:0 0 10px}.muted{color:var(--muted)}.small{font-size:12px}
+.top-actions{display:flex;gap:9px;flex-wrap:wrap}
+.btn{border:0;border-radius:11px;padding:10px 15px;font-weight:750;display:inline-flex;align-items:center;justify-content:center;gap:8px;transition:transform .15s,filter .15s}
+.btn:hover{filter:brightness(.97);transform:translateY(-1px)}.btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.btn-primary{background:var(--teal);color:white;box-shadow:0 6px 14px #16a39426}.btn-dark{background:var(--nav);color:white}.btn-soft{background:#e8f5f3;color:#13776e}.btn-outline{background:white;border:1px solid var(--line);color:var(--ink)}.btn-danger{background:#fff0f0;color:var(--red)}
+.icon-btn{border:1px solid var(--line);background:white;border-radius:12px;padding:9px 12px;color:var(--ink)}
+.view{display:none}.view.active{display:block;animation:fade .22s ease}@keyframes fade{from{opacity:.3;transform:translateY(4px)}to{opacity:1;transform:none}}
+.hero{border-radius:24px;padding:28px 30px;background:linear-gradient(115deg,#113650,#176e76);color:white;display:grid;grid-template-columns:minmax(0,1.3fr) minmax(180px,.7fr);gap:20px;overflow:hidden;position:relative;box-shadow:var(--shadow);margin-bottom:22px}
+.hero:after{content:"✚";position:absolute;right:7%;top:-60px;font-size:250px;line-height:1;color:#ffffff0b;transform:rotate(15deg)}
+.hero h2{font-size:clamp(23px,3vw,34px);max-width:580px;line-height:1.12;margin:8px 0 12px}.hero p{color:#d4e8ef;max-width:580px}.hero .eyebrow{color:#7ce2d5}
+.hero-art{display:flex;align-items:center;justify-content:center;position:relative;z-index:1}
+.paw-circle{width:150px;height:150px;border-radius:50%;background:#ffffff12;border:1px solid #ffffff26;display:grid;place-items:center;font-size:75px;box-shadow:0 0 0 20px #ffffff06}
+.grid{display:grid;gap:16px}.stats{grid-template-columns:repeat(4,minmax(0,1fr));margin-bottom:22px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:20px;box-shadow:0 3px 12px #17263c05;min-width:0}
+.stat{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.stat .label{color:var(--muted);font-size:12px;font-weight:700}.stat .value{font-size:29px;font-weight:850;letter-spacing:-1px;margin-top:6px}.stat .stat-ico{width:40px;height:40px;border-radius:13px;display:grid;place-items:center;font-size:19px;background:#e8f5f3}
+.section-head{display:flex;align-items:end;justify-content:space-between;gap:12px;margin:22px 0 13px}.section-head p{margin:0;color:var(--muted);font-size:13px}
+.two-col{grid-template-columns:minmax(0,1.3fr) minmax(260px,.7fr)}
+.case-mini{display:flex;gap:13px;align-items:center;padding:13px 0;border-bottom:1px solid var(--line)}.case-mini:last-child{border-bottom:0;padding-bottom:0}
+.animal-icon{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;background:#e9f4f7;font-size:24px;flex-shrink:0}
+.case-mini-main{flex:1;min-width:0}.case-mini-main strong{display:block}.case-mini-main small{color:var(--muted)}
+.pill{display:inline-flex;align-items:center;gap:5px;padding:4px 9px;border-radius:999px;font-size:11px;font-weight:800;background:#edf2f7;color:#516174;white-space:nowrap}
+.pill.green{background:#e4f6ed;color:#14744e}.pill.yellow{background:#fff4d9;color:#8b5d05}.pill.red{background:#fde9e9;color:#b72d2d}.pill.blue{background:#e8f0ff;color:#2c62b0}.pill.teal{background:#e1f7f3;color:#087c70}
+.progress{height:7px;background:#e8edf3;border-radius:99px;overflow:hidden}.progress span{height:100%;display:block;background:var(--teal);border-radius:99px}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0}.field{display:grid;gap:6px}.field label{font-size:12px;font-weight:800;color:#506176}.field input,.field select,.field textarea,input.search{width:100%;border:1px solid #d9e2ec;background:white;border-radius:10px;padding:11px 12px;color:var(--ink);outline:none}.field input:focus,.field select:focus,.field textarea:focus,input.search:focus{border-color:var(--teal);box-shadow:0 0 0 3px #16a39418}.field textarea{resize:vertical;min-height:100px}
+.case-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+.case-card{padding:0;overflow:hidden;transition:.2s}.case-card:hover{transform:translateY(-3px);box-shadow:var(--shadow)}
+.case-card-top{padding:20px;background:linear-gradient(135deg,#e7f6f4,#eef4fb);display:flex;justify-content:space-between;align-items:flex-start;gap:8px}.case-card-top .animal-icon{width:56px;height:56px;background:#ffffffb8}
+.case-card-body{padding:18px}.case-card-body h3{margin-bottom:7px}.case-card-body p{font-size:13px;color:var(--muted);min-height:39px}.case-meta{display:flex;gap:7px;flex-wrap:wrap;margin:12px 0 16px}
+.consult-layout{display:grid;grid-template-columns:minmax(0,1fr) 280px;gap:18px;align-items:start}
+.patient-banner{background:linear-gradient(115deg,#143951,#1b6875);color:white;border-radius:19px;padding:20px;display:flex;gap:15px;align-items:center;margin-bottom:16px}
+.patient-banner .animal-icon{width:62px;height:62px;background:#ffffff18;font-size:31px}.patient-banner h2{margin:0 0 4px}.patient-banner p{color:#d1e4ea;font-size:13px;margin:0}
+.workflow{display:flex;gap:7px;overflow:auto;margin:0 0 16px;padding-bottom:3px}.step{border:1px solid var(--line);background:white;color:var(--muted);padding:10px 13px;border-radius:10px;font-weight:750;font-size:12px;white-space:nowrap}.step.active{background:var(--nav);color:white;border-color:var(--nav)}.step.done{background:#e4f6ed;color:#14744e;border-color:#c9ebda}
+.clinical-panel{display:none}.clinical-panel.active{display:block}
+.info-block{background:var(--surface2);border:1px solid var(--line);border-radius:13px;padding:15px;margin:12px 0}.info-block p:last-child{margin-bottom:0}
+.data-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.data-item{background:white;border:1px solid var(--line);padding:12px;border-radius:11px}.data-item small{color:var(--muted);display:block;font-size:11px}.data-item strong{font-size:15px}
+.exam-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+.exam-card{border:1px solid var(--line);border-radius:14px;padding:16px;background:white;display:flex;flex-direction:column;gap:9px}.exam-card h3{margin:0}.exam-card p{font-size:12px;color:var(--muted);margin:0}.exam-card .btn{margin-top:auto}
+.result{border-radius:11px;padding:12px;margin-top:3px;font-size:13px}.result.green{background:#e7f7ef;border-left:4px solid var(--green)}.result.yellow{background:#fff6df;border-left:4px solid var(--yellow)}.result.red{background:#ffeded;border-left:4px solid var(--red)}
+.sidebar-card{position:sticky;top:18px}.side-score{font-size:32px;font-weight:850;letter-spacing:-1px}.check-row{display:flex;gap:9px;align-items:flex-start;margin:10px 0;font-size:13px}.check-row input{margin-top:4px;accent-color:var(--teal)}
+.choice-list{display:grid;gap:9px;margin:12px 0}
+.choice{display:flex;gap:12px;align-items:center;justify-content:space-between;padding:15px 18px;border:2px solid var(--line);border-radius:14px;background:white;cursor:pointer;transition:.2s}
+.choice:hover{border-color:#a0aec0}
+.choice.selected{border-color:var(--teal);background:#effaf8;box-shadow:0 4px 14px rgba(22,163,148,.12)}
+.choice-radio{width:22px;height:22px;border-radius:50%;border:2px solid var(--line);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:.2s}
+.choice.selected .choice-radio{border-color:var(--teal);background:var(--teal)}
+.choice-radio::after{content:"";width:10px;height:10px;background:white;border-radius:50%;display:none}
+.choice.selected .choice-radio::after{display:block}
+.choice strong{display:block;font-size:15px;color:var(--ink)}.choice small{display:block;color:var(--muted);margin-top:2px}
+.notice{padding:13px 15px;border-radius:12px;background:#edf5ff;color:#315c8b;font-size:13px;border:1px solid #dceaff}.notice.warn{background:#fff7e5;border-color:#f5e4b5;color:#805c13}.notice.danger{background:#fff0f0;border-color:#f4d1d1;color:#9e3333}
+.report-score{font-size:44px;letter-spacing:-2px;font-weight:900}.report-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+.history-row{display:grid;grid-template-columns:1.3fr 1fr .7fr auto;gap:12px;align-items:center;padding:14px 0;border-bottom:1px solid var(--line)}.history-row:last-child{border:0}
+.ai-layout{grid-template-columns:minmax(0,1fr) minmax(270px,.7fr)}.ai-chat{height:360px;overflow:auto;border:1px solid var(--line);border-radius:13px;padding:14px;background:#f8fafc;display:flex;flex-direction:column;gap:10px;margin:12px 0}.bubble{max-width:92%;padding:11px 13px;border-radius:13px;font-size:13px;white-space:pre-wrap}.bubble.user{align-self:flex-end;background:#dff6f1}.bubble.assistant{align-self:flex-start;background:white;border:1px solid var(--line)}.chat-form{display:flex;gap:8px}.chat-form input{flex:1;min-width:0}
+.empty{padding:32px;text-align:center;color:var(--muted)}.empty .emoji{font-size:38px;margin-bottom:8px}
+.footer-note{font-size:11px;color:var(--muted);margin-top:18px}
+.modal-backdrop{position:fixed;inset:0;background:#081b2bd1;z-index:20;display:none;align-items:center;justify-content:center;padding:18px}.modal-backdrop.open{display:flex}.modal{background:white;border-radius:20px;max-width:510px;width:100%;padding:24px;box-shadow:0 24px 80px #0003}.modal h2{margin-bottom:10px}.modal-actions{display:flex;justify-content:flex-end;gap:9px;margin-top:20px}
+.toast{position:fixed;bottom:20px;right:20px;background:#10283f;color:white;padding:13px 17px;border-radius:12px;box-shadow:var(--shadow);z-index:40;display:none;max-width:min(400px,90vw)}
+@media(max-width:1150px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.case-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.consult-layout{grid-template-columns:minmax(0,1fr) 240px}}
+@media(max-width:850px){.app{grid-template-columns:1fr}.sidebar{min-height:0;padding:12px;gap:10px}.brand{padding:4px 8px 10px}.brand-mark{width:36px;height:36px}.brand strong{font-size:18px}.nav-label,.sidebar-bottom{display:none}.nav{display:flex;overflow:auto}.nav button{white-space:nowrap;padding:9px 11px;font-size:12px}.main{padding:20px 14px 35px}.hero{grid-template-columns:1fr;padding:23px}.hero-art{display:none}.two-col,.consult-layout,.ai-layout{grid-template-columns:1fr}.sidebar-card{position:static}.topbar{align-items:flex-start}.history-row{grid-template-columns:1fr auto}.history-row>*:nth-child(2),.history-row>*:nth-child(3){grid-column:1}.history-row .history-actions{grid-column:2;grid-row:1/4}}
+@media(max-width:560px){.stats,.case-grid,.exam-grid,.report-grid{grid-template-columns:1fr}.topbar{display:block}.top-actions{margin-top:14px}.data-list{grid-template-columns:1fr}.patient-banner{align-items:flex-start}.section-head{align-items:flex-start;flex-direction:column}.hero h2{font-size:25px}.case-mini{align-items:flex-start}.history-row{grid-template-columns:1fr}.history-row .history-actions{grid-column:1;grid-row:auto}.chat-form{flex-wrap:wrap}.chat-form input{flex-basis:100%}}
+@media print{.sidebar,.topbar,.btn,.workflow,.footer-note{display:none!important}.main{padding:0}.view{display:none!important}#view-report{display:block!important}.card{box-shadow:none}}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="sidebar">
+  <div class="brand"><div class="brand-mark">✚</div><div><strong>VetSim</strong><small>Laboratório clínico virtual</small></div></div>
+  <div class="nav-label">ESPAÇO DE TRABALHO</div>
+  <nav class="nav">
+    <button class="active" data-view="dashboard"><span class="ico">▦</span> Visão geral</button>
+    <button data-view="library"><span class="ico">▤</span> Casos clínicos</button>
+    <button data-view="history"><span class="ico">◷</span> Prontuários</button>
+    <button data-view="ai"><span class="ico">✧</span> Tutor IA</button>
+    <button data-view="settings"><span class="ico">⚙</span> Configurações</button>
+  </nav>
+  <div class="sidebar-bottom"><strong>Modo de aprendizagem</strong>Simulação educacional. As decisões e pontuações não substituem avaliação veterinária nem protocolos clínicos validados.</div>
+</aside>
+<main class="main">
+<header class="topbar">
+ <div><div class="eyebrow" id="page-eyebrow">CENTRO DE SIMULAÇÃO</div><h1 id="page-title">Bom dia, futuro(a) veterinário(a).</h1><p class="muted" id="page-subtitle">Pratique o raciocínio clínico, uma decisão de cada vez.</p></div>
+ <div class="top-actions"><button class="btn btn-outline" onclick="navigate('history')">◷ Histórico</button><button class="btn btn-primary" onclick="navigate('library')">＋ Novo atendimento</button></div>
+</header>
+
+<section id="view-dashboard" class="view active">
+ <div class="hero"><div><div class="eyebrow">SIMULAÇÃO • RACIOCÍNIO • APRENDIZADO</div><h2>Todo caso clínico é uma oportunidade de aprender.</h2><p>Investigue os sinais, escolha exames com propósito, construa hipóteses e receba feedback sobre suas decisões.</p><button class="btn btn-primary" onclick="navigate('library')">Explorar casos clínicos <span>→</span></button></div><div class="hero-art"><div class="paw-circle">🐾</div></div></div>
+ <div class="grid stats">
+  <div class="card stat"><div><div class="label">Atendimentos iniciados</div><div class="value" id="stat-started">0</div></div><div class="stat-ico">🩺</div></div>
+  <div class="card stat"><div><div class="label">Atendimentos concluídos</div><div class="value" id="stat-completed">0</div></div><div class="stat-ico">✓</div></div>
+  <div class="card stat"><div><div class="label">Média de desempenho</div><div class="value" id="stat-score">—</div></div><div class="stat-ico">↗</div></div>
+  <div class="card stat"><div><div class="label">Casos disponíveis</div><div class="value" id="stat-cases">20</div></div><div class="stat-ico">📚</div></div>
+ </div>
+ <div class="grid two-col">
+  <div class="card"><div class="section-head" style="margin-top:0"><div><h2>Continue aprendendo</h2><p>Casos sugeridos para sua próxima sessão.</p></div><button class="btn btn-soft" onclick="navigate('library')">Ver biblioteca →</button></div><div id="recommended-cases"></div></div>
+  <div class="card"><h2>Seu progresso</h2><p class="muted small">Acompanhe sua prática ao longo do tempo.</p><div style="margin:23px 0 9px;display:flex;justify-content:space-between"><strong>Casos concluídos</strong><strong id="progress-count">0 / 20</strong></div><div class="progress"><span id="progress-bar" style="width:0%"></span></div><div class="info-block" style="margin-top:20px"><strong>💡 Dica clínica</strong><p class="small muted" style="margin:5px 0 0">Antes de solicitar um exame, pergunte-se: “Qual hipótese esse resultado ajudará a confirmar ou afastar?”</p></div><button class="btn btn-outline" style="width:100%" onclick="navigate('ai')">Conversar com o Tutor IA ✧</button></div>
+ </div>
+ <div class="footer-note">VetSim é um protótipo educacional. Casos e parâmetros demonstrativos precisam de revisão profissional antes de uso formativo formal.</div>
+</section>
+
+<section id="view-library" class="view">
+ <div class="section-head" style="margin-top:0"><div><div class="eyebrow">BIBLIOTECA</div><h2>Casos clínicos</h2><p>Selecione um paciente e conduza o atendimento.</p></div><span class="pill teal" id="case-count">20 casos</span></div>
+ <div class="toolbar"><input class="search" id="case-search" placeholder="⌕ Buscar paciente, doença ou especialidade..." style="flex:1;min-width:220px"><select id="species-filter" class="icon-btn"><option value="all">Todas as espécies</option><option value="Cão">Cães</option><option value="Felino">Felinos</option><option value="Equino">Equinos</option><option value="Ave">Aves</option></select><select id="level-filter" class="icon-btn"><option value="all">Todos os níveis</option><option value="Básico">Básico</option><option value="Intermediário">Intermediário</option><option value="Avançado">Avançado</option></select></div>
+ <div class="grid case-grid" id="case-grid"></div>
+ <div class="footer-note">Os casos incluídos são cenários didáticos simplificados, não protocolos completos de atendimento real.</div>
+</section>
+
+<section id="view-consult" class="view">
+ <div class="section-head" style="margin-top:0"><div><div class="eyebrow">ATENDIMENTO EM ANDAMENTO</div><h2 id="consult-heading">Caso clínico</h2><p>Leia os dados disponíveis e tome decisões justificadas.</p></div><button class="btn btn-outline" onclick="confirmLeave()">← Sair do atendimento</button></div>
+ <div class="patient-banner"><div class="animal-icon" id="patient-emoji">🐶</div><div><h2 id="patient-name">Paciente</h2><p id="patient-summary"></p><div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:9px" id="patient-tags"></div></div></div>
+ <div class="workflow" id="workflow">
+  <button class="step active" data-step="0">1 · Anamnese</button><button class="step" data-step="1">2 · Exames</button><button class="step" data-step="2">3 · Diagnóstico</button><button class="step" data-step="3">4 · Relatório</button>
+ </div>
+ <div class="consult-layout">
+  <div>
+   <div class="card clinical-panel active" id="step-0">
+    <h2>Anamnese e exame físico</h2><p class="muted">Informações iniciais do paciente. Identifique os achados mais relevantes.</p>
+    <div class="info-block"><h3>🗣 Queixa principal e histórico</h3><p id="case-history"></p></div>
+    <div class="info-block"><h3>🩺 Exame físico inicial</h3><div class="data-list" id="physical-data"></div></div>
+    <div class="info-block"><h3>🧠 Sua primeira impressão</h3><p class="small muted">Registre hipóteses antes de ver resultados. Isso ajuda a treinar o raciocínio clínico.</p><div class="field"><label>Hipóteses iniciais / observações</label><textarea id="initial-notes" placeholder="Ex.: considero causas infecciosas e gastrointestinais devido a..."></textarea></div></div>
+    <div style="display:flex;justify-content:flex-end"><button class="btn btn-primary" onclick="goStep(1)">Ir para exames →</button></div>
+   </div>
+   <div class="card clinical-panel" id="step-1">
+    <h2>Exames complementares</h2><p class="muted">Escolha os exames que ajudariam a responder uma pergunta clínica. A avaliação só aparece após confirmar a solicitação.</p>
+    <div class="notice" style="margin:14px 0">Os resultados são definidos para este caso e não são sorteados. Pense na urgência, no custo e na utilidade de cada teste.</div>
+    <div class="grid exam-grid" id="exam-grid"></div>
+    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:18px"><button class="btn btn-outline" onclick="goStep(0)">← Anamnese</button><button class="btn btn-primary" onclick="goStep(2)">Prosseguir para diagnóstico →</button></div>
+   </div>
+   <div class="card clinical-panel" id="step-2">
+    <h2>Diagnóstico e plano de conduta</h2><p class="muted">Escolha a hipótese mais provável com base nos achados disponíveis. Selecione a opção e confirme antes de concluir.</p>
+    <div class="field" style="margin-top:18px">
+      <label>Diagnóstico principal / hipótese de trabalho</label>
+      <div id="diagnosis-choices" class="choice-list"></div>
+      <button type="button" id="btn-confirm-diag" class="btn btn-soft" style="margin-top:10px;display:none;width:100%" onclick="lockDiagnosis()">Confirmar Diagnóstico Final ✓</button>
+    </div>
+    <div class="field" style="margin-top:16px"><label>Justificativa clínica</label><textarea id="diagnosis-reason" placeholder="Quais achados sustentam sua hipótese? Quais diferenciais ainda precisam ser considerados?"></textarea></div>
+    <div class="field" style="margin-top:16px"><label>Prescrição ou plano terapêutico (educacional)</label><textarea id="prescription" placeholder="Descreva medidas de estabilização, tratamento proposto, monitoramento e orientações. Evite doses não verificadas."></textarea></div>
+    <div class="notice warn" style="margin:14px 0">O simulador avalia seu plano com a IA Nativa integrada. Se desejar conectar a API do Gemini opcionalmente, configure sua chave na aba Tutor IA.</div>
+    <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap"><button class="btn btn-outline" onclick="goStep(1)">← Exames</button><button class="btn btn-primary" id="btn-finish-case" onclick="finishCase()">Concluir atendimento ✓</button></div>
+   </div>
+   <div class="card clinical-panel" id="step-3">
+    <div class="eyebrow">DEVOLUTIVA DO CASO</div><h2>Relatório de desempenho</h2><p class="muted">Use o feedback para identificar o que faria diferente em uma nova tentativa.</p>
+    <div id="report-content"></div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:18px"><button class="btn btn-primary" onclick="navigate('library')">Escolher outro caso →</button><button class="btn btn-outline" onclick="window.print()">Imprimir / salvar PDF</button></div>
+   </div>
+  </div>
+  <aside class="card sidebar-card">
+   <div class="eyebrow">RESUMO DA SESSÃO</div><h3 style="margin-top:5px" id="side-case-title">Paciente</h3><p class="muted small" id="side-case-specialty"></p>
+   <div style="border-top:1px solid var(--line);margin:15px 0"></div>
+   <div class="small muted">Exames confirmados</div><div class="side-score" id="side-exam-count">0</div>
+   <div class="small muted" style="margin-top:12px">Pontuação acumulada</div><div class="side-score" id="side-score">0</div><div class="progress" style="margin-top:8px"><span id="side-progress" style="width:0%"></span></div>
+   <div class="info-block"><strong>🔎 Decisão consciente</strong><p class="small muted" style="margin:5px 0 0">Um bom exame é aquele que responde a uma pergunta clínica relevante, não simplesmente o exame mais caro ou mais completo.</p></div>
+   <h3>Checklist</h3><div id="session-checklist"></div>
+  </aside>
+ </div>
+</section>
+
+<section id="view-history" class="view">
+ <div class="section-head" style="margin-top:0"><div><div class="eyebrow">REGISTROS</div><h2>Prontuários e desempenho</h2><p>Consulte atendimentos concluídos neste navegador.</p></div><button class="btn btn-outline" onclick="exportData()">⇩ Exportar backup</button></div>
+ <div class="grid stats" style="margin-top:18px">
+  <div class="card stat"><div><div class="label">Atendimentos</div><div class="value" id="hist-total">0</div></div><div class="stat-ico">▤</div></div>
+  <div class="card stat"><div><div class="label">Melhor pontuação</div><div class="value" id="hist-best">—</div></div><div class="stat-ico">★</div></div>
+  <div class="card stat"><div><div class="label">Exames solicitados</div><div class="value" id="hist-exams">0</div></div><div class="stat-ico">⌕</div></div>
+  <div class="card stat"><div><div class="label">Casos diferentes</div><div class="value" id="hist-unique">0</div></div><div class="stat-ico">🐾</div></div>
+ </div>
+ <div class="card"><div class="section-head" style="margin-top:0"><div><h2>Histórico de atendimentos</h2><p>Dados salvos localmente no seu navegador.</p></div><button class="btn btn-outline" onclick="document.getElementById('import-file').click()">⇧ Importar JSON</button><input type="file" id="import-file" accept=".json,application/json" hidden></div><div id="history-list"></div></div>
+</section>
+
+<section id="view-ai" class="view">
+ <div class="section-head" style="margin-top:0"><div><div class="eyebrow">APRENDIZAGEM ASSISTIDA</div><h2>Tutor clínico com IA</h2><p>Converse sobre raciocínio clínico, diferenciais e interpretação de resultados.</p></div><span class="pill teal">Integração opcional</span></div>
+ <div class="grid ai-layout">
+  <div class="card"><h2>Converse com o tutor</h2><p class="muted small">A IA pode ajudar a estudar, mas pode errar. Não use as respostas como prescrição ou decisão clínica real.</p>
+   <div class="ai-chat" id="ai-chat"><div class="bubble assistant">Olá! Sou o tutor de aprendizagem do VetSim. Posso ajudar você a estruturar hipóteses, interpretar achados e pensar em diagnósticos diferenciais. O sistema possui uma IA Nativa local que avalia seus casos sem necessidade de internet, e você também pode conectar o Gemini opcionalmente ao lado.</div></div>
+   <form id="ai-form" class="chat-form"><input id="ai-message" placeholder="Ex.: Como diferenciar DRC de diabetes em um gato?" autocomplete="off"><button class="btn btn-primary" type="submit">Enviar ↑</button></form>
+   <div class="footer-note">Evite inserir dados identificáveis de tutores ou pacientes reais.</div>
+  </div>
+  <div class="card"><h2>Configurar conexão Gemini</h2><p class="muted small">Insira uma chave da API do Gemini para expandir o tutor com IA generativa na nuvem.</p>
+   <div class="field" style="margin:15px 0"><label>Chave de API do Gemini</label><input id="gemini-key" type="password" placeholder="Cole sua chave aqui (ex: AIzaSy...)" autocomplete="off"></div>
+   <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn-primary" onclick="saveApiKey()">Salvar Chave</button><button class="btn btn-soft" onclick="testApiKey()">Testar Conexão</button><button class="btn btn-outline" onclick="clearApiKey()">Limpar chave</button></div>
+   <div id="api-test-result" style="margin-top:10px"></div>
+   <div class="notice warn" style="margin-top:14px">Por segurança, a chave fica salva localmente no navegador e não é enviada para backups.</div>
+   <h3 style="margin-top:22px">Temas para estudar</h3><div class="choice-list" id="study-prompts"></div>
+   <p class="small muted">Obtenha uma chave gratuita no <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener">Google AI Studio</a>.</p>
+  </div>
+ </div>
+</section>
+
+<section id="view-settings" class="view">
+ <div class="section-head" style="margin-top:0"><div><div class="eyebrow">PREFERÊNCIAS</div><h2>Configurações e dados</h2><p>Controle seu progresso e faça cópias de segurança.</p></div></div>
+ <div class="grid two-col">
+  <div class="card"><h2>Backup dos dados</h2><p class="muted">Exporte seu histórico para guardar uma cópia ou importar em outro navegador.</p><div style="display:flex;gap:9px;flex-wrap:wrap;margin-top:15px"><button class="btn btn-primary" onclick="exportData()">⇩ Exportar JSON</button><button class="btn btn-outline" onclick="document.getElementById('import-file').click()">⇧ Importar JSON</button></div></div>
+  <div class="card"><h2>Privacidade e armazenamento</h2><p class="muted">O progresso é armazenado localmente neste navegador. O backup JSON permite migrar ou recuperar os dados a qualquer momento.</p><div class="notice warn" style="margin-top:14px">Este protótipo não é um prontuário para uso em clínica real e não oferece sincronização entre dispositivos.</div></div>
+  <div class="card"><h2>Reiniciar progresso</h2><p class="muted">Apaga os atendimentos salvos neste navegador. Esta ação não pode ser desfeita sem backup.</p><button class="btn btn-danger" style="margin-top:12px" onclick="clearData()">Apagar progresso local</button></div>
+  <div class="card"><h2>Sobre o VetSim</h2><p>Versão 2.6 Estável · IA Nativa + 20 Casos Clínicos integrados num único arquivo.</p><p class="small muted">Os casos, valores laboratoriais, critérios de pontuação e feedbacks são exemplos educacionais simplificados. Devem ser revisados por profissional veterinário antes de uso acadêmico formal.</p></div>
+ </div>
+</section>
+</main>
+</div>
+
+<div class="modal-backdrop" id="confirm-modal" role="dialog" aria-modal="true">
+ <div class="modal"><div class="eyebrow">CONFIRMAR DECISÃO</div><h2 id="modal-title">Confirmar solicitação?</h2><p id="modal-text"></p><div class="notice warn" id="modal-note">A avaliação e o resultado serão exibidos somente após confirmar.</div><div class="modal-actions"><button class="btn btn-outline" onclick="closeModal()">Voltar</button><button class="btn btn-primary" id="modal-confirm">Confirmar solicitação</button></div></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+// ==========================================
+// 0. ISOLAMENTO SEGURO DE ARMAZENAMENTO (PREVINE TRAVAMENTOS)
+// ==========================================
+const safeStorage = {
+  get(key) {
+    try { return localStorage.getItem(key); } catch(e) { return null; }
+  },
+  set(key, val) {
+    try { localStorage.setItem(key, val); return true; } catch(e) { return false; }
+  },
+  remove(key) {
+    try { localStorage.removeItem(key); return true; } catch(e) { return false; }
+  }
+};
+
+// ==========================================
+// 1. IA NATIVA (REGRAS E AVALIAÇÃO OFFLINE)
+// ==========================================
+const NATIVE_AI_RULES = {
+  parvo: {
+    essentials: [
+      { regex: /fluidoter|hidrat|ringer|soro/i, foundMsg: "Prescreveu fluidoterapia/hidratação para combater desidratação e choque.", missingMsg: "Faltou prescrever fluidoterapia intravenosa/subcutânea essencial para reposição de perdas." },
+      { regex: /antiemétic|maropitant|ondansetron/i, foundMsg: "Incluiu antiemético para controle de vômitos e conforto.", missingMsg: "Não incluiu antiemético para cessar êmese e conter perdas." },
+      { regex: /antibiótico|cefalosporina|ampicilina|enroflox/i, foundMsg: "Incluiu antibioticoterapia de cobertura para conter translocação bacteriana.", missingMsg: "Recomenda-se antibiótico profilático devido à quebra de barreira intestinal e leucopenia." },
+      { regex: /isolam/i, foundMsg: "Indicou isolamento do paciente para prevenir contágio de outros animais.", missingMsg: "Lembre-se de indicar isolamento estrito (doença highly contagiosa)." }
+    ],
+    contraindicated: [
+      { regex: /corticoide|dexametasona|prednisol/i, msg: "Uso de corticoides em filhote com parvovirose é contraindicado (imunossupressão).", penalty: 2 }
+    ]
+  },
+  drc: {
+    essentials: [
+      { regex: /fluidoter|hidrat|água/i, foundMsg: "Priorizou a hidratação no paciente renal crônico.", missingMsg: "Pense no suporte hídrico contínuo para paciente poliúrico." },
+      { regex: /dieta|renal|fósforo/i, foundMsg: "Orientou dieta terapêutica renal e/ou quelante de fósforo.", missingMsg: "Faltou recomendar manejo nutricional específico (dieta renal / controle de fósforo)." },
+      { regex: /pressão|hipertens|amlodipin|ieca|benazepril/i, foundMsg: "Atentou-se para o controle da pressão arterial e lesão de órgão-alvo.", missingMsg: "Considere a mensuração e manejo da pressão arterial sistêmica." }
+    ],
+    contraindicated: [
+      { regex: /meloxicam|carprofeno|aine|anti-inflamatório não esteroide/i, msg: "AINEs são altamente nefrotóxicos em pacientes com Doença Renal Crônica!", penalty: 3 }
+    ]
+  },
+  piometra: {
+    essentials: [
+      { regex: /ovariohisterectomia|ohm|cirurg|oper/i, foundMsg: "Recomendou a intervenção cirúrgica (OHM), que é o tratamento definitivo.", missingMsg: "Piometra requer indicação cirúrgica urgente (OHM) após estabilização." },
+      { regex: /fluidoter|estabiliz|soro/i, foundMsg: "Incluiu fluidoterapia de estabilização pré-operatória.", missingMsg: "Faltou fluidoterapia para estabilização hemodinâmica antes da cirurgia." },
+      { regex: /antibiótico|amoxicilina|enroflox|metronidazol/i, foundMsg: "Prescreveu antibioticoterapia sistêmica.", missingMsg: "Requer antibioticoterapia para conter sepse e infecção uterina." }
+    ]
+  },
+  dermato: {
+    essentials: [
+      { regex: /ectoparasit|carrapato|pulga|isoxazolina|bravecto|simparic|nexgard/i, foundMsg: "Lembrou do controle rigoroso de ectoparasitas.", missingMsg: "O controle de ectoparasitas é pilar fundamental na dermatite alérgica." },
+      { regex: /shampoo|banho|citologia|antifúngico|clorexidina|malassezia/i, foundMsg: "Prescreveu terapia tópica ou combate a infecções secundárias.", missingMsg: "Considere terapia tópica / antisséptica para controlar disbiose cutânea." }
+    ]
+  },
+  cardio: {
+    essentials: [
+      { regex: /furosemida|diurétic/i, foundMsg: "Prescreveu diurético (furosemida) para manejo de congestão pulmonar.", missingMsg: "Faltou diurético para alívio do edema/congestão pulmonar." },
+      { regex: /pimobendan/i, foundMsg: "Incluiu inotrópico positivo (Pimobendan) para suporte miocárdico.", missingMsg: "Pimobendan é altamente recomendado para insuficiência cardíaca funcional." },
+      { regex: /oxigê|repouso/i, foundMsg: "Recomendou suporte de oxigênio e repouso estrito.", missingMsg: "Oriente repouso estrito e oxigenioterapia na crise." }
+    ],
+    contraindicated: [
+      { regex: /exercício|corrida|caminhada/i, msg: "Contraindicado exercício físico em paciente cardiopata descompensado e sincopal.", penalty: 2 }
+    ]
+  },
+  diabetes: {
+    essentials: [
+      { regex: /insulina|nph|glargina/i, foundMsg: "Prescreveu insulinoterapia para controle glicêmico.", missingMsg: "O pilar do tratamento do diabetes mellitus felino/canino é a insulinoterapia." },
+      { regex: /dieta|proteí|low carb|fibra/i, foundMsg: "Ajustou a dieta para controle de picos glicêmicos.", missingMsg: "Faltou orientação de dieta específica para diabéticos." },
+      { regex: /glicemia|curva|monitor/i, foundMsg: "Incluiu monitoramento contínuo de glicemia.", missingMsg: "Indique o monitoramento de curva glicêmica para ajuste de dose." }
+    ],
+    contraindicated: [
+      { regex: /corticoide|dexametasona|prednisol/i, msg: "Corticoides geram resistência à insulina e pioram severamente o quadro diabético!", penalty: 3 }
+    ]
+  },
+  trauma: {
+    essentials: [
+      { regex: /estabiliz|abc|oxigê|analges|opiói|tramadol|fentanil|metadona/i, foundMsg: "Priorizou analgesia e estabilização inicial do paciente traumatizado.", missingMsg: "Em trauma, priorize analgesia com opioides e estabilização de parâmetros vitais." },
+      { regex: /imobiliz|radiograf|rx/i, foundMsg: "Planejou investigação radiográfica após estabilização.", missingMsg: "Faltou planejar radiografia/imobilização do membro afetado." }
+    ]
+  },
+  equino: {
+    essentials: [
+      { regex: /locomotor|casco|palpação|bloqueio/i, foundMsg: "Conduziu avaliação de locomoção e exame minucioso de casco.", missingMsg: "Exame detalhado de casco e bloqueio anestésico são essenciais na claudicação de equinos." },
+      { regex: /repouso|gelo|crioter/i, foundMsg: "Prescreveu repouso e/ou crioterapia local.", missingMsg: "Recomende repouso e crioterapia no manejo inicial." }
+    ]
+  },
+  ave: {
+    essentials: [
+      { regex: /aquecim|calor|temperatura|30/i, foundMsg: "Orientou suporte térmico (aquecimento), vital para aves doentes.", missingMsg: "Aves doentes perdem calor rapidamente; o aquecimento é prioritário!" },
+      { regex: /oxigê|fluidoter/i, foundMsg: "Providenciou suporte hídrico e/ou respiratório.", missingMsg: "Faltou fluidoterapia aquecida e oxigenioterapia de suporte." }
+    ]
+  },
+  urinario: {
+    essentials: [
+      { regex: /desobstru|sonda|sondag|uretral/i, foundMsg: "Identificou a necessidade de desobstrução/sondagem uretral imediata.", missingMsg: "Se houver obstrução uretral, a sondagem/desobstrução sob sedação é emergencial!" },
+      { regex: /fluidoter|analges|prazosin/i, foundMsg: "Incluiu fluidoterapia e analgesia para o trato urinário.", missingMsg: "Associe fluidoterapia e alívio da dor (analgesia/espasmolítico)." }
+    ]
+  },
+  cushing_toby: {
+    essentials: [
+      { regex: /trilostano|mitotano/i, foundMsg: "Prescreveu medicação de escolha (Trilostano) para controle do cortisol.", missingMsg: "Faltou indicar o tratamento farmacológico específico (ex: Trilostano) para Cushing." },
+      { regex: /acth|cortisol|eletrólitos|monitor/i, foundMsg: "Planejou monitoramento através de teste de ACTH / eletrólitos.", missingMsg: "Lembre-se de agendar o teste de estimulação por ACTH para monitorar a dose." }
+    ],
+    contraindicated: [
+      { regex: /corticoide|prednisol|dexametasona/i, msg: "Corticoides exógenos pioram o quadro de hiperadrenocorticismo!", penalty: 3 }
+    ]
+  },
+  colica_trovao: {
+    essentials: [
+      { regex: /flunixin|analges|dipirona/i, foundMsg: "Prescreveu analgesia visceral (ex: Flunixin Meglumine).", missingMsg: "Faltou analgesia potente para controle da dor da cólica." },
+      { regex: /sondag|nasogástrica|óleo mineral|enteral|fluidoter/i, foundMsg: "Indicou sondagem e hidratação enteral/IV para desimpactar o cólon.", missingMsg: "Cólica por compactação exige hidratação enteral por sonda nasogástrica (com óleo mineral/laxante) e IV." }
+    ],
+    contraindicated: [
+      { regex: /ração|aliment|pasto/i, msg: "Manter o cavalo em jejum até a resolução da compactação; não oferecer alimento!", penalty: 2 }
+    ]
+  },
+  lipidose_garfield: {
+    essentials: [
+      { regex: /sonda|esofágica|nasoesofágica|nutriç/i, foundMsg: "Indicou colocação de sonda alimentar, pilar fundamental na lipidose felina.", missingMsg: "A colocação de sonda enteral (esofágica) é indispensável para reverter a lipidose felina." },
+      { regex: /fluidoter|antiemétic|maropitant|same|vitamina k/i, foundMsg: "Incluiu suporte hepático, fluidoterapia e controle de náuseas.", missingMsg: "Associe fluidoterapia, suporte hepático (SAMe) e antieméticos." }
+    ],
+    contraindicated: [
+      { regex: /forçar|seringa|boca/i, msg: "Forçar alimentação via oral com seringa em gato nauseado causa aversão alimentar grave!", penalty: 2 }
+    ]
+  },
+  ruptura_zeus: {
+    essentials: [
+      { regex: /cirurg|tplo|tta|estabiliz/i, foundMsg: "Recomendou correção cirúrgica (ex: TPLO/TTA) para o joelho.", missingMsg: "O tratamento definitivo para ruptura do LCCr em cães grandes é cirúrgico." },
+      { regex: /aine|analges|meloxicam|dipirona/i, foundMsg: "Incluiu analgesia e anti-inflamatório para controle da dor aguda.", missingMsg: "Prescreva analgesia e anti-inflamatórios na fase aguda." },
+      { regex: /peso|fisioter|repouso/i, foundMsg: "Orientou repouso restrito e manejo de peso.", missingMsg: "Oriente repouso absoluto de impacto e controle de peso." }
+    ]
+  },
+  distocia_juju: {
+    essentials: [
+      { regex: /cálcio|gluconato/i, foundMsg: "Prescreveu suplementação de cálcio para fortalecimento da contração uterina.", missingMsg: "A administração de cálcio iônico é vital para aves com retenção de ovo." },
+      { regex: /aquecim|calor|oxitocina|fluidoter/i, foundMsg: "Providenciou suporte térmico, oxitocina e fluidoterapia.", missingMsg: "Associe aquecimento, oxigenioterapia e aplicação de oxitocina/prostaglandina." }
+    ]
+  },
+  erliquiose_mel: {
+    essentials: [
+      { regex: /doxiciclina/i, foundMsg: "Prescreveu Doxiciclina, o antibiótico de escolha para Ehrlichia canis.", missingMsg: "Doxiciclina (10 mg/kg/dia por 28 dias) é o tratamento etiológico obrigatório." },
+      { regex: /carrapato|ectoparasit|bravecto|simparic/i, foundMsg: "Lembrou do controle ambiental e do vetor (carrapato).", missingMsg: "É indispensável prescrever antiparasitário contra carrapatos." }
+    ]
+  },
+  asma_mingau: {
+    essentials: [
+      { regex: /oxigê|oxigenioterapia/i, foundMsg: "Priorizou a oxigenioterapia emergencial.", missingMsg: "Em crise de asma felina, coloque o gato imediatamente na caixa de oxigênio." },
+      { regex: /broncodilatador|aerolin|salbutamol|terbutalina/i, foundMsg: "Prescreveu broncodilatador de ação rápida.", missingMsg: "Utilize broncodilatador inalatório ou injetável para aliviar o broncoespasmo." },
+      { regex: /corticoide|fluticasona|dexametasona|prednisol/i, foundMsg: "Prescreveu corticoide para combater a inflamação bronquial.", missingMsg: "Associe corticoide (inalatório ou sistêmico) para controle inflamatório." }
+    ]
+  },
+  cad_rex: {
+    essentials: [
+      { regex: /fluidoter|nacl|0\,9\%|soro/i, foundMsg: "Iniciou fluidoterapia intravenosa agressiva para reidratação e perfusão.", missingMsg: "A fluidoterapia venosa agressiva é o primeiro passo absoluto na Cetoacidose Diabética." },
+      { regex: /potássio|kcl|cloreto de potássio/i, foundMsg: "Atentou-se para a reposição de potássio (KCl) na fluidoterapia.", missingMsg: "CRÍTICO: A reposição de potássio é obrigatória antes/junto da insulina para evitar parada cardíaca!" },
+      { regex: /insulina|regular/i, foundMsg: "Indicou insulinoterapia de ação rápida (Regular) pós-hidratação.", missingMsg: "Use insulina regular em infusão contínua ou pequenas doses após iniciar hidratação." }
+    ]
+  },
+  ofidico_duque: {
+    essentials: [
+      { regex: /soro|antibotrópico|sam|sab/i, foundMsg: "Prescreveu Soro Antibotrópico (SAM/SAB) por via intravenosa.", missingMsg: "O único tratamento específico e eficaz é a soroterapia antibotrópica IV precoce!" },
+      { regex: /fluidoter|analges|tramadol|opioid/i, foundMsg: "Associou fluidoterapia de suporte e analgesia.", missingMsg: "Providencie fluidoterapia IV para proteger os rins e analgesia potente." }
+    ],
+    contraindicated: [
+      { regex: /torniquete|garrote|corte|sulco/i, msg: "ALERTA GRAVE: Torniquetes ou cortes no local aumentam a necrose e o risco de amputação!", penalty: 3 }
+    ]
+  },
+  cistite_simba: {
+    essentials: [
+      { regex: /analges|buprenorfina|gabapentina|dipirona/i, foundMsg: "Prescreveu analgesia adequada para dor vesical.", missingMsg: "A analgesia potente é o pilar principal no tratamento da Cistite Idiopática Felina." },
+      { regex: /ambiente|estresse|ração úmida|água|sachê/i, foundMsg: "Orientou manejo ambiental, redução de estresse e aumento do consumo hídrico.", missingMsg: "Recomende ração úmida, fontes de água e enriquecimento ambiental." }
+    ],
+    contraindicated: [
+      { regex: /antibiótico|enroflox|norflox|amoxicilina/i, msg: "Cistite idiopática felina em gatos jovens é inflamatória e estéril; evite uso empírico de antibióticos sem urocultura.", penalty: 1 }
+    ]
+  }
+};
+
+function evaluateWithNativeAI(caseData, prescription, reason, chosenIndex) {
+  const pText = (prescription || "").toLowerCase();
+  const rText = (reason || "").toLowerCase();
+  const fullText = pText + " " + rText;
+  
+  let score = 5; 
+  let strengths = [];
+  let omissions = [];
+  let risks = [];
+
+  if (pText.length > 20) score += 1;
+  
+  if (/monitor|reavali|frequên|acompanh|retorno|parâmetro|diurese|tpc/i.test(pText)) {
+    strengths.push("Incluiu plano de monitoramento e acompanhamento das funções vitais.");
+    score += 1;
+  } else {
+    omissions.push("Faltou descrever os parâmetros de monitoramento clínico (ex: TPC, FC, diurese, dor).");
+  }
+
+  const caseRule = NATIVE_AI_RULES[caseData.id];
+
+  if (caseRule) {
+    if (caseRule.essentials) {
+      caseRule.essentials.forEach(item => {
+        if (item.regex.test(fullText)) {
+          strengths.push(item.foundMsg);
+          score += 1.5;
+        } else {
+          omissions.push(item.missingMsg);
+          score -= 0.5;
+        }
+      });
+    }
+
+    if (caseRule.contraindicated) {
+      caseRule.contraindicated.forEach(item => {
+        if (item.regex.test(fullText)) {
+          risks.push(item.msg);
+          score -= (item.penalty || 2);
+        }
+      });
+    }
+  }
+
+  score = Math.max(0, Math.min(10, Math.round(score)));
+
+  let label = score >= 8 ? "Conduta Excelente (IA Nativa)" : (score >= 5 ? "Conduta Satisfatória (IA Nativa)" : "Conduta Requer Revisão (IA Nativa)");
+  let color = score >= 8 ? "green" : (score >= 5 ? "yellow" : "red");
+
+  let feedbackHtml = `
+    <strong>Avaliação da IA Nativa do VetSim:</strong><br>
+    ${strengths.length ? `<br>✅ <strong>Pontos Fortes:</strong> <ul style="margin:4px 0; padding-left:20px;">${strengths.map(s => `<li>${s}</li>`).join('')}</ul>` : ''}
+    ${omissions.length ? `<br>⚠️ <strong>Pontos de Melhoria:</strong> <ul style="margin:4px 0; padding-left:20px;">${omissions.map(o => `<li>${o}</li>`).join('')}</ul>` : ''}
+    ${risks.length ? `<br>🚨 <strong>Alertas de Segurança:</strong> <ul style="margin:4px 0; padding-left:20px;">${risks.map(r => `<li>${r}</li>`).join('')}</ul>` : ''}
+    <br>💡 <strong>Síntese do Caso:</strong> ${caseData.feedback}
+  `;
+
+  return { score, label, color, feedback: feedbackHtml };
+}
+
+// ==========================================
+// 2. BANCO DE CASOS CLÍNICOS (20 CASOS COMPLETOS)
+// ==========================================
+const CASES = [
+  {
+    id:"parvo",title:"Diarreia hemorrágica em filhote",patient:"Buster",species:"Cão",breed:"SRD",age:"4 meses",sex:"Macho",weight:"3 kg",emoji:"🐶",specialty:"Gastroenterologia",level:"Intermediário",
+    history:"Vômitos há dois dias, recusa alimentar e diarreia com sangue e odor intenso. Vacinação incompleta: recebeu apenas uma dose de vacina múltipla. Tutor relata apatia desde ontem.",
+    physical:[["Estado mental","Deprimido"],["Temperatura","39,8 °C"],["Frequência cardíaca","160 bpm"],["Mucosas / TPC","Hipocoradas e secas / 3 s"],["Hidratação","Desidratação estimada em 8%"],["Abdômen","Dor leve a moderada"]],
+    diagnoses:["Parvovirose canina","Corpo estranho intestinal","Parasitose gastrointestinal grave","Intoxicação"],correct:0,
+    exams:[
+      {name:"Teste de antígeno para parvovírus",category:"Infeccioso",indication:"Investigar doença viral em filhote com vacinação incompleta e sinais gastrointestinais",score:10,color:"green",result:"Antígeno de parvovírus detectado na amostra fecal.",feedback:"Alta pertinência neste contexto. Isolamento e avaliação de gravidade são importantes.",key:true},
+      {name:"Hemograma completo",category:"Hematologia",indication:"Avaliar alterações hematológicas e gravidade sistêmica",score:9,color:"green",result:"Leucopenia importante (2.500/µL) e hematócrito de 55%, compatível com hemoconcentração no contexto descrito.",feedback:"Ajuda a avaliar gravidade e orientar monitoramento.",key:true},
+      {name:"Radiografia abdominal",category:"Imagem",indication:"Pesquisar possível obstrução ou corpo estranho se houver suspeita clínica",score:6,color:"yellow",result:"Conteúdo líquido e gasoso em alças; sem sinal radiográfico conclusivo de obstrução.",feedback:"Pode ser útil para diferenciais, mas não substitui investigação infecciosa prioritária.",key:false},
+      {name:"Painel neurológico avançado",category:"Especializado",indication:"Investigação de sinais neurológicos",score:0,color:"red",result:"Sem achados que justifiquem o painel neste momento.",feedback:"Baixa pertinência: não foram descritos sinais neurológicos focais.",key:false},
+      {name:"Bioquímica e eletrólitos",category:"Laboratório",indication:"Avaliar alterações metabólicas e perdas por vômito/diarreia",score:8,color:"green",result:"Achados simulados: alterações compatíveis com desidratação e perdas gastrointestinais; interpretar com o quadro clínico.",feedback:"Pode orientar estabilização e monitoramento.",key:false}
+    ],
+    feedback:"O cenário é compatível com parvovirose, uma condição potencialmente grave que exige avaliação veterinária urgente, isolamento, suporte e monitoramento."
+  },
+  {
+    id:"drc",title:"Perda de peso e poliúria em gata idosa",patient:"Mia",species:"Felino",breed:"Siamês",age:"12 anos",sex:"Fêmea castrada",weight:"3,5 kg",emoji:"🐱",specialty:"Nefrologia",level:"Intermediário",
+    history:"Perda de peso progressiva, aumento da ingestão de água e do volume urinário há meses. Vômitos esporádicos e apetite variável.",
+    physical:[["Estado mental","Alerta"],["Temperatura","38,2 °C"],["Frequência cardíaca","180 bpm"],["Mucosas","Levemente hipocoradas"],["Escore corporal","2/5"],["Palpação renal","Rins pequenos e irregulares"]],
+    diagnoses:["Doença renal crônica","Diabetes mellitus","Hipertireoidismo","Doença gastrointestinal crônica"],correct:0,
+    exams:[
+      {name:"Bioquímica renal",category:"Laboratório",indication:"Avaliar ureia, creatinina e outros marcadores conforme o contexto",score:10,color:"green",result:"Ureia e creatinina aumentadas no cenário simulado.",feedback:"Relevante, mas a azotemia isolada não estabelece sozinha o diagnóstico ou estágio.",key:true},
+      {name:"Urinálise com densidade urinária",category:"Laboratório",indication:"Investigar capacidade de concentração e alterações urinárias",score:10,color:"green",result:"Densidade urinária simulada de 1.012, com concentração inadequada.",feedback:"Ajuda a contextualizar azotemia e sinais urinários.",key:true},
+      {name:"T4 total",category:"Endocrinologia",indication:"Investigar hipertireoidismo em gato idoso com perda de peso",score:8,color:"green",result:"T4 total dentro do intervalo de referência deste cenário.",feedback:"Pertinente para um diferencial importante em felinos idosos.",key:false},
+      {name:"Ecocardiograma",category:"Imagem",indication:"Avaliação cardíaca se houver indicação clínica específica",score:2,color:"red",result:"Sem indicação primária a partir dos dados fornecidos.",feedback:"Não é prioritário sem achados cardíacos que justifiquem a investigação.",key:false},
+      {name:"Pressão arterial",category:"Monitoramento",indication:"Avaliar hipertensão sistêmica associada a doença renal",score:9,color:"green",result:"Pressão arterial sistólica simulada de 170 mmHg.",feedback:"Importante na avaliação de possível doença renal e lesões de órgão-alvo.",key:false}
+    ],
+    feedback:"O conjunto sustenta doença renal crônica. Exige avaliação veterinária completa, repetição de exames e acompanhamento."
+  },
+  {
+    id:"piometra",title:"Corrimento vaginal após o cio",patient:"Luna",species:"Cão",breed:"Poodle",age:"9 anos",sex:"Fêmea não castrada",weight:"8 kg",emoji:"🐶",specialty:"Emergência / Reprodução",level:"Avançado",
+    history:"Letargia intensa, aumento de sede e urina, corrimento vaginal sanguinolento/purulento há três dias. Último cio há cerca de seis semanas.",
+    physical:[["Estado mental","Prostrada"],["Temperatura","40,2 °C"],["Frequência cardíaca","150 bpm"],["Abdômen","Tenso e dolorido"],["Secreção","Vaginal, fétida"],["Risco clínico","Possível doença sistêmica grave"]],
+    diagnoses:["Piometra de cérvix aberta","Cistite bacteriana","Vaginite","Doença renal aguda"],correct:0,
+    exams:[
+      {name:"Ultrassonografia abdominal",category:"Imagem",indication:"Investigar útero e conteúdo abdominal",score:10,color:"green",result:"Útero distendido com conteúdo intraluminal, achado fortemente sugestivo.",feedback:"Exame de alta pertinência para investigar a suspeita.",key:true},
+      {name:"Hemograma e perfil bioquímico",category:"Laboratório",indication:"Avaliar inflamação, repercussão sistêmica e parâmetros pré-terapêuticos",score:10,color:"green",result:"Leucocitose importante com desvio à esquerda no hemograma.",feedback:"Ajuda a avaliar gravidade, mas não deve atrasar a estabilização.",key:true},
+      {name:"Avaliação de perfusão e pressão arterial",category:"Monitoramento",indication:"Investigar estabilidade hemodinâmica",score:9,color:"green",result:"Dados simulados sugerem necessidade de monitoramento seriado.",feedback:"Importante em paciente potencialmente instável.",key:false},
+      {name:"Cistocentese sem orientação por imagem",category:"Procedimento",indication:"Coleta urinária",score:0,color:"red",result:"Não recomendada neste cenário de útero distendido.",feedback:"Risco de perfuração uterina acidental.",key:false}
+    ],
+    feedback:"Piometra é uma emergência emergencial. A paciente necessita de avaliação imediata, estabilização e intervenção cirúrgica."
+  },
+  {
+    id:"dermato",title:"Prurido crônico e lesões de pele",patient:"Max",species:"Cão",breed:"Pug",age:"3 anos",sex:"Macho",weight:"9 kg",emoji:"🐶",specialty:"Dermatologia",level:"Básico",
+    history:"Prurido intenso, vermelhidão e queda de pelo no abdômen, axilas e patas há dois meses. Tutor relata piora sazonal e lambedura frequente.",
+    physical:[["Estado geral","Alerta"],["Pele","Eritema e escoriações"],["Distribuição","Axilas, virilha e interdígitos"],["Pelagem","Alopecia localizada"],["Prurido","Intenso"]],
+    diagnoses:["Dermatite alérgica / atópica com diferenciais","Sarna sarcóptica","Demodicose","Dermatofitose"],correct:0,
+    exams:[
+      {name:"Citologia cutânea",category:"Dermatologia",indication:"Investigar microrganismos e infecção secundária",score:10,color:"green",result:"Cocos bacterianos e leveduras compatíveis com Malassezia.",feedback:"Ajuda a identificar fatores que agravam o prurido.",key:true},
+      {name:"Raspado cutâneo",category:"Dermatologia",indication:"Pesquisar ácaros conforme suspeita",score:9,color:"green",result:"Não foram observados ácaros na amostra.",feedback:"Pertinente para descartar ectoparasitoses.",key:true}
+    ],
+    feedback:"O cenário sugere doença alérgica com infecção secundária. Requer controle parasitário rigoroso e terapia tópica."
+  },
+  {
+    id:"cardio",title:"Tosse e intolerância ao exercício",patient:"Thor",species:"Cão",breed:"Boxer",age:"8 anos",sex:"Macho",weight:"28 kg",emoji:"🐶",specialty:"Cardiologia",level:"Avançado",
+    history:"Cansaço fácil, episódios de desmaio após exercício e tosse noturna. O tutor percebe redução da disposição nas últimas semanas.",
+    physical:[["Estado mental","Alerta, cansado"],["Ausculta","Sopro sistólico descrito"],["Pulso femoral","Fraco no cenário"],["Sinal de alerta","Histórico de síncope"]],
+    diagnoses:["Doença cardíaca estrutural com possível congestão","Pneumonia","Dirofilariose","Colapso de traqueia"],correct:0,
+    exams:[
+      {name:"Ecocardiograma",category:"Cardiologia",indication:"Caracterizar estrutura, função e fluxo cardíaco",score:10,color:"green",result:"Alterações estruturais e regurgitação valvar simuladas.",feedback:"Exame central para caracterização de doença cardíaca.",key:true},
+      {name:"Radiografias torácicas",category:"Imagem",indication:"Avaliar silhueta cardíaca e pulmões",score:9,color:"green",result:"Cardiomegalia e padrão pulmonar intersticial simulados.",feedback:"Ajuda a investigar congestão e diagnósticos diferenciais.",key:true}
+    ],
+    feedback:"Síncope e sinais respiratórios requerem avaliação cardiológica completa e controle de congestão."
+  },
+  {
+    id:"diabetes",title:"Poliúria, polidipsia e emagrecimento",patient:"Nina",species:"Felino",breed:"Doméstica de pelo curto",age:"10 anos",sex:"Fêmea castrada",weight:"4,2 kg",emoji:"🐱",specialty:"Endocrinologia",level:"Intermediário",
+    history:"Aumento da ingestão de água e urina, perda de peso apesar de apetite aumentado.",
+    physical:[["Estado mental","Alerta"],["Condição corporal","Perda de peso recente"],["Hidratação","Levemente reduzida"]],
+    diagnoses:["Diabetes mellitus","Doença renal crônica","Hipertireoidismo","Doença gastrointestinal"],correct:0,
+    exams:[
+      {name:"Glicemia e avaliação confirmatória",category:"Laboratório",indication:"Investigar hiperglicemia",score:10,color:"green",result:"Hiperglicemia persistente simulada.",feedback:"Importante para confirmar o diagnóstico.",key:true},
+      {name:"Urinálise",category:"Laboratório",indication:"Pesquisar glicosúria e cetonas",score:10,color:"green",result:"Glicosúria simulada; cetonas ausentes.",feedback:"Complementa a investigação de diabetes e complicações.",key:true}
+    ],
+    feedback:"Diabetes mellitus felino requer manejo dietético e insulinoterapia monitorada."
+  },
+  {
+    id:"trauma",title:"Trauma após queda",patient:"Pipoca",species:"Cão",breed:"SRD",age:"2 anos",sex:"Fêmea",weight:"12 kg",emoji:"🐶",specialty:"Emergência",level:"Avançado",
+    history:"Encontrada após queda de altura. Está assustada, não quer apoiar um membro e apresenta respiração acelerada.",
+    physical:[["Estado mental","Responsiva, ansiosa"],["Respiração","Aumentada"],["Locomoção","Não apoia membro"]],
+    diagnoses:["Trauma multissistêmico com lesão ortopédica possível","Fratura isolada sem outras lesões","Lesão neurológica primária"],correct:0,
+    exams:[
+      {name:"Avaliação primária e monitoramento",category:"Emergência",indication:"Identificar rapidamente comprometimento sistêmico",score:10,color:"green",result:"Necessidade de estabilização e analgesia.",feedback:"A avaliação primária precede exames radiográficos.",key:true},
+      {name:"Radiografias direcionadas após estabilização",category:"Imagem",indication:"Investigar lesão ortopédica",score:9,color:"green",result:"Imagem simulada sugere fratura de membro.",feedback:"Pertinente após priorizar estabilidade e dor.",key:true}
+    ],
+    feedback:"Trauma exige priorizar estabilização, oxigenioterapia, analgesia e controle de choque."
+  },
+  {
+    id:"equino",title:"Claudicação após exercício",patient:"Estrela",species:"Equino",breed:"Quarto de Milha",age:"7 anos",sex:"Fêmea",weight:"450 kg",emoji:"🐴",specialty:"Grandes animais",level:"Intermediário",
+    history:"Apresenta claudicação de início recente após exercício em pista. Piora ao caminhar em piso duro.",
+    physical:[["Estado geral","Alerta"],["Apoio","Assimétrico em um membro"],["Casco","Inspecionar cuidadosamente"]],
+    diagnoses:["Claudicação musculoesquelética a localizar","Abscesso de casco","Lesão tendínea/ligamentar"],correct:0,
+    exams:[
+      {name:"Exame locomotor sistemático",category:"Exame clínico",indication:"Localizar membro e região provável da dor",score:10,color:"green",result:"Claudicação consistente no membro anterior esquerdo.",feedback:"Base do diagnóstico em equinos.",key:true},
+      {name:"Inspeção e avaliação do casco",category:"Exame clínico",indication:"Pesquisar calor, pulso digital e sensibilidade",score:9,color:"green",result:"Sensibilidade localizada no casco simulada.",feedback:"Exame direcionado e de alta utilidade inicial.",key:true}
+    ],
+    feedback:"Claudicação requer localização precisa através de palpação, pinça de casco e exames locomotores."
+  },
+  {
+    id:"ave",title:"Ave com apatia e penas eriçadas",patient:"Kiwi",species:"Ave",breed:"Calopsita",age:"3 anos",sex:"Não determinado",weight:"95 g",emoji:"🦜",specialty:"Medicina de aves",level:"Avançado",
+    history:"Redução da vocalização, penas eriçadas e menor consumo de alimento desde ontem.",
+    physical:[["Comportamento","Apatia"],["Plumagem","Penas eriçadas"],["Apetite","Reduzido"]],
+    diagnoses:["Doença sistêmica a investigar com prioridade","Alteração nutricional","Doença gastrointestinal/infecciosa"],correct:0,
+    exams:[
+      {name:"Avaliação clínica por veterinário de aves",category:"Exame clínico",indication:"Avaliar condição geral, peso e manejo",score:10,color:"green",result:"Necessidade de aquecimento e suporte nutricional.",feedback:"História ambiental e exame adaptado à espécie são essenciais.",key:true}
+    ],
+    feedback:"Aves doentes ocultam sinais até estados avançados. Aquecimento e suporte térmico são urgentes."
+  },
+  {
+    id:"urinario",title:"Esforço para urinar",patient:"Simba",species:"Felino",breed:"Doméstico de pelo curto",age:"5 anos",sex:"Macho castrado",weight:"5,8 kg",emoji:"🐱",specialty:"Urologia / Emergência",level:"Avançado",
+    history:"Vai repetidamente à caixa de areia, vocaliza e elimina pouco ou nenhum volume de urina.",
+    physical:[["Comportamento","Agitação e vocalização"],["Caixa de areia","Tentativas frequentes"],["Risco","Obstrução urinária possível"]],
+    diagnoses:["Obstrução uretral possível","Cistite idiopática felina sem obstrução","Infecção urinária"],correct:0,
+    exams:[
+      {name:"Avaliação de emergência e palpação veterinária",category:"Emergência",indication:"Avaliar possível obstrução e estabilidade",score:10,color:"green",result:"Excluir obstrução e avaliar repetição imediata.",feedback:"Prioridade máxima diante de suspeita de obstrução.",key:true},
+      {name:"Eletrólitos e função renal",category:"Laboratório",indication:"Avaliar desequilíbrios renais e hipercalemia",score:10,color:"green",result:"Potássio elevado no cenário simulado.",feedback:"Importante para orientar a estabilização cardiorrenal.",key:true}
+    ],
+    feedback:"Esforço improdutivo em gatos machos é emergência letal. Requer desobstrução sob sedação e analgesia."
+  },
+  {
+    id: "cushing_toby", title: "Sede excessiva e perda de pelo", patient: "Toby", species: "Cão", breed: "Poodle", age: "10 anos", sex: "Macho castrado", weight: "12 kg", emoji: "🐶", specialty: "Endocrinologia", level: "Intermediário",
+    history: "Tutor relata que Toby está bebendo muita água (polidipsia), urinando pela casa toda (poliúria) e comendo desesperadamente. Nos últimos meses, o pelo nas costas caiu e a barriga parece muito inchada. Sem coceira.",
+    physical: [["Estado mental", "Alerta"], ["Pele", "Alopecia simétrica no tronco, pele fina"], ["Abdômen", "Distendido e pendular; hepatomegalia"]],
+    diagnoses: ["Hiperadrenocorticismo (Síndrome de Cushing)", "Hipotireoidismo", "Diabetes Mellitus"], correct: 0,
+    exams: [
+      { name: "Teste de Supressão por baixa dose de Dexametasona", category: "Endocrinologia", indication: "Confirmar suspeita de Cushing", score: 10, color: "green", result: "Fuga da supressão em 8 horas.", feedback: "Padrão-ouro para confirmar Cushing.", key: true },
+      { name: "Ultrassonografia Abdominal", category: "Imagem", indication: "Avaliar adrenais e fígado", score: 9, color: "green", result: "Hepatomegalia, adrenais aumentadas assimetricamente.", feedback: "Avalia glândulas adrenais e parênquima hepático.", key: true }
+    ],
+    feedback: "Quadro clássico de Hiperadrenocorticismo. Requer tratamento com Trilostano e monitoramento contínuo."
+  },
+  {
+    id: "colica_trovao", title: "Cavalo rolando de dor no piquete", patient: "Trovão", species: "Equino", breed: "Mangalarga Marchador", age: "8 anos", sex: "Macho", weight: "420 kg", emoji: "🐴", specialty: "Gastroenterologia", level: "Intermediário",
+    history: "Encontrado suado, deitando e rolando no chão. Olha para o flanco direito e raspa o chão. Não defeca desde ontem.",
+    physical: [["FC/FR", "60 bpm, 24 mpm"], ["Mucosas", "Congestas, TPC 2,5s"], ["Ausculta", "Hipomotilidade severa à direita"]],
+    diagnoses: ["Compactação de cólon maior", "Deslocamento de cólon", "Enterite proximal"], correct: 0,
+    exams: [
+      { name: "Palpação retal", category: "Exame Clínico", indication: "Avaliar estruturas abdominais caudais", score: 10, color: "green", result: "Massa de fezes ressecadas preenchendo a flexura pélvica.", feedback: "Exame prioritário na síndrome cólica de equinos.", key: true },
+      { name: "Sondagem nasogástrica", category: "Procedimento", indication: "Descomprimir estômago e tratar", score: 10, color: "green", result: "Sem refluxo gástrico significativo.", feedback: "Fundamental para aliviar pressão e administrar hidratação enteral.", key: true }
+    ],
+    feedback: "Cólica por compactação. Requer analgesia potente, hidratação enteral por sonda e fluidoterapia IV."
+  },
+  {
+    id: "lipidose_garfield", title: "Gato obeso que parou de comer", patient: "Garfield", species: "Felino", breed: "SRD", age: "6 anos", sex: "Macho castrado", weight: "7,5 kg", emoji: "🐱", specialty: "Gastroenterologia", level: "Avançado",
+    history: "Gato escondido debaixo da cama há 4 dias após mudança de rotina. Não come nada e vomitou amarelado hoje.",
+    physical: [["Mucosas", "Ictéricas"], ["Escore", "Obeso com perda muscular dorsal"], ["Palpação", "Hepatomegalia"]],
+    diagnoses: ["Lipidose Hepática Felina", "Colangio-hepatite", "Tríadite felina"], correct: 0,
+    exams: [
+      { name: "Bioquímica sérica (FA, ALT, Bilirrubinas)", category: "Laboratório", indication: "Avaliar lesão e função hepática", score: 10, color: "green", result: "Elevação severa de FA e Bilirrubina com GGT preservada.", feedback: "Padrão clássico de lipidose hepática felina.", key: true },
+      { name: "Ultrassonografia abdominal", category: "Imagem", indication: "Avaliar fígado e vesícula biliar", score: 9, color: "green", result: "Fígado difusamente hiperecogênico.", feedback: "Descarta obstruções biliares extra-hepáticas.", key: true }
+    ],
+    feedback: "Lipidose hepática felina secundária à anorexia. Colocação de sonda alimentar (esofágica) é indispensável."
+  },
+  {
+    id: "ruptura_zeus", title: "Cão manca após pular para pegar a bola", patient: "Zeus", species: "Cão", breed: "Labrador", age: "4 anos", sex: "Macho", weight: "35 kg", emoji: "🐶", specialty: "Ortopedia", level: "Básico",
+    history: "Ao dar um salto para pegar a bola, deu um ganido e passou a andar sem apoiar a patinha traseira direita.",
+    physical: [["Locomoção", "Claudicação grau 4/4 em MPD"], ["Testes", "Gaveta cranial e compressão tibial positivos"]],
+    diagnoses: ["Ruptura do Ligamento Cruzado Cranial", "Luxação de patela", "Fratura femoral"], correct: 0,
+    exams: [
+      { name: "Exame Ortopédico Específico", category: "Clínico", indication: "Avaliar instabilidade articular", score: 10, color: "green", result: "Movimento de gaveta cranial positivo.", feedback: "Diagnóstico ortopédico primariamente clínico.", key: true },
+      { name: "Radiografia de joelho", category: "Imagem", indication: "Avaliar articulação e efusão", score: 8, color: "green", result: "Deslocamento tibial cranial e efusão articular.", feedback: "Planejamento cirúrgico e descarte de fraturas.", key: true }
+    ],
+    feedback: "Ruptura do LCCr. Correção cirúrgica (TPLO/TTA), analgesia e controle de peso são indicados."
+  },
+  {
+    id: "distocia_juju", title: "Ave com esforço e penas arrepiadas", patient: "Juju", species: "Ave", breed: "Calopsita", age: "4 anos", sex: "Fêmea", weight: "90 g", emoji: "🦜", specialty: "Animais Silvestres", level: "Avançado",
+    history: "Fundo de gaiola há 2 dias com penas eriçadas. Faz esforço abdominal frequente. Dieta exclusiva de sementes.",
+    physical: [["Estado", "Fraqueza e depressão"], ["Palpação", "Massa firme e arredondada no celoma caudal"]],
+    diagnoses: ["Retenção de ovo (Distocia)", "Tumor ovariano", "Peritonite por gema"], correct: 0,
+    exams: [
+      { name: "Radiografia celomática", category: "Imagem", indication: "Identificar ovo retido", score: 10, color: "green", result: "Estrutura radiopaca compatível com ovo na cloaca.", feedback: "Confirma a retenção e estrutura do ovo.", key: true },
+      { name: "Cálcio Iônico Sanguíneo", category: "Laboratório", indication: "Avaliar hipocalcemia", score: 8, color: "green", result: "Hipocalcemia acentuada.", feedback: "Justifica a falha de contração do oviduto.", key: true }
+    ],
+    feedback: "Retenção de ovo. Emergência que requer suplementação de cálcio, aquecimento e oxitocina/prostaglandina."
+  },
+  {
+    id: "erliquiose_mel", title: "Febre, sangramento nasal e carrapatos", patient: "Mel", species: "Cão", breed: "Golden Retriever", age: "2 anos", sex: "Fêmea", weight: "25 kg", emoji: "🐶", specialty: "Infectologia", level: "Básico",
+    history: "Histórico de carrapatos após viagem. Apresenta febre, apatia e sangramento no focinho (epistaxe) hoje.",
+    physical:[["Temperatura", "40,3 °C"], ["Mucosas", "Pálidas com petéquias"], ["Linfonodos", "Aumentados"]],
+    diagnoses: ["Erliquiose Canina", "Intoxicação por raticida", "Leishmaniose"], correct: 0,
+    exams: [
+      { name: "Hemograma com Esfregaço", category: "Laboratório", indication: "Avaliar plaquetas e pesquisa de mórulas", score: 10, color: "green", result: "Trombocitopenia severa (30k) e mórulas de E. canis.", feedback: "Essencial para identificar hemoparasitas e trombocitopenia.", key: true },
+      { name: "PCR / Teste Sorológico 4Dx", category: "Laboratório", indication: "Confirmação etiológica", score: 10, color: "green", result: "Reativo para Ehrlichia canis.", feedback: "Confirma a infecção por Ehrlichia.", key: true }
+    ],
+    feedback: "Erliquiose canina em fase aguda. Tratamento etiológico com Doxiciclina e controle rigoroso de carrapatos."
+  },
+  {
+    id: "asma_mingau", title: "Crises de tosse e falta de ar após reforma", patient: "Mingau", species: "Felino", breed: "Siamês", age: "3 anos", sex: "Macho castrado", weight: "4 kg", emoji: "🐱", specialty: "Pneumologia", level: "Intermediário",
+    history: "Poeira de reforma deflagrou crises de tosse seca e agachada. Apresenta respiração de boca aberta e mucosa azulada.",
+    physical: [["Respiração", "Taquipneia severa com esforço expiratório"], ["Ausculta", "Sibilos bilaterais"], ["Mucosas", "Cianóticas"]],
+    diagnoses: ["Asma Felina", "Pneumonia", "Insuficiência Cardíaca"], correct: 0,
+    exams: [
+      { name: "Estabilização com Oxigênio", category: "Emergência", indication: "Estabilizar dispneia antes de exames", score: 10, color: "green", result: "Melhora do padrão respiratório com O2 e broncodilatador.", feedback: "Prioridade absoluta antes de qualquer manipulação estressante.", key: true },
+      { name: "Radiografia Torácica (Pós-estabilização)", category: "Imagem", indication: "Avaliar padrão bronquial", score: 10, color: "green", result: "Padrão bronquial difuso (aspecto de rosquinhas/trilhos).", feedback: "Confirma padrão obstrutivo crônico/alérgico.", key: true }
+    ],
+    feedback: "Crise de asma felina. Requer oxigenioterapia, broncodilatadores, corticoides e eliminação do alérgeno."
+  },
+  {
+    id: "cad_rex", title: "Diabético vomitando com hálito estranho", patient: "Rex", species: "Cão", breed: "Schnauzer", age: "8 anos", sex: "Macho", weight: "8 kg", emoji: "🐶", specialty: "Intensiva", level: "Avançado",
+    history: "Diabético com falhas nas aplicações de insulina. Apresenta vômitos repetidos, prostração grave e hálito cetônico.",
+    physical: [["Estado", "Estupor / Desidratação grave (11%)"], ["Respiração", "Profunda e acelerada (Kussmaul)"]],
+    diagnoses: ["Cetoacidose Diabética (CAD)", "Pancreatite Aguda", "Insuficiência Renal Aguda"], correct: 0,
+    exams: [
+      { name: "Glicemia, Gasometria e Cetonas", category: "Emergência", indication: "Avaliar tríade de cetoacidose", score: 10, color: "green", result: "Glicose >500 mg/dL, pH 7.1 e cetonúria acentuada.", feedback: "Confirma Cetoacidose Diabética.", key: true },
+      { name: "Bioquímica e Eletrólitos", category: "Laboratório", indication: "Avaliar potássio e função renal", score: 10, color: "green", result: "Hipocalemia e uremia pré-renal.", feedback: "Fundamental para o planejamento de reposição eletrolítica.", key: true }
+    ],
+    feedback: "Cetoacidose Diabética. Prioridade é hidratação venosa agressiva e suplementação de potássio antes da insulina."
+  },
+  {
+    id: "ofidico_duque", title: "Focinho inchado e sangrando no sítio", patient: "Duque", species: "Cão", breed: "Fila Brasileiro", age: "3 anos", sex: "Macho", weight: "45 kg", emoji: "🐶", specialty: "Toxicologia", level: "Avançado",
+    history: "Voltou do mato com edema facial de rápida progressão, dor intensa e duas marcas de dentes sangrando ativamente.",
+    physical: [["Edema", "Extenso e firme na face"], ["Coagulação", "Sangramento contínuo na gengiva e picadas"]],
+    diagnoses: ["Acidente ofídico Botrópico", "Acidente Crotálico", "Picada de abelhas"], correct: 0,
+    exams: [
+      { name: "Tempo de Coagulação (TC)", category: "Emergência", indication: "Avaliar consumo de fatores de coagulação", score: 10, color: "green", result: "Sangue incoagulável (>30 min).", feedback: "Confirma ação proteolítica/coagulante do veneno botrópico.", key: true },
+      { name: "Hemograma Completo", category: "Laboratório", indication: "Avaliar anemia e plaquetopenia", score: 9, color: "green", result: "Trombocitopenia e anemia hemolítica.", feedback: "Manejo e monitoramento de sangramentos.", key: true }
+    ],
+    feedback: "Envenenamento por Bothrops (Jararaca). Aplicação rápida de Soro Antibotrópico (SAM) IV e analgesia."
+  },
+  {
+    id: "cistite_simba", title: "Gato vocalizando na caixa de areia", patient: "Simba", species: "Felino", breed: "SRD", age: "4 anos", sex: "Macho castrado", weight: "5 kg", emoji: "🐱", specialty: "Urologia", level: "Básico",
+    history: "Inquieto após ausência do tutor. Vai à caixa várias vezes, chora e elimina gotas de urina com sangue.",
+    physical: [["Palpação", "Bexiga VAZIA, pequena e rígida ao toque"], ["Estado", "Alerta e hidratação normal"]],
+    diagnoses: ["Cistite Idiopática Felina (DTUIF)", "Obstrução Uretral", "Urolitíase"], correct: 0,
+    exams: [
+      { name: "Palpação Vesical Direta", category: "Clínico", indication: "Diferenciar de obstrução uretral", score: 10, color: "green", result: "Bexiga pequena e vazia. Sem distensão.", feedback: "Passo mais importante para descartar emergência de obstrução.", key: true },
+      { name: "Urinálise Completa", category: "Laboratório", indication: "Identificar hematúria e cristais", score: 9, color: "green", result: "Hematúria sem bacteriúria.", feedback: "Confirma inflamação vesical estéril por estresse.", key: true }
+    ],
+    feedback: "Cistite Idiopática Felina não-obstrutiva. Tratamento focado em analgesia, enriquecimento ambiental e ração úmida."
+  }
+];
+
+// ==========================================
+// 3. ESTADO DA APLICAÇÃO E LÓGICA DO SIMULADOR
+// ==========================================
+let appState = { started: 0, completed: 0, totalScore: 0, history: [] };
+let activeCase = null, session = null, pendingExam = null, apiKey = "";
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s??"").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+function loadState(){
+  const sRaw = safeStorage.get("vetsim_v2_state");
+  if(sRaw) {
+    try {
+      const s = JSON.parse(sRaw);
+      if(s && Array.isArray(s.history)) appState = { ...appState, ...s };
+    } catch(e){}
+  }
+  
+  const savedKey = safeStorage.get("vetsim_gemini_key") || "";
+  if(savedKey){
+    apiKey = savedKey;
+    if($("gemini-key")) $("gemini-key").value = savedKey;
+  }
+}
+
+function saveState(){
+  safeStorage.set("vetsim_v2_state", JSON.stringify(appState));
+  updateDashboard();
+  renderHistory();
+}
+
+function toast(msg){
+  const t = $("toast");
+  if(!t) return;
+  t.textContent = msg;
+  t.style.display = "block";
+  clearTimeout(toast.timer);
+  toast.timer = setTimeout(() => t.style.display = "none", 3500);
+}
+
+function navigate(view){
+  try {
+    document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
+    const target = $("view-" + view);
+    if(target) target.classList.add("active");
+    
+    document.querySelectorAll(".nav button").forEach(b => {
+      b.classList.toggle("active", b.dataset.view === view);
+    });
+
+    const meta = {
+      dashboard: ["CENTRO DE SIMULAÇÃO", "Bom dia, futuro(a) veterinário(a).", "Pratique o raciocínio clínico, uma decisão de cada vez."],
+      library: ["BIBLIOTECA", "Escolha seu próximo caso.", "Cada paciente tem uma história, achados e desafios próprios."],
+      consult: ["ATENDIMENTO CLÍNICO", "Atendimento em andamento", "Investigue, justifique e aprenda com suas decisões."],
+      history: ["REGISTROS", "Prontuários e desempenho", "Consulte atendimentos concluídos neste navegador."],
+      ai: ["APRENDIZAGEM ASSISTIDA", "Tutor clínico com IA", "Explore hipóteses e interpretações com apoio educacional."],
+      settings: ["PREFERÊNCIAS", "Configurações e dados", "Gerencie seu progresso e suas cópias de segurança."]
+    }[view] || ["SISTEMA", "VetSim", "Simulador Veterinário"];
+
+    if($("page-eyebrow")) $("page-eyebrow").textContent = meta[0];
+    if($("page-title")) $("page-title").textContent = meta[1];
+    if($("page-subtitle")) $("page-subtitle").textContent = meta[2];
+
+    if(view === "library") renderLibrary();
+    if(view === "history") renderHistory();
+    if(view === "dashboard") updateDashboard();
+  } catch(e) {
+    console.error("Erro ao navegar:", e);
+  }
+}
+
+function updateDashboard(){
+ if(!$("stat-started")) return;
+ $("stat-started").textContent = appState.started;
+ $("stat-completed").textContent = appState.completed;
+ $("stat-score").textContent = appState.completed ? (appState.totalScore / appState.completed).toFixed(1) : "—";
+ $("stat-cases").textContent = CASES.length;
+ const done = new Set(appState.history.map(h => h.caseId)).size;
+ $("progress-count").textContent = `${done} / ${CASES.length}`;
+ $("progress-bar").style.width = `${Math.min(100, (done / CASES.length) * 100)}%`;
+ const picks = CASES.filter(c => !appState.history.some(h => h.caseId === c.id)).slice(0, 3);
+ $("recommended-cases").innerHTML = picks.length ? picks.map(c => `
+   <div class="case-mini">
+     <div class="animal-icon">${c.emoji}</div>
+     <div class="case-mini-main">
+       <strong>${esc(c.title)}</strong>
+       <small>${esc(c.specialty)} · ${esc(c.level)}</small>
+     </div>
+     <button class="btn btn-soft" onclick="startCase('${c.id}')">Iniciar</button>
+   </div>`).join("") : `<div class="empty"><div class="emoji">🏆</div>Você já concluiu todos os casos disponíveis! Repita qualquer caso para continuar treinando.</div>`;
+}
+
+function renderLibrary(){
+ if(!$("case-grid")) return;
+ const query = ($("case-search")?.value || "").toLowerCase();
+ const sp = $("species-filter")?.value || "all";
+ const lev = $("level-filter")?.value || "all";
+ const items = CASES.filter(c => (sp === "all" || c.species === sp) && (lev === "all" || c.level === lev) && [c.title, c.patient, c.specialty, c.species, c.history].join(" ").toLowerCase().includes(query));
+ if($("case-count")) $("case-count").textContent = `${items.length} caso${items.length === 1 ? "" : "s"}`;
+ $("case-grid").innerHTML = items.length ? items.map(c => `
+   <article class="card case-card">
+     <div class="case-card-top">
+       <div class="animal-icon">${c.emoji}</div>
+       <span class="pill ${c.level === "Avançado" ? "red" : c.level === "Intermediário" ? "yellow" : "green"}">${c.level}</span>
+     </div>
+     <div class="case-card-body">
+       <h3>${esc(c.title)}</h3>
+       <p>${esc(c.history.slice(0, 110))}${c.history.length > 110 ? "…" : ""}</p>
+       <div class="case-meta">
+         <span class="pill blue">${esc(c.specialty)}</span>
+         <span class="pill">${esc(c.species)}</span>
+         <span class="pill">${c.exams.length} exames</span>
+       </div>
+       <button class="btn btn-primary" style="width:100%" onclick="startCase('${c.id}')">Abrir atendimento →</button>
+     </div>
+   </article>`).join("") : `<div class="card empty" style="grid-column:1/-1"><div class="emoji">⌕</div>Nenhum caso corresponde à sua busca.</div>`;
+}
+
+function resetConfirmDiagBtn() {
+  const btn = $("btn-confirm-diag");
+  if (!btn) return;
+  btn.style.display = "none";
+  btn.style.pointerEvents = "auto";
+  btn.style.opacity = "1";
+  btn.disabled = false;
+  btn.className = "btn btn-soft";
+  btn.textContent = "Confirmar Diagnóstico Final ✓";
+}
+
+function startCase(id){
+ activeCase = CASES.find(c => c.id === id);
+ if(!activeCase) return;
+ 
+ appState.started++;
+ session = {
+   caseId: id,
+   startedAt: new Date().toISOString(),
+   notes: "",
+   examIds: [],
+   tempDiagnosis: undefined,
+   diagnosis: undefined,
+   diagnosisLocked: false,
+   reason: "",
+   prescription: "",
+   score: 0,
+   finished: false
+ };
+ 
+ $("consult-heading").textContent = activeCase.title;
+ $("patient-emoji").textContent = activeCase.emoji;
+ $("patient-name").textContent = activeCase.patient;
+ $("patient-summary").textContent = `${activeCase.species} · ${activeCase.breed} · ${activeCase.age} · ${activeCase.sex}`;
+ $("patient-tags").innerHTML = `<span class="pill">${esc(activeCase.weight)}</span><span class="pill">${esc(activeCase.specialty)}</span><span class="pill">${esc(activeCase.level)}</span>`;
+ $("side-case-title").textContent = activeCase.patient;
+ $("side-case-specialty").textContent = activeCase.specialty;
+ $("case-history").textContent = activeCase.history;
+ $("physical-data").innerHTML = activeCase.physical.map(([k,v]) => `<div class="data-item"><small>${esc(k)}</small><strong>${esc(v)}</strong></div>`).join("");
+ $("initial-notes").value = "";
+ $("diagnosis-reason").value = "";
+ $("prescription").value = "";
+ 
+ resetConfirmDiagBtn();
+ renderDiagnosisChoices();
+ renderExams();
+ updateSessionSummary();
+ saveState();
+ goStep(0);
+ navigate("consult");
+}
+
+function renderDiagnosisChoices(){
+ const locked = session && session.diagnosisLocked;
+ $("diagnosis-choices").innerHTML = activeCase.diagnoses.map((d,i) => {
+   const isSelected = locked ? (session.diagnosis === i) : (session.tempDiagnosis === i);
+   const style = locked ? (session.diagnosis === i ? 'border-color:var(--teal); background:#effaf8;' : 'opacity:0.45; pointer-events:none;') : '';
+   return `
+     <div class="choice ${isSelected ? 'selected' : ''}" style="${style}" onclick="selectDiagnosis(${i})">
+       <div>
+         <strong>${esc(d)}</strong>
+         <small>${i === 0 ? "Hipótese de trabalho principal" : "Diagnóstico diferencial"}</small>
+       </div>
+       <div class="choice-radio"></div>
+     </div>
+   `;
+ }).join("");
+}
+
+function selectDiagnosis(index){
+ if(!session || session.diagnosisLocked) return;
+ session.tempDiagnosis = index;
+ renderDiagnosisChoices();
+ 
+ const btn = $("btn-confirm-diag");
+ if(btn) {
+   btn.style.display = "block";
+   btn.style.pointerEvents = "auto";
+   btn.style.opacity = "1";
+   btn.disabled = false;
+ }
+}
+
+function lockDiagnosis(){
+ if(!session || session.tempDiagnosis === undefined) return;
+ session.diagnosis = session.tempDiagnosis;
+ session.diagnosisLocked = true;
+ renderDiagnosisChoices();
+ 
+ const btn = $("btn-confirm-diag");
+ if(btn) {
+   btn.className = "btn btn-primary";
+   btn.textContent = "✓ Diagnóstico Confirmado";
+   btn.style.pointerEvents = "none";
+ }
+ toast("Diagnóstico confirmado! Escreva a justificativa e o plano de conduta.");
+ updateSessionSummary();
+}
+
+function renderExams(){
+ $("exam-grid").innerHTML = activeCase.exams.map((e,i) => {
+ const chosen = session.examIds.includes(i);
+ return `<article class="exam-card"><div style="display:flex;justify-content:space-between;gap:8px;align-items:flex-start"><h3>${esc(e.name)}</h3><span class="pill">${esc(e.category)}</span></div><p>${esc(e.indication||"Exame complementar")}</p>${chosen?`<div class="result ${e.color}"><strong>Resultado:</strong> ${esc(e.result)}<hr style="border:0;border-top:1px solid #0001;margin:9px 0"><strong>Feedback (${e.score}/10):</strong> ${esc(e.feedback)}</div><button class="btn btn-outline" disabled>✓ Solicitado</button>`:`<button class="btn btn-primary" onclick="requestExam(${i})">＋ Solicitar exame</button>`}</article>`;
+ }).join("");
+}
+
+function requestExam(i){
+ const ex = activeCase.exams[i];
+ if(!ex || session.examIds.includes(i)) return;
+ pendingExam = i;
+ $("modal-title").textContent = "Confirmar solicitação de exame";
+ $("modal-text").innerHTML = `Você está prestes a solicitar <strong>${esc(ex.name)}</strong>.<br><br><span class="muted small">${esc(ex.indication||"Exame complementar")}</span>`;
+ $("modal-note").textContent = "A pontuação e o resultado serão exibidos somente após a confirmação.";
+ $("modal-confirm").textContent = "Confirmar e revelar resultado";
+ $("modal-confirm").onclick = confirmExam;
+ $("confirm-modal").classList.add("open");
+}
+
+function closeModal(){
+  $("confirm-modal").classList.remove("open");
+  pendingExam = null;
+}
+
+function confirmExam(){
+ if(pendingExam === null || !session) return;
+ const i = pendingExam;
+ const ex = activeCase.exams[i];
+ session.examIds.push(i);
+ session.score += ex.score;
+ closeModal();
+ renderExams();
+ updateSessionSummary();
+ const colorLabel = ex.color === "green" ? "Alta pertinência" : ex.color === "yellow" ? "Pertinência intermediária" : "Baixa pertinência";
+ toast(`${colorLabel}: ${ex.score}/10 pontos.`);
+}
+
+function goStep(n){
+ if(!session) return;
+ if(n === 1 || n === 2) session.notes = $("initial-notes")?.value || "";
+ document.querySelectorAll(".clinical-panel").forEach(p => p.classList.remove("active"));
+ $("step-" + n)?.classList.add("active");
+ document.querySelectorAll(".step").forEach((b,i) => {
+   b.classList.toggle("active", i === n);
+   b.classList.toggle("done", i < n);
+ });
+ if(n === 1) renderExams();
+ if(n === 3) document.querySelectorAll(".step")[3]?.classList.add("done");
+ updateSessionSummary();
+ window.scrollTo({top:0, behavior:"smooth"});
+}
+
+function updateSessionSummary(){
+ if(!session || !activeCase) return;
+ $("side-exam-count").textContent = session.examIds.length;
+ $("side-score").textContent = session.score;
+ $("side-progress").style.width = `${Math.min(100, (session.score / Math.max(1, activeCase.exams.length * 10)) * 100)}%`;
+ 
+ const checks = [
+   ["Anamnese revisada", !!($("initial-notes")?.value.trim())],
+   ["Exames selecionados", session.examIds.length > 0],
+   ["Diagnóstico confirmado", !!session.diagnosisLocked],
+   ["Plano terapêutico descrito", !!($("prescription")?.value.trim())]
+ ];
+ $("session-checklist").innerHTML = checks.map(([t,ok]) => `<div class="check-row"><span style="color:${ok ? "var(--green)" : "var(--muted)"}">${ok ? "✓" : "○"}</span><span>${t}</span></div>`).join("");
+}
+
+async function finishCase(){
+ if(session.diagnosis === undefined || !session.diagnosisLocked){
+   toast("Selecione e confirme o diagnóstico antes de concluir.");
+   goStep(2);
+   return;
+ }
+ 
+ session.notes = $("initial-notes").value;
+ session.reason = $("diagnosis-reason").value.trim();
+ session.prescription = $("prescription").value.trim();
+
+ const correct = session.diagnosis === activeCase.correct;
+ const dxScore = correct ? 20 : 5;
+ 
+ // Avaliação via IA Nativa
+ let rx = evaluateWithNativeAI(activeCase, session.prescription, session.reason, session.diagnosis);
+
+ // Tentativa via API Gemini com Diagnóstico de Erro
+ const activeKey = apiKey || safeStorage.get("vetsim_gemini_key") || "";
+ if(activeKey){
+   const btnFinish = $("btn-finish-case");
+   if(btnFinish) {
+     btnFinish.disabled = true;
+     btnFinish.textContent = "Consultando Gemini Nuvem…";
+   }
+   toast("Consultando IA na nuvem (Gemini)...");
+   
+   try {
+     const promptText = `
+       Você é um avaliador educacional de medicina veterinária.
+       Paciente: ${activeCase.patient} (${activeCase.species}, ${activeCase.breed}, ${activeCase.weight}).
+       Diagnóstico verdadeiro do caso: ${activeCase.diagnoses[activeCase.correct]}.
+       Diagnóstico escolhido pelo aluno: ${activeCase.diagnoses[session.diagnosis]}.
+       Exames solicitados pelo aluno: ${session.examIds.map(i => activeCase.exams[i].name).join(", ") || "Nenhum"}.
+       Justificativa do aluno: ${session.reason || "Não informada"}.
+       Plano terapêutico do aluno: ${session.prescription || "Não informado"}.
+
+       Avalie de forma didática a conduta e o raciocínio.
+       Indique: pontos fortes, omissões importantes, alertas de segurança/doses e sugestões.
+       Dê uma nota de 0 a 10 para a conduta.
+       Responda APENAS em JSON no formato exato:
+       {"score": number, "label": "string curta", "feedback": "texto explicativo"}
+     `;
+
+     const resp = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" + encodeURIComponent(activeKey.trim()), {
+       method: "POST",
+       headers: { "Content-Type": "application/json" },
+       body: JSON.stringify({ contents: [{ parts: [{ text: promptText }] }] })
+     });
+     
+     const data = await resp.json();
+     if(resp.ok && data.candidates?.[0]?.content?.parts?.[0]?.text){
+       const rawText = data.candidates[0].content.parts[0].text.replace(/```json|```/g, '').trim();
+       const parsed = JSON.parse(rawText);
+       rx = {
+         score: Math.max(0, Math.min(10, Number(parsed.score) || 0)),
+         label: parsed.label || "Avaliado por Gemini (Nuvem)",
+         color: parsed.score >= 8 ? "green" : parsed.score >= 5 ? "yellow" : "red",
+         feedback: "<strong>Análise Gemini (Nuvem):</strong><br>" + parsed.feedback
+       };
+     } else {
+       const errMsg = data.error?.message || `Erro HTTP ${resp.status}`;
+       console.warn("Gemini API Error:", errMsg);
+       toast(`Gemini indisponível (${errMsg}). Usando IA Nativa.`);
+     }
+   } catch(err) {
+     console.warn("Erro de Conexão com Gemini:", err);
+     toast("Erro de conexão/CORS no Gemini. Usando IA Nativa.");
+   } finally {
+     if(btnFinish) {
+       btnFinish.disabled = false;
+       btnFinish.textContent = "Concluir atendimento ✓";
+     }
+   }
+ }
+
+ const total = session.score + dxScore + rx.score;
+ session.score = total;
+ session.finished = true;
+ session.finishedAt = new Date().toISOString();
+ 
+ const rec = {
+   caseId: activeCase.id,
+   caseTitle: activeCase.title,
+   patient: activeCase.patient,
+   species: activeCase.species,
+   date: new Date().toLocaleString("pt-BR"),
+   score: total,
+   examScore: session.examIds.reduce((s,i) => s + activeCase.exams[i].score, 0),
+   examCount: session.examIds.length,
+   diagnosis: activeCase.diagnoses[session.diagnosis],
+   correct,
+   rxScore: rx.score,
+   rxLabel: rx.label,
+   rxFeedback: rx.feedback,
+   reason: session.reason,
+   prescription: session.prescription,
+   notes: session.notes,
+   examNames: session.examIds.map(i => activeCase.exams[i].name),
+   caseFeedback: activeCase.feedback
+ };
+
+ appState.completed++;
+ appState.totalScore += total;
+ appState.history.unshift(rec);
+ saveState();
+
+ const examRows = session.examIds.map(i => {
+   const e = activeCase.exams[i];
+   return `<div class="info-block"><div style="display:flex;justify-content:space-between;gap:8px"><strong>${esc(e.name)}</strong><span class="pill ${e.color}">${e.score}/10 · ${e.color === "green" ? "Verde" : e.color === "yellow" ? "Amarelo" : "Vermelho"}</span></div><p class="small" style="margin-top:8px">${esc(e.feedback)}</p></div>`;
+ }).join("") || '<p class="muted">Nenhum exame foi solicitado.</p>';
+
+ $("report-content").innerHTML = `
+ <div class="grid report-grid" style="margin:18px 0">
+   <div class="card" style="background:#f8fafc"><div class="small muted">Pontuação total</div><div class="report-score">${total}</div><div class="small muted">pontos acumulados</div></div>
+   <div class="card" style="background:#f8fafc"><div class="small muted">Diagnóstico</div><div style="font-size:21px;font-weight:850;margin-top:10px">${correct ? "✓" : "↻"} ${correct ? "Compatível" : "Revisar"}</div><div class="small muted">${correct ? "Hipótese principal selecionada" : "Hipótese principal não selecionada"}</div></div>
+   <div class="card" style="background:#f8fafc"><div class="small muted">Exames solicitados</div><div class="report-score">${session.examIds.length}</div><div class="small muted">decisões registradas</div></div>
+ </div>
+ <div class="info-block"><h3>Seu diagnóstico</h3><p><strong>${esc(activeCase.diagnoses[session.diagnosis])}</strong></p><p class="small muted"><strong>Hipótese principal do caso:</strong> ${esc(activeCase.diagnoses[activeCase.correct])}</p><p class="small">${correct ? "A escolha coincide com a hipótese principal deste cenário." : "Compare os achados com a hipótese principal e reveja os diagnósticos diferenciais."}</p></div>
+ <div class="info-block"><h3>Qualidade do plano registrado</h3><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span class="pill ${rx.color}">${rx.score}/10 · ${esc(rx.label)}</span></div><div style="margin-top:9px">${rx.feedback}</div></div>
+ <h3 style="margin-top:20px">Revisão dos exames</h3>${examRows}
+ <div class="info-block"><h3>Feedback do caso</h3><p>${esc(activeCase.feedback)}</p></div>
+ <div class="info-block"><h3>Seu raciocínio e plano</h3><p><strong>Justificativa:</strong> ${esc(session.reason || "Não registrada.")}</p><p><strong>Plano:</strong> ${esc(session.prescription || "Não registrado.")}</p></div>
+ <div class="notice warn">Este relatório é para estudo. A pontuação não equivale a certificação clínica e não substitui supervisão profissional ou fontes atualizadas.</div>`;
+
+ goStep(3);
+ toast("Atendimento concluído e salvo no histórico.");
+}
+
+function confirmLeave(){
+  if(confirm("Sair deste atendimento? O atendimento em andamento não será incluído no histórico de concluídos.")){
+    session = null;
+    activeCase = null;
+    navigate("library");
+  }
+}
+
+function renderHistory(){
+ const h = appState.history || [];
+ if($("hist-total")) $("hist-total").textContent = h.length;
+ if($("hist-best")) $("hist-best").textContent = h.length ? Math.max(...h.map(x => x.score)) : "—";
+ if($("hist-exams")) $("hist-exams").textContent = h.reduce((s,x) => s + (x.examCount || 0), 0);
+ if($("hist-unique")) $("hist-unique").textContent = new Set(h.map(x => x.caseId)).size;
+ if($("history-list")) {
+   $("history-list").innerHTML = h.length ? h.map((r,i) => `<div class="history-row"><div><strong>${esc(r.patient)} · ${esc(r.caseTitle)}</strong><div class="small muted">${esc(r.date)} · ${esc(r.species)}</div></div><div><span class="pill ${r.correct ? "green" : "yellow"}">${r.correct ? "Diagnóstico compatível" : "Rever diagnóstico"}</span></div><div><strong>${r.score} pts</strong><div class="small muted">${r.examCount} exame(s)</div></div><div class="history-actions"><button class="btn btn-outline" onclick="showHistoryDetail(${i})">Detalhes</button></div></div>`).join("") : '<div class="empty"><div class="emoji">📋</div><strong>Nenhum atendimento concluído ainda.</strong><p>Conclua um caso clínico para começar seu histórico.</p><button class="btn btn-primary" onclick="navigate(\'library\')">Iniciar primeiro caso</button></div>';
+ }
+}
+
+function showHistoryDetail(i){
+ const r = appState.history[i];
+ if(!r) return;
+ alert(`${r.patient} — ${r.caseTitle}\nData: ${r.date}\nPontuação: ${r.score}\nDiagnóstico Escolhido: ${r.diagnosis}\nExames: ${r.examNames.join(", ") || "Nenhum"}\n\nJustificativa:\n${r.reason || "Nenhuma"}\n\nPlano Terapêutico:\n${r.prescription || "Nenhum"}\n\nFeedback do Caso:\n${r.caseFeedback}`);
+}
+
+function exportData(){
+ const blob = new Blob([JSON.stringify({app:"VetSim", version:2.6, exportedAt:new Date().toISOString(), state:appState}, null, 2)], {type:"application/json"});
+ const url = URL.createObjectURL(blob);
+ const a = document.createElement("a");
+ a.href = url;
+ a.download = "vetsim-backup.json";
+ document.body.appendChild(a);
+ a.click();
+ a.remove();
+ URL.revokeObjectURL(url);
+ toast("Backup exportado com sucesso.");
+}
+
+function clearData(){
+ if(confirm("Apagar permanentemente o progresso local? Exporte um backup antes, se quiser guardar os registros.")){
+   safeStorage.remove("vetsim_v2_state");
+   appState = { started: 0, completed: 0, totalScore: 0, history: [] };
+   updateDashboard();
+   renderHistory();
+   toast("Progresso local apagado.");
+ }
+}
+
+function saveApiKey(){
+ const keyInput = $("gemini-key").value.trim();
+ if(!keyInput){
+   toast("Por favor, informe uma chave de API válida.");
+   return;
+ }
+ apiKey = keyInput;
+ safeStorage.set("vetsim_gemini_key", apiKey);
+ toast("Chave salva! Clique em 'Testar Conexão' para validar.");
+}
+
+function clearApiKey(){
+ apiKey = "";
+ safeStorage.remove("vetsim_gemini_key");
+ if($("gemini-key")) $("gemini-key").value = "";
+ if($("api-test-result")) $("api-test-result").innerHTML = "";
+ toast("Chave removida.");
+}
+
+async function testApiKey(){
+ const key = ($("gemini-key")?.value || apiKey).trim();
+ const resDiv = $("api-test-result");
+ if(!key){
+   if(resDiv) resDiv.innerHTML = `<div class="notice danger">Por favor, insira uma chave primeiro.</div>`;
+   return;
+ }
+ if(resDiv) resDiv.innerHTML = `<div class="notice">Testando conexão com a Google Gemini...</div>`;
+ 
+ try {
+   const resp = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" + encodeURIComponent(key), {
+     method: "POST",
+     headers: { "Content-Type": "application/json" },
+     body: JSON.stringify({ contents: [{ parts: [{ text: "Responda apenas: OK" }] }] })
+   });
+   
+   const data = await resp.json();
+   if(resp.ok && data.candidates?.[0]){
+     if(resDiv) resDiv.innerHTML = `<div class="notice" style="background:#e7f7ef; border-color:#bcebd0; color:#14744e;">✅ Conexão bem-sucedida! Sua chave Gemini está funcionando perfeitamente.</div>`;
+   } else {
+     const msg = data.error?.message || `Erro HTTP ${resp.status}`;
+     if(resDiv) resDiv.innerHTML = `<div class="notice danger">❌ <strong>Falha na API:</strong> ${esc(msg)}<br><br><small>Verifique se a chave está sem restrições no Google AI Studio.</small></div>`;
+   }
+ } catch(err) {
+   if(resDiv) resDiv.innerHTML = `<div class="notice danger">❌ <strong>Erro de Conexão / CORS:</strong> O navegador bloqueou a requisição.<br><br><small>Se estiver usando AdBlockers ou o navegador Brave, desative a proteção para esta página.</small></div>`;
+ }
+}
+
+const PROMPTS = ["Como organizar uma lista de diagnósticos diferenciais?", "Como interpretar um exame sem tirar conclusões precipitadas?", "Como priorizar exames com base na anamnese?", "Quais são os limites de um resultado negativo?"];
+function renderPrompts(){
+  if($("study-prompts")) {
+    $("study-prompts").innerHTML = PROMPTS.map(p => `<button class="choice" type="button" style="text-align:left;width:100%" onclick="usePrompt(${JSON.stringify(p).replace(/"/g,'&quot;')})"><span>✧ ${esc(p)}</span></button>`).join("");
+  }
+}
+function usePrompt(p){ if($("ai-message")) { $("ai-message").value = p; $("ai-message").focus(); } }
+
+function addBubble(text, role){
+  const div = document.createElement("div");
+  div.className = "bubble " + role;
+  div.textContent = text;
+  if($("ai-chat")){
+    $("ai-chat").appendChild(div);
+    $("ai-chat").scrollTop = $("ai-chat").scrollHeight;
+  }
+  return div;
+}
+
+// INICIALIZAÇÃO SEGURA DA APLICAÇÃO
+document.addEventListener("DOMContentLoaded", () => {
+  try {
+    document.querySelectorAll(".nav button").forEach(b => {
+      b.addEventListener("click", () => navigate(b.dataset.view));
+    });
+    
+    document.querySelectorAll(".step").forEach(b => {
+      b.addEventListener("click", () => goStep(Number(b.dataset.step)));
+    });
+
+    if($("case-search")) $("case-search").addEventListener("input", renderLibrary);
+    if($("species-filter")) $("species-filter").addEventListener("change", renderLibrary);
+    if($("level-filter")) $("level-filter").addEventListener("change", renderLibrary);
+    if($("initial-notes")) $("initial-notes").addEventListener("input", updateSessionSummary);
+    if($("prescription")) $("prescription").addEventListener("input", updateSessionSummary);
+    if($("confirm-modal")) $("confirm-modal").addEventListener("click", e => { if(e.target === $("confirm-modal")) closeModal(); });
+
+    if($("import-file")) {
+      $("import-file").addEventListener("change", async e => {
+        const f = e.target.files[0];
+        if(!f) return;
+        try {
+          const obj = JSON.parse(await f.text());
+          const s = obj.state || obj;
+          if(!Array.isArray(s.history)) throw new Error("Formato inválido");
+          if(!confirm("Importar este backup e substituir os dados locais atuais?")) return;
+          appState = { started: 0, completed: 0, totalScore: 0, history: [], ...s };
+          saveState();
+          toast("Backup importado com sucesso!");
+        } catch(err) {
+          toast("Não foi possível importar: arquivo inválido.");
+        }
+        e.target.value = "";
+      });
+    }
+
+    if($("ai-form")) {
+      $("ai-form").addEventListener("submit", async e => {
+        e.preventDefault();
+        const msg = $("ai-message").value.trim();
+        if(!msg) return;
+        $("ai-message").value = "";
+        addBubble(msg, "user");
+        
+        const activeKey = apiKey || safeStorage.get("vetsim_gemini_key") || "";
+        if(!activeKey){
+          addBubble("Você está sem chave do Gemini configurada. A IA Nativa do simulador já avalia suas condutas nos casos automaticamente! Para conversar livremente no chat, insira uma chave de API do Gemini no painel ao lado.", "assistant");
+          return;
+        }
+        
+        const waiting = addBubble("Pensando…", "assistant");
+        try {
+          const context = activeCase ? `\nContexto educacional atual: ${activeCase.title}. Paciente: ${activeCase.patient}, espécie ${activeCase.species}. Histórico: ${activeCase.history}. Achados: ${activeCase.physical.map(x=>x.join(": ")).join("; ")}.` : "";
+          const systemPrompt = "Você é um tutor de estudo de medicina veterinária. Responda em português do Brasil, com clareza e estrutura. Ajude a raciocinar, diferenciar hipóteses e reconhecer limitações. Não prescreva doses nem afirme diagnóstico definitivo sem ressalvas." + context;
+          
+          const resp = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" + encodeURIComponent(activeKey.trim()), {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              systemInstruction: { parts: [{ text: systemPrompt }] },
+              contents: [{ role: "user", parts: [{ text: msg }] }],
+              generationConfig: { temperature: 0.4, maxOutputTokens: 900 }
+            })
+          });
+          
+          const data = await resp.json();
+          if(!resp.ok) {
+            const errorText = data.error?.message || `Erro HTTP ${resp.status}`;
+            throw new Error(errorText);
+          }
+          const answer = data.candidates?.[0]?.content?.parts?.map(p => p.text || "").join("\n") || "Não foi possível obter resposta.";
+          waiting.textContent = answer;
+        } catch(err) {
+          waiting.textContent = "❌ Falha na chamada da API Gemini:\n" + err.message + "\n\n💡 Sugestão: Clique no botão 'Testar Conexão' na aba Tutor IA para identificar o motivo da recusa do servidor.";
+        }
+      });
+    }
+
+    loadState();
+    navigate("dashboard");
+    renderPrompts();
+  } catch(err) {
+    console.error("Erro na inicialização:", err);
+  }
+});
+</script>
+</body>
+</html>
