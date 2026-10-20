@@ -218,7 +218,7 @@ h2{font-size:21px;letter-spacing:-.5px;margin:0 0 6px}h3{font-size:16px;margin:0
   <div class="card"><h2>Backup dos dados</h2><p class="muted">Exporte seu histórico para guardar uma cópia ou importar em outro navegador.</p><div style="display:flex;gap:9px;flex-wrap:wrap;margin-top:15px"><button class="btn btn-primary" onclick="exportData()">⇩ Exportar JSON</button><button class="btn btn-outline" onclick="document.getElementById('import-file').click()">⇧ Importar JSON</button></div></div>
   <div class="card"><h2>Privacidade e armazenamento</h2><p class="muted">O progresso é armazenado localmente neste navegador. O backup JSON permite migrar ou recuperar os dados a qualquer momento.</p><div class="notice warn" style="margin-top:14px">Este protótipo não é um prontuário para uso em clínica real e não oferece sincronização entre dispositivos.</div></div>
   <div class="card"><h2>Reiniciar progresso</h2><p class="muted">Apaga os atendimentos salvos neste navegador. Esta ação não pode ser desfeita sem backup.</p><button class="btn btn-danger" style="margin-top:12px" onclick="clearData()">Apagar progresso local</button></div>
-  <div class="card"><h2>Sobre o VetSim</h2><p>Versão 2.6 Estável · IA Nativa + 20 Casos Clínicos integrados num único arquivo.</p><p class="small muted">Os casos, valores laboratoriais, critérios de pontuação e feedbacks são exemplos educacionais simplificados. Devem ser revisados por profissional veterinário antes de uso acadêmico formal.</p></div>
+  <div class="card"><h2>Sobre o VetSim</h2><p>Versão 2.6 Estável · IA Nativa + Detecção Dinâmica de Modelos Gemini.</p><p class="small muted">Os casos, valores laboratoriais, critérios de pontuação e feedbacks são exemplos educacionais simplificados. Devem ser revisados por profissional veterinário antes de uso acadêmico formal.</p></div>
  </div>
 </section>
 </main>
@@ -246,7 +246,75 @@ const safeStorage = {
 };
 
 // ==========================================
-// 1. IA NATIVA (REGRAS E AVALIAÇÃO OFFLINE)
+// 1. GERENCIADOR DINÂMICO E FALLBACK DA API GEMINI
+// ==========================================
+const CANDIDATE_MODELS = [
+  "gemini-2.5-flash",
+  "gemini-2.0-flash",
+  "gemini-1.5-flash",
+  "gemini-1.5-pro",
+  "gemini-1.0-pro",
+  "gemini-pro"
+];
+
+async function fetchGeminiWithFallback(apiKey, bodyObj) {
+  let lastError = null;
+  const cleanKey = apiKey.trim();
+
+  // 1. Tenta listar modelos dinamicamente autorizados para esta chave
+  try {
+    const listResp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${encodeURIComponent(cleanKey)}`);
+    if (listResp.ok) {
+      const listData = await listResp.json();
+      const validModels = (listData.models || [])
+        .filter(m => m.supportedGenerationMethods && m.supportedGenerationMethods.includes("generateContent"))
+        .map(m => m.name.replace("models/", ""));
+      
+      for (const modelName of validModels) {
+        try {
+          const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${encodeURIComponent(cleanKey)}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(bodyObj)
+          });
+          const data = await resp.json();
+          if (resp.ok && data.candidates?.[0]) {
+            return { ok: true, modelUsed: modelName, data };
+          }
+        } catch (e) {
+          lastError = e;
+        }
+      }
+    }
+  } catch (e) {
+    console.warn("Consulta dinâmica de modelos falhou, iniciando varredura por fallback...", e);
+  }
+
+  // 2. Varredura manual de fallback caso a lista dinâmica não retorne sucesso
+  for (const modelName of CANDIDATE_MODELS) {
+    try {
+      const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${encodeURIComponent(cleanKey)}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(bodyObj)
+      });
+      const data = await resp.json();
+      if (resp.ok && data.candidates?.[0]) {
+        return { ok: true, modelUsed: modelName, data };
+      }
+      if (data.error) {
+        lastError = new Error(data.error.message || `Erro HTTP ${resp.status}`);
+      }
+    } catch (e) {
+      lastError = e;
+    }
+  }
+
+  return { ok: false, error: lastError || new Error("Nenhum modelo do Gemini respondeu para esta chave de API.") };
+}
+
+// ==========================================
+// 2. IA NATIVA (REGRAS E AVALIAÇÃO OFFLINE)
 // ==========================================
 const NATIVE_AI_RULES = {
   parvo: {
@@ -254,7 +322,7 @@ const NATIVE_AI_RULES = {
       { regex: /fluidoter|hidrat|ringer|soro/i, foundMsg: "Prescreveu fluidoterapia/hidratação para combater desidratação e choque.", missingMsg: "Faltou prescrever fluidoterapia intravenosa/subcutânea essencial para reposição de perdas." },
       { regex: /antiemétic|maropitant|ondansetron/i, foundMsg: "Incluiu antiemético para controle de vômitos e conforto.", missingMsg: "Não incluiu antiemético para cessar êmese e conter perdas." },
       { regex: /antibiótico|cefalosporina|ampicilina|enroflox/i, foundMsg: "Incluiu antibioticoterapia de cobertura para conter translocação bacteriana.", missingMsg: "Recomenda-se antibiótico profilático devido à quebra de barreira intestinal e leucopenia." },
-      { regex: /isolam/i, foundMsg: "Indicou isolamento do paciente para prevenir contágio de outros animais.", missingMsg: "Lembre-se de indicar isolamento estrito (doença highly contagiosa)." }
+      { regex: /isolam/i, foundMsg: "Indicou isolamento do paciente para prevenir contágio de outros animais.", missingMsg: "Lembre-se de indicar isolamento estrito (doença altamente contagiosa)." }
     ],
     contraindicated: [
       { regex: /corticoide|dexametasona|prednisol/i, msg: "Uso de corticoides em filhote com parvovirose é contraindicado (imunossupressão).", penalty: 2 }
@@ -468,7 +536,7 @@ function evaluateWithNativeAI(caseData, prescription, reason, chosenIndex) {
 }
 
 // ==========================================
-// 2. BANCO DE CASOS CLÍNICOS (20 CASOS COMPLETOS)
+// 3. BANCO DE CASOS CLÍNICOS (20 CASOS COMPLETOS)
 // ==========================================
 const CASES = [
   {
@@ -701,7 +769,7 @@ const CASES = [
 ];
 
 // ==========================================
-// 3. ESTADO DA APLICAÇÃO E LÓGICA DO SIMULADOR
+// 4. ESTADO DA APLICAÇÃO E LÓGICA DO SIMULADOR
 // ==========================================
 let appState = { started: 0, completed: 0, totalScore: 0, history: [] };
 let activeCase = null, session = null, pendingExam = null, apiKey = "";
@@ -998,10 +1066,10 @@ async function finishCase(){
  const correct = session.diagnosis === activeCase.correct;
  const dxScore = correct ? 20 : 5;
  
- // Avaliação via IA Nativa
+ // Avaliação inicial via IA Nativa
  let rx = evaluateWithNativeAI(activeCase, session.prescription, session.reason, session.diagnosis);
 
- // Tentativa via API Gemini com Diagnóstico de Erro
+ // Avaliação com Fallback Dinâmico Gemini (Se houver chave configurada)
  const activeKey = apiKey || safeStorage.get("vetsim_gemini_key") || "";
  if(activeKey){
    const btnFinish = $("btn-finish-case");
@@ -1028,30 +1096,22 @@ async function finishCase(){
        {"score": number, "label": "string curta", "feedback": "texto explicativo"}
      `;
 
-     const resp = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=" + encodeURIComponent(activeKey.trim()), {
-       method: "POST",
-       headers: { "Content-Type": "application/json" },
-       body: JSON.stringify({ contents: [{ parts: [{ text: promptText }] }] })
-     });
-     
-     const data = await resp.json();
-     if(resp.ok && data.candidates?.[0]?.content?.parts?.[0]?.text){
-       const rawText = data.candidates[0].content.parts[0].text.replace(/```json|```/g, '').trim();
+     const result = await fetchGeminiWithFallback(activeKey, { contents: [{ parts: [{ text: promptText }] }] });
+     if (result.ok && result.data.candidates?.[0]?.content?.parts?.[0]?.text) {
+       const rawText = result.data.candidates[0].content.parts[0].text.replace(/```json|```/g, '').trim();
        const parsed = JSON.parse(rawText);
        rx = {
          score: Math.max(0, Math.min(10, Number(parsed.score) || 0)),
-         label: parsed.label || "Avaliado por Gemini (Nuvem)",
+         label: parsed.label || `Gemini (${result.modelUsed})`,
          color: parsed.score >= 8 ? "green" : parsed.score >= 5 ? "yellow" : "red",
-         feedback: "<strong>Análise Gemini (Nuvem):</strong><br>" + parsed.feedback
+         feedback: `<strong>Análise Gemini (${result.modelUsed}):</strong><br>` + parsed.feedback
        };
      } else {
-       const errMsg = data.error?.message || `Erro HTTP ${resp.status}`;
-       console.warn("Gemini API Error:", errMsg);
-       toast(`Gemini indisponível (${errMsg}). Usando IA Nativa.`);
+       toast(`Gemini indisponível (${result.error?.message || "Erro"}). Usando IA Nativa.`);
      }
    } catch(err) {
-     console.warn("Erro de Conexão com Gemini:", err);
-     toast("Erro de conexão/CORS no Gemini. Usando IA Nativa.");
+     console.warn("Erro no Gemini:", err);
+     toast("Usando IA Nativa local para o relatório.");
    } finally {
      if(btnFinish) {
        btnFinish.disabled = false;
@@ -1187,24 +1247,14 @@ async function testApiKey(){
    if(resDiv) resDiv.innerHTML = `<div class="notice danger">Por favor, insira uma chave primeiro.</div>`;
    return;
  }
- if(resDiv) resDiv.innerHTML = `<div class="notice">Testando conexão com a Google Gemini...</div>`;
+ if(resDiv) resDiv.innerHTML = `<div class="notice">Buscando modelo do Gemini compatível com sua chave...</div>`;
  
- try {
-   const resp = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=" + encodeURIComponent(key), {
-     method: "POST",
-     headers: { "Content-Type": "application/json" },
-     body: JSON.stringify({ contents: [{ parts: [{ text: "Responda apenas: OK" }] }] })
-   });
-   
-   const data = await resp.json();
-   if(resp.ok && data.candidates?.[0]){
-     if(resDiv) resDiv.innerHTML = `<div class="notice" style="background:#e7f7ef; border-color:#bcebd0; color:#14744e;">✅ Conexão bem-sucedida! Sua chave Gemini está funcionando perfeitamente.</div>`;
-   } else {
-     const msg = data.error?.message || `Erro HTTP ${resp.status}`;
-     if(resDiv) resDiv.innerHTML = `<div class="notice danger">❌ <strong>Falha na API:</strong> ${esc(msg)}<br><br><small>Verifique se a chave está sem restrições no Google AI Studio.</small></div>`;
-   }
- } catch(err) {
-   if(resDiv) resDiv.innerHTML = `<div class="notice danger">❌ <strong>Erro de Conexão / CORS:</strong> O navegador bloqueou a requisição.<br><br><small>Se estiver usando AdBlockers ou o navegador Brave, desative a proteção para esta página.</small></div>`;
+ const result = await fetchGeminiWithFallback(key, { contents: [{ parts: [{ text: "Responda apenas: OK" }] }] });
+ 
+ if(result.ok){
+   if(resDiv) resDiv.innerHTML = `<div class="notice" style="background:#e7f7ef; border-color:#bcebd0; color:#14744e;">✅ Conexão bem-sucedida! Modelo ativo na sua conta: <strong>${esc(result.modelUsed)}</strong>.</div>`;
+ } else {
+   if(resDiv) resDiv.innerHTML = `<div class="notice danger">❌ <strong>Falha na API:</strong> ${esc(result.error?.message || "Erro de validação")}<br><br><small>Verifique se a chave foi copiada corretamente do Google AI Studio.</small></div>`;
  }
 }
 
@@ -1283,25 +1333,17 @@ document.addEventListener("DOMContentLoaded", () => {
           const context = activeCase ? `\nContexto educacional atual: ${activeCase.title}. Paciente: ${activeCase.patient}, espécie ${activeCase.species}. Histórico: ${activeCase.history}. Achados: ${activeCase.physical.map(x=>x.join(": ")).join("; ")}.` : "";
           const systemPrompt = "Você é um tutor de estudo de medicina veterinária. Responda em português do Brasil, com clareza e estrutura. Ajude a raciocinar, diferenciar hipóteses e reconhecer limitações. Não prescreva doses nem afirme diagnóstico definitivo sem ressalvas." + context;
           
-          const resp = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=" + encodeURIComponent(activeKey.trim()), {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              systemInstruction: { parts: [{ text: systemPrompt }] },
-              contents: [{ role: "user", parts: [{ text: msg }] }],
-              generationConfig: { temperature: 0.4, maxOutputTokens: 900 }
-            })
+          const result = await fetchGeminiWithFallback(activeKey, {
+            systemInstruction: { parts: [{ text: systemPrompt }] },
+            contents: [{ role: "user", parts: [{ text: msg }] }],
+            generationConfig: { temperature: 0.4, maxOutputTokens: 900 }
           });
           
-          const data = await resp.json();
-          if(!resp.ok) {
-            const errorText = data.error?.message || `Erro HTTP ${resp.status}`;
-            throw new Error(errorText);
-          }
-          const answer = data.candidates?.[0]?.content?.parts?.map(p => p.text || "").join("\n") || "Não foi possível obter resposta.";
+          if (!result.ok) throw new Error(result.error?.message || "Modelo indisponível");
+          const answer = result.data.candidates?.[0]?.content?.parts?.map(p => p.text || "").join("\n") || "Não foi possível obter resposta.";
           waiting.textContent = answer;
         } catch(err) {
-          waiting.textContent = "❌ Falha na chamada da API Gemini:\n" + err.message + "\n\n💡 Sugestão: Clique no botão 'Testar Conexão' na aba Tutor IA para identificar o motivo da recusa do servidor.";
+          waiting.textContent = "❌ Falha na consulta ao Gemini: " + err.message + "\n\n💡 Clique no botão 'Testar Conexão' para identificar a permissão da chave.";
         }
       });
     }
