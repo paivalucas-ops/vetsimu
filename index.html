@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>VetSim | Simulador Clínico Veterinário</title>
+<title>VetSim 3.1 | Simulador Clínico Veterinário</title>
 <style>
 :root{
  --bg:#f3f6fa;--surface:#fff;--surface2:#f8fafc;--ink:#17263c;--muted:#65758b;
@@ -50,7 +50,7 @@ h2{font-size:21px;letter-spacing:-.5px;margin:0 0 6px}h3{font-size:16px;margin:0
 .case-mini-main{flex:1;min-width:0}.case-mini-main strong{display:block}.case-mini-main small{color:var(--muted)}
 .pill{display:inline-flex;align-items:center;gap:5px;padding:4px 9px;border-radius:999px;font-size:11px;font-weight:800;background:#edf2f7;color:#516174;white-space:nowrap}
 .pill.green{background:#e4f6ed;color:#14744e}.pill.yellow{background:#fff4d9;color:#8b5d05}.pill.red{background:#fde9e9;color:#b72d2d}.pill.blue{background:#e8f0ff;color:#2c62b0}.pill.teal{background:#e1f7f3;color:#087c70}
-.progress{height:7px;background:#e8edf3;border-radius:99px;overflow:hidden}.progress span{height:100%;display:block;background:var(--teal);border-radius:99px}
+.progress{height:7px;background:#e8edf3;border-radius:999px;overflow:hidden}.progress span{height:100%;display:block;background:var(--teal);border-radius:999px}
 .toolbar{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0}.field{display:grid;gap:6px}.field label{font-size:12px;font-weight:800;color:#506176}.field input,.field select,.field textarea,input.search{width:100%;border:1px solid #d9e2ec;background:white;border-radius:10px;padding:11px 12px;color:var(--ink);outline:none}.field input:focus,.field select:focus,.field textarea:focus,input.search:focus{border-color:var(--teal);box-shadow:0 0 0 3px #16a39418}.field textarea{resize:vertical;min-height:100px}
 .case-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
 .case-card{padding:0;overflow:hidden;transition:.2s}.case-card:hover{transform:translateY(-3px);box-shadow:var(--shadow)}
@@ -92,7 +92,7 @@ h2{font-size:21px;letter-spacing:-.5px;margin:0 0 6px}h3{font-size:16px;margin:0
 .md table{border-collapse:collapse;margin:6px 0;font-size:12px;display:block;overflow-x:auto}.md th,.md td{border:1px solid var(--line);padding:4px 8px;text-align:left}.md th{background:var(--surface2)}
 .md code{background:#eef2f7;padding:1px 5px;border-radius:5px;font-size:12px}.md .fontes{margin-top:10px;padding-top:8px;border-top:1px solid var(--line);color:var(--muted);font-size:12px;line-height:1.55}
 
-/* --- ESTILOS PARA O MODO BUSCA LOCAL (IA NATIVA) --- */
+/* MODO BUSCA LOCAL (IA NATIVA) */
 .busca-local-container {
   background-color: #f8f9fa;
   border-left: 4px solid #0d6efd;
@@ -150,7 +150,7 @@ h2{font-size:21px;letter-spacing:-.5px;margin:0 0 6px}h3{font-size:16px;margin:0
 <body>
 <div class="app">
 <aside class="sidebar">
-  <div class="brand"><div class="brand-mark">✚</div><div><strong>VetSim</strong><small>Laboratório clínico virtual</small></div></div>
+  <div class="brand"><div class="brand-mark">✚</div><div><strong>VetSim 3.1</strong><small>Laboratório virtual</small></div></div>
   <div class="nav-label">ESPAÇO DE TRABALHO</div>
   <nav class="nav">
     <button class="active" data-view="dashboard"><span class="ico">▦</span> Visão geral</button>
@@ -159,25 +159,25 @@ h2{font-size:21px;letter-spacing:-.5px;margin:0 0 6px}h3{font-size:16px;margin:0
     <button data-view="ai"><span class="ico">✧</span> Tutor IA</button>
     <button data-view="settings"><span class="ico">⚙</span> Configurações</button>
   </nav>
-  <div class="sidebar-bottom"><strong>Modo de aprendizagem</strong>Simulação educacional. As decisões e pontuações não substituem avaliação veterinária nem protocolos clínicos validados.</div>
+  <div class="sidebar-bottom"><strong>Escala Ponderada 0-100</strong>Investigação (30%), Diagnóstico (30%), Conduta & Segurança (40%).</div>
 </aside>
 <main class="main">
 <header class="topbar">
- <div><div class="eyebrow" id="page-eyebrow">CENTRO DE SIMULAÇÃO</div><h1 id="page-title">Bom dia, futuro(a) veterinário(a).</h1><p class="muted" id="page-subtitle">Pratique o raciocínio clínico, uma decisão de cada vez.</p></div>
+ <div><div class="eyebrow" id="page-eyebrow">CENTRO DE SIMULAÇÃO</div><h1 id="page-title">Bom dia, futuro(a) veterinário(a).</h1><p class="muted" id="page-subtitle">Pratique o raciocínio clínico com avaliação padronizada.</p></div>
  <div class="top-actions"><button class="btn btn-outline" onclick="navigate('history')">◷ Histórico</button><button class="btn btn-primary" onclick="navigate('library')">＋ Novo atendimento</button></div>
 </header>
 
 <section id="view-dashboard" class="view active">
- <div class="hero"><div><div class="eyebrow">SIMULAÇÃO • RACIOCÍNIO • APRENDIZADO</div><h2>Todo caso clínico é uma oportunidade de aprender.</h2><p>Investigue os sinais, escolha exames com propósito, construa hipóteses e receba feedback sobre suas decisões.</p><button class="btn btn-primary" onclick="navigate('library')">Explorar casos clínicos <span>→</span></button></div><div class="hero-art"><div class="paw-circle">🐾</div></div></div>
+ <div class="hero"><div><div class="eyebrow">SIMULAÇÃO • AVALIAÇÃO NORMALIZADA • APRENDIZADO</div><h2>Raciocínio clínico com escala de desempenho padronizada.</h2><p>Investigue com critério, selecione exames essenciais e estruture condutas seguras para atingir o nível de excelência.</p><button class="btn btn-primary" onclick="navigate('library')">Explorar casos clínicos <span>→</span></button></div><div class="hero-art"><div class="paw-circle">🐾</div></div></div>
  <div class="grid stats">
   <div class="card stat"><div><div class="label">Atendimentos iniciados</div><div class="value" id="stat-started">0</div></div><div class="stat-ico">🩺</div></div>
   <div class="card stat"><div><div class="label">Atendimentos concluídos</div><div class="value" id="stat-completed">0</div></div><div class="stat-ico">✓</div></div>
-  <div class="card stat"><div><div class="label">Média de desempenho</div><div class="value" id="stat-score">—</div></div><div class="stat-ico">↗</div></div>
+  <div class="card stat"><div><div class="label">Média geral (0-100)</div><div class="value" id="stat-score">—</div></div><div class="stat-ico">↗</div></div>
   <div class="card stat"><div><div class="label">Casos disponíveis</div><div class="value" id="stat-cases">20</div></div><div class="stat-ico">📚</div></div>
  </div>
  <div class="grid two-col">
   <div class="card"><div class="section-head" style="margin-top:0"><div><h2>Continue aprendendo</h2><p>Casos sugeridos para sua próxima sessão.</p></div><button class="btn btn-soft" onclick="navigate('library')">Ver biblioteca →</button></div><div id="recommended-cases"></div></div>
-  <div class="card"><h2>Seu progresso</h2><p class="muted small">Acompanhe sua prática ao longo do tempo.</p><div style="margin:23px 0 9px;display:flex;justify-content:space-between"><strong>Casos concluídos</strong><strong id="progress-count">0 / 20</strong></div><div class="progress"><span id="progress-bar" style="width:0%"></span></div><div class="info-block" style="margin-top:20px"><strong>💡 Dica clínica</strong><p class="small muted" style="margin:5px 0 0">Antes de solicitar um exame, pergunte-se: “Qual hipótese esse resultado ajudará a confirmar ou afastar?”</p></div><button class="btn btn-outline" style="width:100%" onclick="navigate('ai')">Conversar com o Tutor IA ✧</button></div>
+  <div class="card"><h2>Seu progresso</h2><p class="muted small">Acompanhe sua prática ao longo do tempo.</p><div style="margin:23px 0 9px;display:flex;justify-content:space-between"><strong>Casos concluídos</strong><strong id="progress-count">0 / 20</strong></div><div class="progress"><span id="progress-bar" style="width:0%"></span></div><div class="info-block" style="margin-top:20px"><strong>💡 Dica clínica da v3.1</strong><p class="small muted" style="margin:5px 0 0">Exames desnecessários ou inadequados agora reduzem a nota de Investigação Diagnóstica. Solicite apenas os testes indispensáveis.</p></div><button class="btn btn-outline" style="width:100%" onclick="navigate('ai')">Conversar com o Tutor IA ✧</button></div>
  </div>
  <div class="footer-note">VetSim é um protótipo educacional. Casos e parâmetros demonstrativos precisam de revisão profissional antes de uso formativo formal.</div>
 </section>
@@ -201,29 +201,29 @@ h2{font-size:21px;letter-spacing:-.5px;margin:0 0 6px}h3{font-size:16px;margin:0
     <h2>Anamnese e exame físico</h2><p class="muted">Informações iniciais do paciente. Identifique os achados mais relevantes.</p>
     <div class="info-block"><h3>🗣 Queixa principal e histórico</h3><p id="case-history"></p></div>
     <div class="info-block"><h3>🩺 Exame físico inicial</h3><div class="data-list" id="physical-data"></div></div>
-    <div class="info-block"><h3>🧠 Sua primeira impressão</h3><p class="small muted">Registre hipóteses antes de ver resultados. Isso ajuda a treinar o raciocínio clínico.</p><div class="field"><label>Hipóteses iniciais / observações</label><textarea id="initial-notes" placeholder="Ex.: considero causas infecciosas e gastrointestinais devido a..."></textarea></div></div>
+    <div class="info-block"><h3>🧠 Sua primeira impressão</h3><p class="small muted">Registre hipóteses antes de ver resultados.</p><div class="field"><label>Hipóteses iniciais / observações</label><textarea id="initial-notes" placeholder="Ex.: considero causas infecciosas e gastrointestinais devido a..."></textarea></div></div>
     <div style="display:flex;justify-content:flex-end"><button class="btn btn-primary" onclick="goStep(1)">Ir para exames →</button></div>
    </div>
    <div class="card clinical-panel" id="step-1">
-    <h2>Exames complementares</h2><p class="muted">Escolha os exames que ajudariam a responder uma pergunta clínica. A avaliação só aparece após confirmar a solicitação.</p>
-    <div class="notice" style="margin:14px 0">Os resultados são definidos para este caso e não são sorteados. Pense na urgência, no custo e na utilidade de cada teste.</div>
+    <h2>Exames complementares</h2><p class="muted">Escolha os exames indispensáveis. A nota da etapa considera a taxa de acerto nos testes essenciais e penaliza excessos.</p>
+    <div class="notice" style="margin:14px 0">Atenção: Solicitar exames de baixa pertinência reduz sua pontuação de Investigação Diagnóstica.</div>
     <div class="grid exam-grid" id="exam-grid"></div>
     <div style="display:flex;justify-content:space-between;gap:10px;margin-top:18px"><button class="btn btn-outline" onclick="goStep(0)">← Anamnese</button><button class="btn btn-primary" onclick="goStep(2)">Prosseguir para diagnóstico →</button></div>
    </div>
    <div class="card clinical-panel" id="step-2">
-    <h2>Diagnóstico e plano de conduta</h2><p class="muted">Escolha a hipótese mais provável com base nos achados disponíveis. Selecione a opção e confirme antes de concluir.</p>
+    <h2>Diagnóstico e plano de conduta</h2><p class="muted">Escolha a hipótese principal, escreva sua justificativa e descreva o plano terapêutico.</p>
     <div class="field" style="margin-top:18px">
       <label>Diagnóstico principal / hipótese de trabalho</label>
       <div id="diagnosis-choices" class="choice-list"></div>
       <button type="button" id="btn-confirm-diag" class="btn btn-soft" style="margin-top:10px;display:none;width:100%" onclick="lockDiagnosis()">Confirmar Diagnóstico Final ✓</button>
     </div>
     <div class="field" style="margin-top:16px"><label>Justificativa clínica</label><textarea id="diagnosis-reason" placeholder="Quais achados sustentam sua hipótese? Quais diferenciais ainda precisam ser considerados?"></textarea></div>
-    <div class="field" style="margin-top:16px"><label>Prescrição ou plano terapêutico (educacional)</label><textarea id="prescription" placeholder="Descreva medidas de estabilização, tratamento proposto, monitoramento e orientações. Evite doses não verificadas."></textarea></div>
-    <div class="notice warn" style="margin:14px 0">O simulador avalia seu plano com a IA Nativa integrada. Se desejar conectar a API do Gemini opcionalmente, configure sua chave na aba Tutor IA.</div>
-    <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap"><button class="btn btn-outline" onclick="goStep(1)">← Exames</button><button class="btn btn-primary" id="btn-finish-case" onclick="finishCase()">Concluir atendimento ✓</button></div>
+    <div class="field" style="margin-top:16px"><label>Prescrição ou plano terapêutico (educacional)</label><textarea id="prescription" placeholder="Descreva estabilização, tratamento, monitoramento e contraindicações observadas."></textarea></div>
+    <div class="notice warn" style="margin:14px 0">O simulador avalia seu plano com a IA Nativa integrada na escala padronizada de 0 a 100 pts. Se desejar conectar a API do Gemini opcionalmente, configure sua chave na aba Tutor IA.</div>
+    <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:16px"><button class="btn btn-outline" onclick="goStep(1)">← Exames</button><button class="btn btn-primary" id="btn-finish-case" onclick="finishCase()">Concluir atendimento ✓</button></div>
    </div>
    <div class="card clinical-panel" id="step-3">
-    <div class="eyebrow">DEVOLUTIVA DO CASO</div><h2>Relatório de desempenho</h2><p class="muted">Use o feedback para identificar o que faria diferente em uma nova tentativa.</p>
+    <div class="eyebrow">DEVOLUTIVA DO CASO (ESCALA 0-100)</div><h2>Relatório de desempenho</h2><p class="muted">Acompanhe seu desempenho detalhado por dimensão clínica.</p>
     <div id="report-content"></div>
     <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:18px"><button class="btn btn-primary" onclick="navigate('library')">Escolher outro caso →</button><button class="btn btn-outline" onclick="window.print()">Imprimir / salvar PDF</button></div>
    </div>
@@ -232,29 +232,28 @@ h2{font-size:21px;letter-spacing:-.5px;margin:0 0 6px}h3{font-size:16px;margin:0
    <div class="eyebrow">RESUMO DA SESSÃO</div><h3 style="margin-top:5px" id="side-case-title">Paciente</h3><p class="muted small" id="side-case-specialty"></p>
    <div style="border-top:1px solid var(--line);margin:15px 0"></div>
    <div class="small muted">Exames confirmados</div><div class="side-score" id="side-exam-count">0</div>
-   <div class="small muted" style="margin-top:12px">Pontuação acumulada</div><div class="side-score" id="side-score">0</div><div class="progress" style="margin-top:8px"><span id="side-progress" style="width:0%"></span></div>
-   <div class="info-block"><strong>🔎 Decisão consciente</strong><p class="small muted" style="margin:5px 0 0">Um bom exame é aquele que responde a uma pergunta clínica relevante, não simplesmente o exame mais caro ou mais completo.</p></div>
+   <div class="info-block"><strong>🔎 Critério de Avaliação v3.1</strong><p class="small muted" style="margin:5px 0 0">Pontuação total normalizada (0-100 pts):<br>• Investigação: 30 pts<br>• Diagnóstico: 30 pts<br>• Conduta: 40 pts</p></div>
    <h3>Checklist</h3><div id="session-checklist"></div>
   </aside>
  </div>
 </section>
 
 <section id="view-history" class="view">
- <div class="section-head" style="margin-top:0"><div><div class="eyebrow">REGISTROS</div><h2>Prontuários e desempenho</h2><p>Consulte atendimentos concluídos neste navegador.</p></div><button class="btn btn-outline" onclick="exportData()">⇩ Exportar backup</button></div>
+ <div class="section-head" style="margin-top:0"><div><div class="eyebrow">REGISTROS</div><h2>Prontuários e desempenho</h2><p>Consulte seus atendimentos avaliados na escala de 0 a 100.</p></div><button class="btn btn-outline" onclick="exportData()">⇩ Exportar backup</button></div>
  <div class="grid stats" style="margin-top:18px">
   <div class="card stat"><div><div class="label">Atendimentos</div><div class="value" id="hist-total">0</div></div><div class="stat-ico">▤</div></div>
   <div class="card stat"><div><div class="label">Melhor pontuação</div><div class="value" id="hist-best">—</div></div><div class="stat-ico">★</div></div>
   <div class="card stat"><div><div class="label">Exames solicitados</div><div class="value" id="hist-exams">0</div></div><div class="stat-ico">⌕</div></div>
   <div class="card stat"><div><div class="label">Casos diferentes</div><div class="value" id="hist-unique">0</div></div><div class="stat-ico">🐾</div></div>
  </div>
- <div class="card"><div class="section-head" style="margin-top:0"><div><h2>Histórico de atendimentos</h2><p>Dados salvos localmente no seu navegador.</p></div><button class="btn btn-outline" onclick="document.getElementById('import-file').click()">⇧ Importar JSON</button><input type="file" id="import-file" accept=".json,application/json" hidden></div><div id="history-list"></div></div>
+ <div class="card"><div class="section-head" style="margin-top:0"><div><h2>Histórico de atendimentos</h2><p>Dados salvos localmente no navegador.</p></div><button class="btn btn-outline" onclick="document.getElementById('import-file').click()">⇧ Importar JSON</button><input type="file" id="import-file" accept=".json,application/json" hidden></div><div id="history-list"></div></div>
 </section>
 
 <section id="view-ai" class="view">
- <div class="section-head" style="margin-top:0"><div><div class="eyebrow">APRENDIZAGEM ASSISTIDA</div><h2>Tutor clínico com IA</h2><p>Converse sobre raciocínio clínico, diferenciais e interpretação de resultados.</p></div><span class="pill teal">Integração opcional</span></div>
+ <div class="section-head" style="margin-top:0"><div><div class="eyebrow">APRENDIZAGEM ASSISTIDA</div><h2>Tutor clínico com IA</h2><p>Estude hipóteses e condutas com suporte da IA Nativa ou do Gemini.</p></div><span class="pill teal">Integração opcional</span></div>
  <div class="grid ai-layout">
-  <div class="card"><h2>Converse com o tutor</h2><p class="muted small">A IA pode ajudar a estudar, mas pode errar. Não use as respostas como prescrição ou decisão clínica real.</p>
-   <div class="ai-chat" id="ai-chat"><div class="bubble assistant">Olá! Sou o tutor de aprendizagem do VetSim. Posso ajudar você a estruturar hipóteses, interpretar achados e pensar em diagnósticos diferenciais. O sistema possui uma IA Nativa local que realiza busca direta nos livros sem necessidade de internet, e você também pode conectar o Gemini opcionalmente ao lado para receber uma explicação sintetizada.</div></div>
+  <div class="card"><h2>Converse com o tutor</h2><p class="muted small">A IA atua como suporte didático educacional. Não use as respostas como prescrição clínica real.</p>
+   <div class="ai-chat" id="ai-chat"><div class="bubble assistant">Olá! Sou o tutor de aprendizagem do VetSim 3.1. Posso ajudar você a interpretar achados, pensar em diagnósticos diferenciais e entender as diretrizes de avaliação. O sistema possui busca direta em livros locais e suporte opcional ao Gemini.</div></div>
    <form id="ai-form" class="chat-form"><input id="ai-message" placeholder="Ex.: Como diferenciar DRC de diabetes em um gato?" autocomplete="off"><button class="btn btn-primary" type="submit">Enviar ↑</button></form>
    <div class="footer-note">Evite inserir dados identificáveis de tutores ou pacientes reais.</div>
   </div>
@@ -262,7 +261,7 @@ h2{font-size:21px;letter-spacing:-.5px;margin:0 0 6px}h3{font-size:16px;margin:0
    <div class="field" style="margin:15px 0"><label>Chave de API do Gemini</label><input id="gemini-key" type="password" placeholder="Cole sua chave aqui (ex: AIzaSy...)" autocomplete="off"></div>
    <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn-primary" onclick="saveApiKey()">Salvar Chave</button><button class="btn btn-soft" onclick="testApiKey()">Testar Conexão</button><button class="btn btn-outline" onclick="clearApiKey()">Limpar chave</button></div>
    <div id="api-test-result" style="margin-top:10px"></div>
-   <div class="notice warn" style="margin-top:14px">Por segurança, a chave fica salva localmente no navegador e não é enviada para backups.</div>
+   <div class="notice warn" style="margin-top:14px">Por segurança, a chave fica salva localmente no navegador e não é enviada para backups. Para disponibilização pública da plataforma a múltiplos usuários, recomenda-se intermediar chamadas via servidor seguro para evitar exposição da chave no cliente.</div>
    <h3 style="margin-top:22px">Base de conhecimento (livros)</h3>
    <p class="muted small">O tutor e o feedback dos casos consultam os livros da pasta <code>base/</code> do site, carregados automaticamente.</p>
    <div id="kb-status" class="small muted" style="margin-top:8px">Carregando base de livros…</div>
@@ -273,19 +272,19 @@ h2{font-size:21px;letter-spacing:-.5px;margin:0 0 6px}h3{font-size:16px;margin:0
 </section>
 
 <section id="view-settings" class="view">
- <div class="section-head" style="margin-top:0"><div><div class="eyebrow">PREFERÊNCIAS</div><h2>Configurações e dados</h2><p>Controle seu progresso e faça cópias de segurança.</p></div></div>
+ <div class="section-head" style="margin-top:0"><div><div class="eyebrow">PREFERÊNCIAS</div><h2>Configurações e dados</h2><p>Gerencie o histórico e faça cópias de segurança.</p></div></div>
  <div class="grid two-col">
   <div class="card"><h2>Backup dos dados</h2><p class="muted">Exporte seu histórico para guardar uma cópia ou importar em outro navegador.</p><div style="display:flex;gap:9px;flex-wrap:wrap;margin-top:15px"><button class="btn btn-primary" onclick="exportData()">⇩ Exportar JSON</button><button class="btn btn-outline" onclick="document.getElementById('import-file').click()">⇧ Importar JSON</button></div></div>
   <div class="card"><h2>Privacidade e armazenamento</h2><p class="muted">O progresso é armazenado localmente neste navegador. O backup JSON permite migrar ou recuperar os dados a qualquer momento.</p><div class="notice warn" style="margin-top:14px">Este protótipo não é um prontuário para uso em clínica real e não oferece sincronização entre dispositivos.</div></div>
   <div class="card"><h2>Reiniciar progresso</h2><p class="muted">Apaga os atendimentos salvos neste navegador. Esta ação não pode ser desfeita sem backup.</p><button class="btn btn-danger" style="margin-top:12px" onclick="clearData()">Apagar progresso local</button></div>
-  <div class="card"><h2>Sobre o VetSim</h2><p>Versão 3.0 Estável · Respostas Ultrarrápidas + RAG de Conhecimento Veterinário.</p><p class="small muted">Os casos, valores laboratoriais, critérios de pontuação e feedbacks são exemplos educacionais simplificados. Devem ser revisados por profissional veterinário antes de uso acadêmico formal.</p></div>
+  <div class="card"><h2>Sobre o VetSim 3.1</h2><p>Motor de Pontuação Normalizado (0-100), Validação de Exames Essenciais, Regras Estruturadas de IA Nativa e RAG de Conhecimento Veterinário Completo.</p><p class="small muted">Os casos, valores laboratoriais, critérios de pontuação e feedbacks são exemplos educacionais simplificados. Devem ser revisados por profissional veterinário antes de uso acadêmico formal.</p></div>
  </div>
 </section>
 </main>
 </div>
 
 <div class="modal-backdrop" id="confirm-modal" role="dialog" aria-modal="true">
- <div class="modal"><div class="eyebrow">CONFIRMAR DECISÃO</div><h2 id="modal-title">Confirmar solicitação?</h2><p id="modal-text"></p><div class="notice warn" id="modal-note">A avaliação e o resultado serão exibidos somente após confirmar.</div><div class="modal-actions"><button class="btn btn-outline" onclick="closeModal()">Voltar</button><button class="btn btn-primary" id="modal-confirm">Confirmar solicitação</button></div></div>
+ <div class="modal"><div class="eyebrow">CONFIRMAR SOLICITAÇÃO</div><h2 id="modal-title">Solicitar exame?</h2><p id="modal-text"></p><div class="notice warn" id="modal-note">Exames de baixa pertinência aplicam penalidades na pontuação de investigação. A avaliação e o resultado serão exibidos somente após confirmar.</div><div class="modal-actions"><button class="btn btn-outline" onclick="closeModal()">Voltar</button><button class="btn btn-primary" id="modal-confirm">Confirmar solicitação</button></div></div>
 </div>
 <div class="toast" id="toast"></div>
 
@@ -755,7 +754,7 @@ const VET_KNOWLEDGE_BASE = {
 };
 
 // ==========================================
-// 3. IA NATIVA (AVALIAÇÃO OFFLINE)
+// 3. IA NATIVA (AVALIAÇÃO OFFLINE ESTRUTURADA)
 // ==========================================
 const NATIVE_AI_RULES = {
   parvo: {
@@ -766,7 +765,7 @@ const NATIVE_AI_RULES = {
       { regex: /isolam/i, foundMsg: "Indicou isolamento do paciente para prevenir contágio de outros animais.", missingMsg: "Lembre-se de indicar isolamento estrito (doença altamente contagiosa)." }
     ],
     contraindicated: [
-      { regex: /corticoide|dexametasona|prednisol/i, msg: "Uso de corticoides em filhote com parvovirose é contraindicado (imunossupressão).", penalty: 2 }
+      { regex: /corticoide|dexametasona|prednisol/i, msg: "Uso de corticoides em filhote com parvovirose é contraindicado (imunossupressão).", penalty: 2.5 }
     ]
   },
   drc: {
@@ -776,7 +775,7 @@ const NATIVE_AI_RULES = {
       { regex: /pressão|hipertens|amlodipin|ieca|benazepril/i, foundMsg: "Atentou-se para o controle da pressão arterial e lesão de órgão-alvo.", missingMsg: "Considere a mensuração e manejo da pressão arterial sistêmica." }
     ],
     contraindicated: [
-      { regex: /meloxicam|carprofeno|aine|anti-inflamatório não esteroide/i, msg: "AINEs são altamente nefrotóxicos em pacientes com Doença Renal Crônica!", penalty: 3 }
+      { regex: /meloxicam|carprofeno|aine|anti-inflamatório não esteroide/i, msg: "AINEs são altamente nefrotóxicos em pacientes com Doença Renal Crônica!", penalty: 3.0 }
     ]
   },
   piometra: {
@@ -799,7 +798,7 @@ const NATIVE_AI_RULES = {
       { regex: /oxigê|repouso/i, foundMsg: "Recomendou suporte de oxigênio e repouso estrito.", missingMsg: "Oriente repouso estrito e oxigenioterapia na crise." }
     ],
     contraindicated: [
-      { regex: /exercício|corrida|caminhada/i, msg: "Contraindicado exercício físico em paciente cardiopata descompensado e sincopal.", penalty: 2 }
+      { regex: /exercício|corrida|caminhada/i, msg: "Contraindicado exercício físico em paciente cardiopata descompensado e sincopal.", penalty: 2.0 }
     ]
   },
   diabetes: {
@@ -809,7 +808,7 @@ const NATIVE_AI_RULES = {
       { regex: /glicemia|curva|monitor/i, foundMsg: "Incluiu monitoramento contínuo de glicemia.", missingMsg: "Indique o monitoramento de curva glicêmica para ajuste de dose." }
     ],
     contraindicated: [
-      { regex: /corticoide|dexametasona|prednisol/i, msg: "Corticoides geram resistência à insulina e pioram severamente o quadro diabético!", penalty: 3 }
+      { regex: /corticoide|dexametasona|prednisol/i, msg: "Corticoides geram resistência à insulina e pioram severamente o quadro diabético!", penalty: 3.0 }
     ]
   },
   trauma: {
@@ -842,7 +841,7 @@ const NATIVE_AI_RULES = {
       { regex: /acth|cortisol|eletrólitos|monitor/i, foundMsg: "Planejou monitoramento através de teste de ACTH / eletrólitos.", missingMsg: "Lembre-se de agendar o teste de estimulação por ACTH para monitorar a dose." }
     ],
     contraindicated: [
-      { regex: /corticoide|prednisol|dexametasona/i, msg: "Corticoides exógenos pioram o quadro de hiperadrenocorticismo!", penalty: 3 }
+      { regex: /corticoide|prednisol|dexametasona/i, msg: "Corticoides exógenos pioram o quadro de hiperadrenocorticismo!", penalty: 3.0 }
     ]
   },
   colica_trovao: {
@@ -851,7 +850,7 @@ const NATIVE_AI_RULES = {
       { regex: /sondag|nasogástrica|óleo mineral|enteral|fluidoter/i, foundMsg: "Indicou sondagem e hidratação enteral/IV para desimpactar o cólon.", missingMsg: "Cólica por compactação exige hidratação enteral por sonda nasogástrica (com óleo mineral/laxante) e IV." }
     ],
     contraindicated: [
-      { regex: /ração|aliment|pasto/i, msg: "Manter o cavalo em jejum até a resolução da compactação; não oferecer alimento!", penalty: 2 }
+      { regex: /ração|aliment|pasto/i, msg: "Manter o cavalo em jejum até a resolução da compactação; não oferecer alimento!", penalty: 2.0 }
     ]
   },
   lipidose_garfield: {
@@ -860,7 +859,7 @@ const NATIVE_AI_RULES = {
       { regex: /fluidoter|antiemétic|maropitant|same|vitamina k/i, foundMsg: "Incluiu suporte hepático, fluidoterapia e controle de náuseas.", missingMsg: "Associe fluidoterapia, suporte hepático (SAMe) e antieméticos." }
     ],
     contraindicated: [
-      { regex: /forçar|seringa|boca/i, msg: "Forçar alimentação via oral com seringa em gato nauseado causa aversão alimentar grave!", penalty: 2 }
+      { regex: /forçar|seringa|boca/i, msg: "Forçar alimentação via oral com seringa em gato nauseado causa aversão alimentar grave!", penalty: 2.0 }
     ]
   },
   ruptura_zeus: {
@@ -902,7 +901,7 @@ const NATIVE_AI_RULES = {
       { regex: /fluidoter|analges|tramadol|opioid/i, foundMsg: "Associou fluidoterapia de suporte e analgesia.", missingMsg: "Providencie fluidoterapia IV para proteger os rins e analgesia potente." }
     ],
     contraindicated: [
-      { regex: /torniquete|garrote|corte|sulco/i, msg: "ALERTA GRAVE: Torniquetes ou cortes no local aumentam a necrose e o risco de amputação!", penalty: 3 }
+      { regex: /torniquete|garrote|corte|sulco/i, msg: "ALERTA GRAVE: Torniquetes ou cortes no local aumentam a necrose e o risco de amputação!", penalty: 3.0 }
     ]
   },
   cistite_simba: {
@@ -911,7 +910,7 @@ const NATIVE_AI_RULES = {
       { regex: /ambiente|estresse|ração úmida|água|sachê/i, foundMsg: "Orientou manejo ambiental, redução de estresse e aumento do consumo hídrico.", missingMsg: "Recomende ração úmida, fontes de água e enriquecimento ambiental." }
     ],
     contraindicated: [
-      { regex: /antibiótico|enroflox|norflox|amoxicilina/i, msg: "Cistite idiopática felina em gatos jovens é inflamatória e estéril; evite uso empírico de antibióticos sem urocultura.", penalty: 1 }
+      { regex: /antibiótico|enroflox|norflox|amoxicilina/i, msg: "Cistite idiopática felina em gatos jovens é inflamatória e estéril; evite uso empírico de antibióticos sem urocultura.", penalty: 1.0 }
     ]
   }
 };
@@ -921,16 +920,16 @@ function evaluateWithNativeAI(caseData, prescription, reason, chosenIndex) {
   const rText = (reason || "").toLowerCase();
   const fullText = pText + " " + rText;
   
-  let score = 5; 
+  let score = 5.0; 
   let strengths = [];
   let omissions = [];
   let risks = [];
 
-  if (pText.length > 20) score += 1;
+  if (pText.length > 20) score += 1.0;
   
   if (/monitor|reavali|frequên|acompanh|retorno|parâmetro|diurese|tpc/i.test(pText)) {
     strengths.push("Incluiu plano de monitoramento e acompanhamento das funções vitais.");
-    score += 1;
+    score += 1.0;
   } else {
     omissions.push("Faltou descrever os parâmetros de monitoramento clínico (ex: TPC, FC, diurese, dor).");
   }
@@ -954,19 +953,19 @@ function evaluateWithNativeAI(caseData, prescription, reason, chosenIndex) {
       caseRule.contraindicated.forEach(item => {
         if (item.regex.test(fullText)) {
           risks.push(item.msg);
-          score -= (item.penalty || 2);
+          score -= (item.penalty || 2.0);
         }
       });
     }
   }
 
-  score = Math.max(0, Math.min(10, Math.round(score)));
+  score = Math.max(0, Math.min(10, Math.round(score * 10) / 10));
 
   let label = score >= 8 ? "Conduta Excelente (IA Nativa)" : (score >= 5 ? "Conduta Satisfatória (IA Nativa)" : "Conduta Requer Revisão (IA Nativa)");
   let color = score >= 8 ? "green" : (score >= 5 ? "yellow" : "red");
 
   let feedbackHtml = `
-    <strong>Avaliação da IA Nativa do VetSim:</strong><br>
+    <strong>Avaliação da IA Nativa do VetSim v3.1:</strong><br>
     ${strengths.length ? `<br>✅ <strong>Pontos Fortes:</strong> <ul style="margin:4px 0; padding-left:20px;">${strengths.map(s => `<li>${s}</li>`).join('')}</ul>` : ''}
     ${omissions.length ? `<br>⚠️ <strong>Pontos de Melhoria:</strong> <ul style="margin:4px 0; padding-left:20px;">${omissions.map(o => `<li>${o}</li>`).join('')}</ul>` : ''}
     ${risks.length ? `<br>🚨 <strong>Alertas de Segurança:</strong> <ul style="margin:4px 0; padding-left:20px;">${risks.map(r => `<li>${r}</li>`).join('')}</ul>` : ''}
@@ -1210,7 +1209,7 @@ const CASES = [
 ];
 
 // ==========================================
-// 5. ESTADO DA APLICAÇÃO E LÓGICA DO SIMULADOR
+// 5. ESTADO DA APLICAÇÃO E LÓGICA DO SIMULADOR (V3.1 NORMALIZADA)
 // ==========================================
 let appState = { started: 0, completed: 0, totalScore: 0, history: [] };
 let activeCase = null, session = null, pendingExam = null, apiKey = "";
@@ -1219,7 +1218,7 @@ const $ = id => document.getElementById(id);
 const esc = s => String(s??"").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 
 function loadState(){
-  const sRaw = safeStorage.get("vetsim_v2_state");
+  const sRaw = safeStorage.get("vetsim_v3_state") || safeStorage.get("vetsim_v2_state");
   if(sRaw) {
     try {
       const s = JSON.parse(sRaw);
@@ -1235,7 +1234,7 @@ function loadState(){
 }
 
 function saveState(){
-  safeStorage.set("vetsim_v2_state", JSON.stringify(appState));
+  safeStorage.set("vetsim_v3_state", JSON.stringify(appState));
   updateDashboard();
   renderHistory();
 }
@@ -1260,13 +1259,13 @@ function navigate(view){
     });
 
     const meta = {
-      dashboard: ["CENTRO DE SIMULAÇÃO", "Bom dia, futuro(a) veterinário(a).", "Pratique o raciocínio clínico, uma decisão de cada vez."],
+      dashboard: ["CENTRO DE SIMULAÇÃO", "Bom dia, futuro(a) veterinário(a).", "Pratique o raciocínio clínico com escala de desempenho padronizada."],
       library: ["BIBLIOTECA", "Escolha seu próximo caso.", "Cada paciente tem uma história, achados e desafios próprios."],
       consult: ["ATENDIMENTO CLÍNICO", "Atendimento em andamento", "Investigue, justifique e aprenda com suas decisões."],
-      history: ["REGISTROS", "Prontuários e desempenho", "Consulte atendimentos concluídos neste navegador."],
+      history: ["REGISTROS", "Prontuários e desempenho", "Consulte atendimentos avaliados na escala de 0 a 100."],
       ai: ["APRENDIZAGEM ASSISTIDA", "Tutor clínico com IA", "Explore hipóteses e interpretações com apoio educacional."],
       settings: ["PREFERÊNCIAS", "Configurações e dados", "Gerencie seu progresso e suas cópias de segurança."]
-    }[view] || ["SISTEMA", "VetSim", "Simulador Veterinário"];
+    }[view] || ["SISTEMA", "VetSim 3.1", "Simulador Veterinário"];
 
     if($("page-eyebrow")) $("page-eyebrow").textContent = meta[0];
     if($("page-title")) $("page-title").textContent = meta[1];
@@ -1284,7 +1283,7 @@ function updateDashboard(){
  if(!$("stat-started")) return;
  $("stat-started").textContent = appState.started;
  $("stat-completed").textContent = appState.completed;
- $("stat-score").textContent = appState.completed ? (appState.totalScore / appState.completed).toFixed(1) : "—";
+ $("stat-score").textContent = appState.completed ? Math.round(appState.totalScore / appState.completed) + " pts" : "—";
  $("stat-cases").textContent = CASES.length;
  const done = new Set(appState.history.map(h => h.caseId)).size;
  $("progress-count").textContent = `${done} / ${CASES.length}`;
@@ -1429,7 +1428,7 @@ function lockDiagnosis(){
 function renderExams(){
  $("exam-grid").innerHTML = activeCase.exams.map((e,i) => {
  const chosen = session.examIds.includes(i);
- return `<article class="exam-card"><div style="display:flex;justify-content:space-between;gap:8px;align-items:flex-start"><h3>${esc(e.name)}</h3><span class="pill">${esc(e.category)}</span></div><p>${esc(e.indication||"Exame complementar")}</p>${chosen?`<div class="result ${e.color}"><strong>Resultado:</strong> ${esc(e.result)}<hr style="border:0;border-top:1px solid #0001;margin:9px 0"><strong>Feedback (${e.score}/10):</strong> ${esc(e.feedback)}</div><button class="btn btn-outline" disabled>✓ Solicitado</button>`:`<button class="btn btn-primary" onclick="requestExam(${i})">＋ Solicitar exame</button>`}</article>`;
+ return `<article class="exam-card"><div style="display:flex;justify-content:space-between;gap:8px;align-items:flex-start"><h3>${esc(e.name)}</h3><span class="pill ${e.key ? 'teal' : ''}">${e.key ? 'Essencial' : esc(e.category)}</span></div><p>${esc(e.indication||"Exame complementar")}</p>${chosen?`<div class="result ${e.color}"><strong>Resultado:</strong> ${esc(e.result)}<hr style="border:0;border-top:1px solid #0001;margin:9px 0"><strong>Feedback (${e.score}/10):</strong> ${esc(e.feedback)}</div><button class="btn btn-outline" disabled>✓ Solicitado</button>`:`<button class="btn btn-primary" onclick="requestExam(${i})">＋ Solicitar exame</button>`}</article>`;
  }).join("");
 }
 
@@ -1439,7 +1438,7 @@ function requestExam(i){
  pendingExam = i;
  $("modal-title").textContent = "Confirmar solicitação de exame";
  $("modal-text").innerHTML = `Você está prestes a solicitar <strong>${esc(ex.name)}</strong>.<br><br><span class="muted small">${esc(ex.indication||"Exame complementar")}</span>`;
- $("modal-note").textContent = "A pontuação e o resultado serão exibidos somente após a confirmação.";
+ $("modal-note").textContent = "Exames desnecessários aplicam penalidade na dimensão de Investigação Diagnóstica.";
  $("modal-confirm").textContent = "Confirmar e revelar resultado";
  $("modal-confirm").onclick = confirmExam;
  $("confirm-modal").classList.add("open");
@@ -1455,12 +1454,11 @@ function confirmExam(){
  const i = pendingExam;
  const ex = activeCase.exams[i];
  session.examIds.push(i);
- session.score += ex.score;
  closeModal();
  renderExams();
  updateSessionSummary();
- const colorLabel = ex.color === "green" ? "Alta pertinência" : ex.color === "yellow" ? "Pertinência intermediária" : "Baixa pertinência";
- toast(`${colorLabel}: ${ex.score}/10 pontos.`);
+ const colorLabel = ex.key ? "Exame Essencial" : (ex.color === "green" ? "Alta pertinência" : ex.color === "yellow" ? "Pertinência intermediária" : "Baixa pertinência / Desnecessário");
+ toast(`${colorLabel} registrado.`);
 }
 
 function goStep(n){
@@ -1481,9 +1479,6 @@ function goStep(n){
 function updateSessionSummary(){
  if(!session || !activeCase) return;
  $("side-exam-count").textContent = session.examIds.length;
- $("side-score").textContent = session.score;
- $("side-progress").style.width = `${Math.min(100, (session.score / Math.max(1, activeCase.exams.length * 10)) * 100)}%`;
- 
  const checks = [
    ["Anamnese revisada", !!($("initial-notes")?.value.trim())],
    ["Exames selecionados", session.examIds.length > 0],
@@ -1493,6 +1488,7 @@ function updateSessionSummary(){
  $("session-checklist").innerHTML = checks.map(([t,ok]) => `<div class="check-row"><span style="color:${ok ? "var(--green)" : "var(--muted)"}">${ok ? "✓" : "○"}</span><span>${t}</span></div>`).join("");
 }
 
+// MOTOR DE AVALIAÇÃO NORMALIZADO (ESCALA 0-100)
 async function finishCase(){
  if(session.diagnosis === undefined || !session.diagnosisLocked){
    toast("Selecione e confirme o diagnóstico antes de concluir.");
@@ -1504,12 +1500,27 @@ async function finishCase(){
  session.reason = $("diagnosis-reason").value.trim();
  session.prescription = $("prescription").value.trim();
 
+ // DIMENSÃO 1: INVESTIGAÇÃO DIAGNÓSTICA (0 A 30 PONTOS)
+ const keyExams = activeCase.exams.filter(e => e.key);
+ const totalKeys = keyExams.length || 1;
+ const requestedKeys = session.examIds.filter(i => activeCase.exams[i].key).length;
+ const requestedRedExams = session.examIds.filter(i => activeCase.exams[i].score === 0 || activeCase.exams[i].color === "red").length;
+
+ const keyRatio = requestedKeys / totalKeys;
+ const redPenalty = requestedRedExams * 0.20;
+ const subscoreInvestigacao = Math.max(0, (keyRatio - redPenalty));
+ const scoreInvestigacao = Math.round(subscoreInvestigacao * 30);
+
+ // DIMENSÃO 2: DIAGNÓSTICO E JUSTIFICATIVA (0 A 30 PONTOS)
  const correct = session.diagnosis === activeCase.correct;
- const dxScore = correct ? 20 : 5;
- 
+ const scoreDiagBase = correct ? 20 : 0;
+ const scoreJustificativa = Math.min(10, Math.floor(session.reason.length / 20));
+ const scoreDiagnostico = Math.min(30, scoreDiagBase + scoreJustificativa);
+
+ // DIMENSÃO 3: CONDUTA E SEGURANÇA (0 A 40 PONTOS)
  let rx = evaluateWithNativeAI(activeCase, session.prescription, session.reason, session.diagnosis);
 
- await BaseConhecimento.aguardar(4000);
+ await BaseConhecimento.aguardar(2000);
  const kbDxCorreto = activeCase.diagnoses[activeCase.correct];
  const kbCaso = BaseConhecimento.consultar(kbDxCorreto, 3);
  let usouGemini = false;
@@ -1519,7 +1530,7 @@ async function finishCase(){
    const btnFinish = $("btn-finish-case");
    if(btnFinish) {
      btnFinish.disabled = true;
-     btnFinish.textContent = "Consultando Gemini Nuvem…";
+     btnFinish.textContent = "Avaliando conduta via Gemini…";
    }
    toast("Consultando IA na nuvem...");
    
@@ -1536,8 +1547,8 @@ async function finishCase(){
        Justificativa: ${session.reason || "Não informada"}.
        Plano terapêutico: ${session.prescription || "Não informado"}.
 
-       Avalie de forma didática e detalhada. Dê uma nota de 0 a 10.
-       No campo feedback escreva em português, em texto corrido, sem LaTeX, cifrão ou barra invertida (negrito com ** é permitido) e sem citar capítulos ou páginas: as fontes são anexadas automaticamente.
+       Avalie a conduta de forma didática e detalhada. Dê uma nota de 0 a 10.
+       No campo feedback escreva em português, em texto corrido, sem LaTeX, cifrão ou barra invertida (negrito com ** é permitido) e sem citar capítulos ou páginas.
        Responda APENAS em JSON no formato exato:
        {"score": number, "label": "string curta", "feedback": "texto explicativo completo"}
      `;
@@ -1578,8 +1589,10 @@ async function finishCase(){
    }
  } catch(e) { console.warn("Livros indisponíveis:", e); }
 
- const total = session.score + dxScore + rx.score;
- session.score = total;
+ const scoreConduta = Math.round((rx.score / 10) * 40);
+ const totalScore = Math.min(100, Math.max(0, scoreInvestigacao + scoreDiagnostico + scoreConduta));
+
+ session.score = totalScore;
  session.finished = true;
  session.finishedAt = new Date().toISOString();
  
@@ -1589,8 +1602,10 @@ async function finishCase(){
    patient: activeCase.patient,
    species: activeCase.species,
    date: new Date().toLocaleString("pt-BR"),
-   score: total,
-   examScore: session.examIds.reduce((s,i) => s + activeCase.exams[i].score, 0),
+   score: totalScore,
+   scoreInvestigacao,
+   scoreDiagnostico,
+   scoreConduta,
    examCount: session.examIds.length,
    diagnosis: activeCase.diagnoses[session.diagnosis],
    correct,
@@ -1605,30 +1620,36 @@ async function finishCase(){
  };
 
  appState.completed++;
- appState.totalScore += total;
+ appState.totalScore += totalScore;
  appState.history.unshift(rec);
  saveState();
 
  const examRows = session.examIds.map(i => {
    const e = activeCase.exams[i];
-   return `<div class="info-block"><div style="display:flex;justify-content:space-between;gap:8px"><strong>${esc(e.name)}</strong><span class="pill ${e.color}">${e.score}/10 · ${e.color === "green" ? "Verde" : e.color === "yellow" ? "Amarelo" : "Vermelho"}</span></div><p class="small" style="margin-top:8px">${esc(e.feedback)}</p></div>`;
+   return `<div class="info-block"><div style="display:flex;justify-content:space-between;gap:8px"><strong>${esc(e.name)}</strong><span class="pill ${e.color}">${e.key ? "Essencial" : "Complementar"} · ${e.score}/10</span></div><p class="small" style="margin-top:8px">${esc(e.feedback)}</p></div>`;
  }).join("") || '<p class="muted">Nenhum exame foi solicitado.</p>';
 
  $("report-content").innerHTML = `
  <div class="grid report-grid" style="margin:18px 0">
-   <div class="card" style="background:#f8fafc"><div class="small muted">Pontuação total</div><div class="report-score">${total}</div><div class="small muted">pontos acumulados</div></div>
-   <div class="card" style="background:#f8fafc"><div class="small muted">Diagnóstico</div><div style="font-size:21px;font-weight:850;margin-top:10px">${correct ? "✓" : "↻"} ${correct ? "Compatível" : "Revisar"}</div><div class="small muted">${correct ? "Hipótese principal selecionada" : "Hipótese principal não selecionada"}</div></div>
-   <div class="card" style="background:#f8fafc"><div class="small muted">Exames solicitados</div><div class="report-score">${session.examIds.length}</div><div class="small muted">decisões registradas</div></div>
+   <div class="card" style="background:#f8fafc"><div class="small muted">Nota Geral (0-100)</div><div class="report-score">${totalScore}</div><div class="small muted">desempenho global</div></div>
+   <div class="card" style="background:#f8fafc"><div class="small muted">Diagnóstico</div><div style="font-size:21px;font-weight:850;margin-top:10px">${correct ? "✓ Correto" : "↻ Incorreto"}</div><div class="small muted">${scoreDiagnostico} / 30 pts</div></div>
+   <div class="card" style="background:#f8fafc"><div class="small muted">Investigação</div><div class="report-score" style="font-size:32px;margin-top:8px">${scoreInvestigacao} <span style="font-size:16px;color:var(--muted)">/ 30</span></div><div class="small muted">exames essenciais: ${requestedKeys}/${totalKeys}</div></div>
+ </div>
+ <div class="info-block">
+   <h3>Detalhamento da Avaliação Clínica</h3>
+   <p>• <strong>Investigação Diagnóstica:</strong> ${scoreInvestigacao} / 30 pts (${requestedKeys} de ${totalKeys} exames essenciais solicitados${requestedRedExams ? `; ${requestedRedExams} exame(s) desnecessário(s)` : ''})</p>
+   <p>• <strong>Diagnóstico e Justificativa:</strong> ${scoreDiagnostico} / 30 pts (${correct ? "Hipótese principal correta (+20 pts)" : "Hipótese incorreta (0 pts)"} + Justificativa clínica: ${scoreJustificativa}/10 pts)</p>
+   <p>• <strong>Conduta e Segurança:</strong> ${scoreConduta} / 40 pts (Avaliação do plano terapêutico)</p>
  </div>
  <div class="info-block"><h3>Seu diagnóstico</h3><p><strong>${esc(activeCase.diagnoses[session.diagnosis])}</strong></p><p class="small muted"><strong>Hipótese principal do caso:</strong> ${esc(activeCase.diagnoses[activeCase.correct])}</p><p class="small">${correct ? "A escolha coincide com a hipótese principal deste cenário." : "Compare os achados com a hipótese principal e reveja os diagnósticos diferenciais."}</p></div>
- <div class="info-block"><h3>Qualidade do plano registrado</h3><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span class="pill ${rx.color}">${rx.score}/10 · ${esc(rx.label)}</span></div><div style="margin-top:9px">${rx.feedback}</div></div>
- <h3 style="margin-top:20px">Revisão dos exames</h3>${examRows}
+ <div class="info-block"><h3>Qualidade da Conduta Registrada</h3><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span class="pill ${rx.color}">${rx.score}/10 · ${esc(rx.label)}</span></div><div style="margin-top:9px">${rx.feedback}</div></div>
+ <h3 style="margin-top:20px">Revisão dos exames solicitados</h3>${examRows}
  <div class="info-block"><h3>Feedback do caso</h3><p>${esc(activeCase.feedback)}</p></div>
  <div class="info-block"><h3>Seu raciocínio e plano</h3><p><strong>Justificativa:</strong> ${esc(session.reason || "Não registrada.")}</p><p><strong>Plano:</strong> ${esc(session.prescription || "Não registrado.")}</p></div>
  <div class="notice warn">Este relatório é para estudo. A pontuação não equivale a certificação clínica e não substitui supervisão profissional ou fontes atualizadas.</div>`;
 
  goStep(3);
- toast("Atendimento concluído e salvo no histórico.");
+ toast("Atendimento concluído e avaliado na escala 0-100!");
 }
 
 function confirmLeave(){
@@ -1642,26 +1663,26 @@ function confirmLeave(){
 function renderHistory(){
  const h = appState.history || [];
  if($("hist-total")) $("hist-total").textContent = h.length;
- if($("hist-best")) $("hist-best").textContent = h.length ? Math.max(...h.map(x => x.score)) : "—";
+ if($("hist-best")) $("hist-best").textContent = h.length ? Math.max(...h.map(x => x.score)) + " pts" : "—";
  if($("hist-exams")) $("hist-exams").textContent = h.reduce((s,x) => s + (x.examCount || 0), 0);
  if($("hist-unique")) $("hist-unique").textContent = new Set(h.map(x => x.caseId)).size;
  if($("history-list")) {
-   $("history-list").innerHTML = h.length ? h.map((r,i) => `<div class="history-row"><div><strong>${esc(r.patient)} · ${esc(r.caseTitle)}</strong><div class="small muted">${esc(r.date)} · ${esc(r.species)}</div></div><div><span class="pill ${r.correct ? "green" : "yellow"}">${r.correct ? "Diagnóstico compatível" : "Rever diagnóstico"}</span></div><div><strong>${r.score} pts</strong><div class="small muted">${r.examCount} exame(s)</div></div><div class="history-actions"><button class="btn btn-outline" onclick="showHistoryDetail(${i})">Detalhes</button></div></div>`).join("") : '<div class="empty"><div class="emoji">📋</div><strong>Nenhum atendimento concluído ainda.</strong><p>Conclua um caso clínico para começar seu histórico.</p><button class="btn btn-primary" onclick="navigate(\'library\')">Iniciar primeiro caso</button></div>';
+   $("history-list").innerHTML = h.length ? h.map((r,i) => `<div class="history-row"><div><strong>${esc(r.patient)} · ${esc(r.caseTitle)}</strong><div class="small muted">${esc(r.date)} · ${esc(r.species)}</div></div><div><span class="pill ${r.correct ? "green" : "yellow"}">${r.correct ? "Diagnóstico Correto" : "Revisar"}</span></div><div><strong>${r.score} pts</strong><div class="small muted">Geral (0-100)</div></div><div class="history-actions"><button class="btn btn-outline" onclick="showHistoryDetail(${i})">Detalhes</button></div></div>`).join("") : '<div class="empty"><div class="emoji">📋</div><strong>Nenhum atendimento concluído ainda.</strong><p>Conclua um caso clínico para começar seu histórico.</p><button class="btn btn-primary" onclick="navigate(\'library\')">Iniciar primeiro caso</button></div>';
  }
 }
 
 function showHistoryDetail(i){
  const r = appState.history[i];
  if(!r) return;
- alert(`${r.patient} — ${r.caseTitle}\nData: ${r.date}\nPontuação: ${r.score}\nDiagnóstico Escolhido: ${r.diagnosis}\nExames: ${r.examNames.join(", ") || "Nenhum"}\n\nJustificativa:\n${r.reason || "Nenhuma"}\n\nPlano Terapêutico:\n${r.prescription || "Nenhum"}\n\nFeedback do Caso:\n${r.caseFeedback}`);
+ alert(`${r.patient} — ${r.caseTitle}\nData: ${r.date}\nNota Geral: ${r.score}/100 pts\n• Investigação: ${r.scoreInvestigacao ?? '—'}/30 pts\n• Diagnóstico: ${r.scoreDiagnostico ?? '—'}/30 pts\n• Conduta: ${r.scoreConduta ?? '—'}/40 pts\n\nDiagnóstico Escolhido: ${r.diagnosis}\nExames: ${r.examNames ? r.examNames.join(", ") : "Nenhum"}\n\nJustificativa:\n${r.reason || "Nenhuma"}\n\nPlano Terapêutico:\n${r.prescription || "Nenhum"}\n\nFeedback do Caso:\n${r.caseFeedback}`);
 }
 
 function exportData(){
- const blob = new Blob([JSON.stringify({app:"VetSim", version:3.0, exportedAt:new Date().toISOString(), state:appState}, null, 2)], {type:"application/json"});
+ const blob = new Blob([JSON.stringify({app:"VetSim", version:3.1, exportedAt:new Date().toISOString(), state:appState}, null, 2)], {type:"application/json"});
  const url = URL.createObjectURL(blob);
  const a = document.createElement("a");
  a.href = url;
- a.download = "vetsim-backup.json";
+ a.download = "vetsim-backup-v3.1.json";
  document.body.appendChild(a);
  a.click();
  a.remove();
@@ -1671,6 +1692,7 @@ function exportData(){
 
 function clearData(){
  if(confirm("Apagar permanentemente o progresso local? Exporte um backup antes, se quiser guardar os registros.")){
+   safeStorage.remove("vetsim_v3_state");
    safeStorage.remove("vetsim_v2_state");
    safeStorage.remove("vetsim_cached_model");
    appState = { started: 0, completed: 0, totalScore: 0, history: [] };
