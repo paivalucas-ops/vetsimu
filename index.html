@@ -91,6 +91,60 @@ h2{font-size:21px;letter-spacing:-.5px;margin:0 0 6px}h3{font-size:16px;margin:0
 .md p{margin:0 0 8px}.md p:last-child{margin-bottom:0}.md ul,.md ol{margin:4px 0 8px 18px;padding:0}.md li{margin:2px 0}
 .md table{border-collapse:collapse;margin:6px 0;font-size:12px;display:block;overflow-x:auto}.md th,.md td{border:1px solid var(--line);padding:4px 8px;text-align:left}.md th{background:var(--surface2)}
 .md code{background:#eef2f7;padding:1px 5px;border-radius:5px;font-size:12px}.md .fontes{margin-top:10px;padding-top:8px;border-top:1px solid var(--line);color:var(--muted);font-size:12px;line-height:1.55}
+
+/* --- ESTILOS PARA O MODO BUSCA LOCAL (IA NATIVA) --- */
+.busca-local-container {
+  background-color: #f8f9fa;
+  border-left: 4px solid #0d6efd;
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin: 8px 0;
+}
+.busca-header {
+  font-weight: 600;
+  color: #212529;
+  font-size: 0.9rem;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.badge-modo {
+  background-color: #e9ecef;
+  color: #495057;
+  font-size: 0.75rem;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-weight: normal;
+}
+.livro-card {
+  background: #ffffff;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  padding: 10px 12px;
+  margin-top: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+.livro-card-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.82rem;
+  border-bottom: 1px solid #f0f0f0;
+  padding-bottom: 4px;
+  margin-bottom: 6px;
+}
+.livro-titulo {
+  font-weight: bold;
+  color: #0d6efd;
+}
+.livro-meta {
+  color: #6c757d;
+}
+.livro-card-body {
+  font-size: 0.88rem;
+  color: #333333;
+  line-height: 1.45;
+}
 </style>
 </head>
 <body>
@@ -200,7 +254,7 @@ h2{font-size:21px;letter-spacing:-.5px;margin:0 0 6px}h3{font-size:16px;margin:0
  <div class="section-head" style="margin-top:0"><div><div class="eyebrow">APRENDIZAGEM ASSISTIDA</div><h2>Tutor clínico com IA</h2><p>Converse sobre raciocínio clínico, diferenciais e interpretação de resultados.</p></div><span class="pill teal">Integração opcional</span></div>
  <div class="grid ai-layout">
   <div class="card"><h2>Converse com o tutor</h2><p class="muted small">A IA pode ajudar a estudar, mas pode errar. Não use as respostas como prescrição ou decisão clínica real.</p>
-   <div class="ai-chat" id="ai-chat"><div class="bubble assistant">Olá! Sou o tutor de aprendizagem do VetSim. Posso ajudar você a estruturar hipóteses, interpretar achados e pensar em diagnósticos diferenciais. O sistema possui uma IA Nativa local que avalia seus casos sem necessidade de internet, e você também pode conectar o Gemini opcionalmente ao lado.</div></div>
+   <div class="ai-chat" id="ai-chat"><div class="bubble assistant">Olá! Sou o tutor de aprendizagem do VetSim. Posso ajudar você a estruturar hipóteses, interpretar achados e pensar em diagnósticos diferenciais. O sistema possui uma IA Nativa local que realiza busca direta nos livros sem necessidade de internet, e você também pode conectar o Gemini opcionalmente ao lado para receber uma explicação sintetizada.</div></div>
    <form id="ai-form" class="chat-form"><input id="ai-message" placeholder="Ex.: Como diferenciar DRC de diabetes em um gato?" autocomplete="off"><button class="btn btn-primary" type="submit">Enviar ↑</button></form>
    <div class="footer-note">Evite inserir dados identificáveis de tutores ou pacientes reais.</div>
   </div>
@@ -242,9 +296,6 @@ h2{font-size:21px;letter-spacing:-.5px;margin:0 0 6px}h3{font-size:16px;margin:0
 (function (global) {
   'use strict';
 
-  // =====================================================================
-  // 1) BASE DE CONHECIMENTO (livros) - carregada da pasta base/ do repositório
-  // =====================================================================
   const DB_NOME = 'vetsim-conhecimento';
   const STORE = 'livros';
   const META_ID = '__meta__';
@@ -258,16 +309,15 @@ h2{font-size:21px;letter-spacing:-.5px;margin:0 0 6px}h3{font-size:16px;margin:0
   const tokens = s => norm(s).split(/[^a-z0-9]+/)
     .filter(w => w.length > 2 && !STOP.has(w)).map(radical);
 
-  let livros = [];            // [{livro:{id,titulo,...}, trechos:[{c,p,t}]}]
-  let docs = [];              // [{l, i}]
+  let livros = [];            
+  let docs = [];              
   let docLen = new Uint32Array(0);
-  let postings = new Map();   // termo -> [doc, tf, doc, tf, ...]
+  let postings = new Map();   
   let idfCache = new Map();
   let mediaLen = 1;
   let pronto = false;
-  let carregando = null;      // promessa do carregamento em andamento
+  let carregando = null;      
 
-  // ---------- IndexedDB (cache local por versão; falhas não impedem o uso) ----------
   function abrirDB() {
     return new Promise((ok, erro) => {
       if (typeof indexedDB === 'undefined') return erro(new Error('IndexedDB indisponível'));
@@ -291,7 +341,6 @@ h2{font-size:21px;letter-spacing:-.5px;margin:0 0 6px}h3{font-size:16px;margin:0
     return new Promise((ok, erro) => { tx.oncomplete = ok; tx.onerror = () => erro(tx.error); });
   }
 
-  // ---------- indexação em lotes (não trava a tela) ----------
   async function definirLivros(lista, onProgresso) {
     livros = lista;
     docs = [];
@@ -309,7 +358,7 @@ h2{font-size:21px;letter-spacing:-.5px;margin:0 0 6px}h3{font-size:16px;margin:0
         const t = livros[docs[d].l].trechos[docs[d].i];
         const corpo = tokens(t.t);
         const titulo = tokens((t.c || '').replace(/^[\d.]+\s*/, ''));
-        const todos = corpo.concat(titulo, titulo, titulo);   // título pesa 3x
+        const todos = corpo.concat(titulo, titulo, titulo);   
         const cont = new Map();
         for (const w of todos) cont.set(w, (cont.get(w) || 0) + 1);
         for (const [w, f] of cont) {
@@ -325,14 +374,9 @@ h2{font-size:21px;letter-spacing:-.5px;margin:0 0 6px}h3{font-size:16px;margin:0
     }
     mediaLen = N ? somaLen / N : 1;
     pronto = N > 0;
-    if (onProgresso) onProgresso(N ? `Base de livros pronta: ${lista.length} livro(s), ${N} trechos.` : 'Base de livros vazia.');
+    if (onProgresso) onProgresso(N ? `Base de livros pronta: ${lista.length} livro(s),${N} trechos.` : 'Base de livros vazia.');
   }
 
-  /**
-   * Carrega os livros da pasta base/ do site. O arquivo base/index.json lista os JSON
-   * ({"versao": "...", "arquivos": ["livro1.json", ...]}). Cada visitante baixa os
-   * arquivos uma vez; depois eles ficam no navegador até a "versao" mudar.
-   */
   function carregarRepositorio(onProgresso, baseUrl) {
     baseUrl = baseUrl || 'base/';
     carregando = (async () => {
@@ -340,10 +384,10 @@ h2{font-size:21px;letter-spacing:-.5px;margin:0 0 6px}h3{font-size:16px;margin:0
       try {
         const r = await fetch(baseUrl + 'index.json', { cache: 'no-cache' });
         if (r.ok) manifesto = await r.json();
-      } catch (e) { /* offline ou arquivo aberto sem servidor */ }
+      } catch (e) { }
 
       let salvos = [];
-      try { salvos = await lerTodos(); } catch (e) { /* sem cache local */ }
+      try { salvos = await lerTodos(); } catch (e) { }
       const meta = salvos.find(x => x.id === META_ID);
       const doCache = salvos.filter(x => x.id !== META_ID);
 
@@ -374,7 +418,6 @@ h2{font-size:21px;letter-spacing:-.5px;margin:0 0 6px}h3{font-size:16px;margin:0
     return carregando;
   }
 
-  /** Espera o carregamento terminar (até ms milissegundos), para a 1ª pergunta não ir sem os livros. */
   function aguardar(ms) {
     const espera = new Promise(r => setTimeout(r, ms || 20000));
     return Promise.race([carregando || Promise.resolve(), espera]);
@@ -384,7 +427,6 @@ h2{font-size:21px;letter-spacing:-.5px;margin:0 0 6px}h3{font-size:16px;margin:0
     return { pronto, livros: livros.map(b => ({ id: b.livro.id, titulo: b.livro.titulo, trechos: b.trechos.length })) };
   }
 
-  // ---------- busca BM25 ----------
   function idfDe(w) {
     let v = idfCache.get(w);
     if (v === undefined) {
@@ -428,7 +470,6 @@ h2{font-size:21px;letter-spacing:-.5px;margin:0 0 6px}h3{font-size:16px;margin:0
     return out;
   }
 
-  /** Fontes agrupadas por livro+capítulo: [{livro, capitulo, paginas:[...]}] */
   function agruparFontes(achados) {
     const mapa = new Map();
     for (const a of achados) {
@@ -441,17 +482,15 @@ h2{font-size:21px;letter-spacing:-.5px;margin:0 0 6px}h3{font-size:16px;margin:0
     return Array.from(mapa.values());
   }
 
-  /** Para prompts do Gemini: {contexto, fontes}. contexto = '' se nada relevante. */
   function consultar(consulta, k) {
     const achados = buscar(consulta, k || 4);
     return {
       contexto: achados.map((a, n) =>
-        `[Trecho ${n + 1}] ${a.livro}, cap. ${a.capitulo}\n${a.texto.slice(0, 2200)}`).join('\n\n'),
+        `[Trecho ${n + 1}]${a.livro}, cap. ${a.capitulo}\n${a.texto.slice(0, 2200)}`).join('\n\n'),
       fontes: agruparFontes(achados)
     };
   }
 
-  // ---------- IA Nativa: resposta montada a partir dos livros (extrativa) ----------
   function limparFrase(s) {
     return s
       .replace(/\((?:Fig|Figura|Tab|Tabela|Quadro)[^)]*\)/gi, '')
@@ -467,20 +506,15 @@ h2{font-size:21px;letter-spacing:-.5px;margin:0 0 6px}h3{font-size:16px;margin:0
       .filter(f => f.length >= 50 && f.length <= 420 && /[a-zà-ú]{4}/i.test(f));
   }
 
-  // palavras que dizem o QUE o aluno quer saber (tratamento, diagnóstico...): pesam mais na escolha da passagem
   const INTENCAO = new Set(['tratam', 'diagno', 'sinais', 'sintom', 'manejo', 'terapi', 'condut', 'preven', 'etiolo', 'progno']);
 
-  /**
-   * Monta uma resposta com a passagem mais relevante dos melhores trechos (frases contínuas,
-   * não soltas). Retorna {texto, fontes} ou null se os livros não cobrirem a pergunta.
-   */
   function responderComBase(consulta, opcoes) {
     opcoes = opcoes || {};
     const nFrases = opcoes.frases || 5;
     const achados = buscar(consulta, 6);
     if (!achados.length) return null;
     const termos = Array.from(new Set(tokens(consulta)));
-    const TAM = 3;                       // frases por passagem
+    const TAM = 3;                       
     const janelas = [];
     achados.forEach((a, rank) => {
       const fr = dividirFrases(a.texto);
@@ -491,7 +525,7 @@ h2{font-size:21px;letter-spacing:-.5px;margin:0 0 6px}h3{font-size:16px;margin:0
         return c ? s * (1 + c / termos.length) : 0;
       });
       for (let i = 0; i < fr.length; i++) {
-        if (!pont[i]) continue;          // a passagem começa numa frase relevante
+        if (!pont[i]) continue;          
         const fim = Math.min(fr.length, i + TAM);
         let s = 0;
         for (let j = i; j < fim; j++) s += pont[j];
@@ -504,7 +538,7 @@ h2{font-size:21px;letter-spacing:-.5px;margin:0 0 6px}h3{font-size:16px;margin:0
     const esc = [];
     let total = 0;
     for (const j of janelas) {
-      if (usados.has(j.rank)) continue;  // no máximo uma passagem por trecho
+      if (usados.has(j.rank)) continue;  
       usados.add(j.rank);
       esc.push(j);
       total += j.fim - j.ini;
@@ -519,9 +553,6 @@ h2{font-size:21px;letter-spacing:-.5px;margin:0 0 6px}h3{font-size:16px;margin:0
 
   global.BaseConhecimento = { carregarRepositorio, aguardar, estado, buscar, consultar, responderComBase, definirLivros };
 
-  // =====================================================================
-  // 2) TEXTO DA IA -> HTML SEGURO (markdown simples + fórmulas em texto)
-  // =====================================================================
   const escHtml = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
   function latexParaTexto(t) {
@@ -550,8 +581,8 @@ h2{font-size:21px;letter-spacing:-.5px;margin:0 0 6px}h3{font-size:16px;margin:0
   function mdParaHtml(texto) {
     const linhas = escHtml(latexParaTexto(String(texto == null ? '' : texto))).replace(/\r/g, '').split('\n');
     const out = [];
-    let lista = null;       // 'ul' | 'ol'
-    let tabela = null;      // linhas da tabela em construção
+    let lista = null;       
+    let tabela = null;      
     let par = [];
     const fecharPar = () => { if (par.length) { out.push('<p>' + par.join('<br>') + '</p>'); par = []; } };
     const fecharLista = () => { if (lista) { out.push('</' + lista + '>'); lista = null; } };
@@ -566,7 +597,7 @@ h2{font-size:21px;letter-spacing:-.5px;margin:0 0 6px}h3{font-size:16px;margin:0
       const l = bruta.trim();
       if (/^\|.*\|$/.test(l)) {
         fecharPar(); fecharLista();
-        if (/^\|[\s:|-]+\|$/.test(l)) continue;          // linha separadora
+        if (/^\|[\s:|-]+\|$/.test(l)) continue;          
         (tabela = tabela || []).push(l.slice(1, -1).split('|').map(c => c.trim()));
         continue;
       }
@@ -591,7 +622,6 @@ h2{font-size:21px;letter-spacing:-.5px;margin:0 0 6px}h3{font-size:16px;margin:0
     return '<div class="md">' + out.join('') + '</div>';
   }
 
-  /** Bloco "Fontes consultadas" (HTML) a partir de [{livro, capitulo, paginas}] */
   function fontesHtml(fontes) {
     if (!fontes || !fontes.length) return '';
     const itens = fontes.map(f => {
@@ -639,7 +669,6 @@ async function fetchGeminiWithFallback(apiKey, bodyObj) {
   let lastError = null;
   const cleanKey = apiKey.trim();
 
-  // Se já temos um modelo em cache que funciona, usa direto (Super Rápido!)
   if (cachedWorkingModel) {
     try {
       const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${cachedWorkingModel}:generateContent?key=${encodeURIComponent(cleanKey)}`, {
@@ -656,7 +685,6 @@ async function fetchGeminiWithFallback(apiKey, bodyObj) {
     }
   }
 
-  // Se o cache falhar ou for a primeira vez, busca dinamicamente
   try {
     const listResp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${encodeURIComponent(cleanKey)}`);
     if (listResp.ok) {
@@ -687,7 +715,6 @@ async function fetchGeminiWithFallback(apiKey, bodyObj) {
     console.warn("Consulta dinâmica falhou, iniciando varredura manual...", e);
   }
 
-  // Varredura de emergência
   for (const modelName of CANDIDATE_MODELS) {
     try {
       const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${encodeURIComponent(cleanKey)}`, {
@@ -1480,16 +1507,13 @@ async function finishCase(){
  const correct = session.diagnosis === activeCase.correct;
  const dxScore = correct ? 20 : 5;
  
- // Avaliação inicial via IA Nativa
  let rx = evaluateWithNativeAI(activeCase, session.prescription, session.reason, session.diagnosis);
 
- // Livros da base: busca pelo diagnóstico correto do caso
  await BaseConhecimento.aguardar(4000);
  const kbDxCorreto = activeCase.diagnoses[activeCase.correct];
  const kbCaso = BaseConhecimento.consultar(kbDxCorreto, 3);
  let usouGemini = false;
 
- // Avaliação com Gemini + RAG
  const activeKey = apiKey || safeStorage.get("vetsim_gemini_key") || "";
  if(activeKey){
    const btnFinish = $("btn-finish-case");
@@ -1501,9 +1525,9 @@ async function finishCase(){
    
    try {
      const promptText = `
-       Você é um avaliador educacional de medicina veterinária.
+       Você é um avaliador educacional e tutor de medicina veterinária.
        Consulte este Banco de Dados de Referência: ${JSON.stringify(VET_KNOWLEDGE_BASE)}
-       ${kbCaso.contexto ? "Trechos de livros de referência (base principal da avaliação):\n" + kbCaso.contexto : ""}
+       ${kbCaso.contexto ? "Trechos de livros de referência:\n" + kbCaso.contexto : ""}
 
        Paciente: ${activeCase.patient} (${activeCase.species}, ${activeCase.breed}, ${activeCase.weight}).
        Diagnóstico verdadeiro: ${activeCase.diagnoses[activeCase.correct]}.
@@ -1543,15 +1567,13 @@ async function finishCase(){
    }
  }
 
-
- // Livros: com Gemini só anexa as fontes; com a IA Nativa mostra o que os livros dizem sobre o diagnóstico
  try {
    if(usouGemini){
      rx.feedback += fontesHtml(kbCaso.fontes);
    } else {
      const respLivro = BaseConhecimento.responderComBase(kbDxCorreto, { frases: 4 });
      if(respLivro){
-       rx.feedback += `<br><br>📖 <strong>O que os livros dizem sobre ${esc(kbDxCorreto)}:</strong>` + mdParaHtml(respLivro.texto) + fontesHtml(respLivro.fontes);
+       rx.feedback += `<br><br><div class="busca-local-container"><div class="busca-header"><span>📖 O que os livros dizem sobre ${esc(kbDxCorreto)}:</span><span class="badge-modo">Busca Direta</span></div>` + mdParaHtml(respLivro.texto) + fontesHtml(respLivro.fontes) + `</div>`;
      }
    }
  } catch(e) { console.warn("Livros indisponíveis:", e); }
@@ -1763,36 +1785,67 @@ document.addEventListener("DOMContentLoaded", () => {
         addBubble(msg, "user");
         
         const activeKey = apiKey || safeStorage.get("vetsim_gemini_key") || "";
+        
         if(!activeKey){
-          const bolhaNativa = addBubble("Consultando os livros…", "assistant");
+          const bolhaNativa = addBubble("Consultando acervo dos livros locais...", "assistant");
           await BaseConhecimento.aguardar(8000);
-          const respNativa = BaseConhecimento.responderComBase(msg);
-          if(respNativa){
+          const achados = BaseConhecimento.buscar(msg, 4);
+          
+          if(achados && achados.length > 0){
             bolhaNativa.style.whiteSpace = "normal";
-            bolhaNativa.innerHTML = '<div class="md"><p><strong>IA Nativa · passagens dos livros sobre o tema</strong></p></div>' + mdParaHtml(respNativa.texto) + fontesHtml(respNativa.fontes) + '<div class="md"><p class="muted small" style="margin-top:8px">Para uma resposta explicada, conecte a chave do Gemini no painel ao lado. A IA Nativa mostra o que os livros dizem.</p></div>';
+            
+            let cardsHtml = `
+              <div class="busca-local-container">
+                <div class="busca-header">
+                  <span>📚 Trechos mais relevantes encontrados na base:</span>
+                  <span class="badge-modo">Modo Consulta Direta • Sem Chave API</span>
+                </div>
+            `;
+            
+            achados.forEach(item => {
+              cardsHtml += `
+                <div class="livro-card">
+                  <div class="livro-card-header">
+                    <span class="livro-titulo">${esc(item.livro || 'Livro da Base')}</span>
+                    <span class="livro-meta">Cap. ${esc(item.capitulo || '-')} • pág. ${esc(item.pagina || '-')}</span>
+                  </div>
+                  <div class="livro-card-body">
+                    "${esc(item.texto)}"
+                  </div>
+                </div>
+              `;
+            });
+
+            cardsHtml += `
+                <div class="md" style="margin-top:10px;">
+                  <p class="muted small">💡 <em>A IA Nativa atua como busca direta na literatura. Para obter uma resposta sintetizada e explicada, conecte uma chave do Gemini no painel ao lado.</em></p>
+                </div>
+              </div>
+            `;
+            
+            bolhaNativa.innerHTML = cardsHtml;
           } else {
-            bolhaNativa.textContent = "Não encontrei esse assunto nos livros da base. Para uma resposta explicada, conecte uma chave do Gemini no painel ao lado.";
+            bolhaNativa.textContent = "Nenhum trecho correspondente foi encontrado na base de livros. Para uma resposta explicada, conecte uma chave do Gemini no painel ao lado.";
           }
           return;
         }
         
-        const waiting = addBubble("Pensando…", "assistant");
+        const waiting = addBubble("Sintetizando resposta pedagógica...", "assistant");
         try {
           await BaseConhecimento.aguardar(15000);
           const kbInfo = BaseConhecimento.consultar(msg, 4);
           const livrosBloco = kbInfo.contexto ? "Trechos de livros de referência (use-os como base principal da resposta; se divergirem do banco resumido acima, aponte a divergência):\n" + kbInfo.contexto + "\n" : "";
           const context = activeCase ? `\nCaso Clínico Atual: ${activeCase.title}. Paciente: ${activeCase.patient} (${activeCase.species}). Histórico: ${activeCase.history}.` : "";
-          const systemPrompt = `Você é um Tutor Clínico Veterinário Sênior. 
+          const systemPrompt = `Você é o Tutor IA Pedagógico do VetSim, um professor sênior em Medicina Veterinária.
 Acesse este Banco de Dados de Referência Veterinária para embasar suas respostas com clareza, exatidão e riqueza de detalhes:
 ${JSON.stringify(VET_KNOWLEDGE_BASE)}
 ${livrosBloco}
 
-Diretrizes:
-- Responda de forma direta, técnica, completa e encorpada.
-- Não corte frases. Explique o raciocínio clínico por trás de cada conduta.
-- Baseie a resposta nos trechos de livros fornecidos. Se eles não cobrirem a pergunta, diga isso e complemente com conhecimento geral, deixando claro o que não veio dos livros.
-- Não cite capítulos nem páginas no corpo da resposta: as fontes são anexadas automaticamente ao final.
-- Escreva em português, em texto corrido, com listas simples iniciadas por hífen. Use **negrito** só para destacar termos-chave. NUNCA use LaTeX, cifrão ou barra invertida: escreva fórmulas em texto simples, por exemplo: Déficit (L) = peso (kg) × % de desidratação ÷ 100.` + context;
+Diretrizes do Tutor Pedagógico:
+1. Resposta Explicativa e Didática: Responda diretamente e explique os conceitos e o raciocínio clínico por trás de cada conduta para sanar a dúvida do aluno com tom encorajador e acadêmico.
+2. Base de Conhecimento: Baseie sua explicação APENAS nos trechos de livros e conhecimentos veterinários fornecidos. Se o contexto não contiver dados suficientes para responder integralmente à dúvida, responda o que for possível com base nos trechos e informe educadamente a limitação.
+3. Formatação: Escreva em português, com linguagem limpa e acessível. Use listas simples com hífen e **negrito** para destacar termos importantes. NUNCA use LaTeX, cifrão ($) ou barra invertida (\\): escreva equações em texto simples (ex: Déficit (L) = peso (kg) × % de desidratação ÷ 100).
+4. Referências: Não cite capítulos nem páginas no corpo da resposta: as fontes serão anexadas automaticamente ao final pelo sistema.` + context;
           
           const result = await fetchGeminiWithFallback(activeKey, {
             systemInstruction: { parts: [{ text: systemPrompt }] },
