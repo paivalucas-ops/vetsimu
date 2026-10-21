@@ -88,6 +88,9 @@ h2{font-size:21px;letter-spacing:-.5px;margin:0 0 6px}h3{font-size:16px;margin:0
 @media(max-width:850px){.app{grid-template-columns:1fr}.sidebar{min-height:0;padding:12px;gap:10px}.brand{padding:4px 8px 10px}.brand-mark{width:36px;height:36px}.brand strong{font-size:18px}.nav-label,.sidebar-bottom{display:none}.nav{display:flex;overflow:auto}.nav button{white-space:nowrap;padding:9px 11px;font-size:12px}.main{padding:20px 14px 35px}.hero{grid-template-columns:1fr;padding:23px}.hero-art{display:none}.two-col,.consult-layout,.ai-layout{grid-template-columns:1fr}.sidebar-card{position:static}.topbar{align-items:flex-start}.history-row{grid-template-columns:1fr auto}.history-row>*:nth-child(2),.history-row>*:nth-child(3){grid-column:1}.history-row .history-actions{grid-column:2;grid-row:1/4}}
 @media(max-width:560px){.stats,.case-grid,.exam-grid,.report-grid{grid-template-columns:1fr}.topbar{display:block}.top-actions{margin-top:14px}.data-list{grid-template-columns:1fr}.patient-banner{align-items:flex-start}.section-head{align-items:flex-start;flex-direction:column}.hero h2{font-size:25px}.case-mini{align-items:flex-start}.history-row{grid-template-columns:1fr}.history-row .history-actions{grid-column:1;grid-row:auto}.chat-form{flex-wrap:wrap}.chat-form input{flex-basis:100%}}
 @media print{.sidebar,.topbar,.btn,.workflow,.footer-note{display:none!important}.main{padding:0}.view{display:none!important}#view-report{display:block!important}.card{box-shadow:none}}
+.md p{margin:0 0 8px}.md p:last-child{margin-bottom:0}.md ul,.md ol{margin:4px 0 8px 18px;padding:0}.md li{margin:2px 0}
+.md table{border-collapse:collapse;margin:6px 0;font-size:12px;display:block;overflow-x:auto}.md th,.md td{border:1px solid var(--line);padding:4px 8px;text-align:left}.md th{background:var(--surface2)}
+.md code{background:#eef2f7;padding:1px 5px;border-radius:5px;font-size:12px}.md .fontes{margin-top:10px;padding-top:8px;border-top:1px solid var(--line);color:var(--muted);font-size:12px;line-height:1.55}
 </style>
 </head>
 <body>
@@ -207,10 +210,8 @@ h2{font-size:21px;letter-spacing:-.5px;margin:0 0 6px}h3{font-size:16px;margin:0
    <div id="api-test-result" style="margin-top:10px"></div>
    <div class="notice warn" style="margin-top:14px">Por segurança, a chave fica salva localmente no navegador e não é enviada para backups.</div>
    <h3 style="margin-top:22px">Base de conhecimento (livros)</h3>
-   <p class="muted small">Importe os arquivos <code>conhecimento_*.json</code> gerados a partir dos seus livros. Eles ficam apenas neste navegador e alimentam o tutor e o feedback dos casos.</p>
-   <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn-primary" onclick="document.getElementById('kb-file').click()">⇧ Importar livros</button><button class="btn btn-outline" onclick="removeKb()">Remover base</button></div>
-   <input type="file" id="kb-file" accept=".json" multiple hidden onchange="importKb(this)">
-   <div id="kb-status" class="small muted" style="margin-top:8px">Nenhuma base importada.</div>
+   <p class="muted small">O tutor e o feedback dos casos consultam os livros da pasta <code>base/</code> do site, carregados automaticamente.</p>
+   <div id="kb-status" class="small muted" style="margin-top:8px">Carregando base de livros…</div>
    <h3 style="margin-top:22px">Temas para estudar</h3><div class="choice-list" id="study-prompts"></div>
    <p class="small muted">Obtenha uma chave gratuita no <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener">Google AI Studio</a>.</p>
   </div>
@@ -236,13 +237,17 @@ h2{font-size:21px;letter-spacing:-.5px;margin:0 0 6px}h3{font-size:16px;margin:0
 
 <script>
 // ==========================================
-// BASE DE CONHECIMENTO LOCAL (livros importados pelo usuário, guardados só no navegador)
+// BASE DE CONHECIMENTO (livros em base/) + FORMATAÇÃO DAS RESPOSTAS DA IA
 // ==========================================
 (function (global) {
   'use strict';
 
+  // =====================================================================
+  // 1) BASE DE CONHECIMENTO (livros) - carregada da pasta base/ do repositório
+  // =====================================================================
   const DB_NOME = 'vetsim-conhecimento';
   const STORE = 'livros';
+  const META_ID = '__meta__';
 
   const STOP = new Set(('de da do das dos em no na nos nas um uma uns umas para por com sem sob ' +
     'sobre entre ate que como mais menos ser sao foi pode podem tem ter seu sua seus suas ao aos ' +
@@ -253,17 +258,19 @@ h2{font-size:21px;letter-spacing:-.5px;margin:0 0 6px}h3{font-size:16px;margin:0
   const tokens = s => norm(s).split(/[^a-z0-9]+/)
     .filter(w => w.length > 2 && !STOP.has(w)).map(radical);
 
-  // ---------- estado em memória ----------
   let livros = [];            // [{livro:{id,titulo,...}, trechos:[{c,p,t}]}]
-  let docs = [];              // [{l: índice do livro, i: índice do trecho}]
+  let docs = [];              // [{l, i}]
   let docLen = new Uint32Array(0);
   let postings = new Map();   // termo -> [doc, tf, doc, tf, ...]
+  let idfCache = new Map();
   let mediaLen = 1;
   let pronto = false;
+  let carregando = null;      // promessa do carregamento em andamento
 
-  // ---------- IndexedDB ----------
+  // ---------- IndexedDB (cache local por versão; falhas não impedem o uso) ----------
   function abrirDB() {
     return new Promise((ok, erro) => {
+      if (typeof indexedDB === 'undefined') return erro(new Error('IndexedDB indisponível'));
       const req = indexedDB.open(DB_NOME, 1);
       req.onupgradeneeded = () => req.result.createObjectStore(STORE, { keyPath: 'id' });
       req.onsuccess = () => ok(req.result);
@@ -271,42 +278,37 @@ h2{font-size:21px;letter-spacing:-.5px;margin:0 0 6px}h3{font-size:16px;margin:0
     });
   }
   const pedido = r => new Promise((ok, erro) => { r.onsuccess = () => ok(r.result); r.onerror = () => erro(r.error); });
-
   async function lerTodos() {
     const db = await abrirDB();
     return pedido(db.transaction(STORE).objectStore(STORE).getAll());
   }
-  async function gravar(registro) {
+  async function gravarVarios(registros, limpar) {
     const db = await abrirDB();
     const tx = db.transaction(STORE, 'readwrite');
-    tx.objectStore(STORE).put(registro);
-    return new Promise((ok, erro) => { tx.oncomplete = ok; tx.onerror = () => erro(tx.error); });
-  }
-  async function apagarTudo() {
-    const db = await abrirDB();
-    const tx = db.transaction(STORE, 'readwrite');
-    tx.objectStore(STORE).clear();
+    const os = tx.objectStore(STORE);
+    if (limpar) os.clear();
+    registros.forEach(r => os.put(r));
     return new Promise((ok, erro) => { tx.oncomplete = ok; tx.onerror = () => erro(tx.error); });
   }
 
-  // ---------- indexação (em lotes, para não travar a tela) ----------
+  // ---------- indexação em lotes (não trava a tela) ----------
   async function definirLivros(lista, onProgresso) {
     livros = lista;
     docs = [];
     postings = new Map();
+    idfCache = new Map();
     pronto = false;
     lista.forEach((b, l) => b.trechos.forEach((_, i) => docs.push({ l, i })));
     const N = docs.length;
     docLen = new Uint32Array(N);
     let somaLen = 0;
-
     const LOTE = 300;
     for (let ini = 0; ini < N; ini += LOTE) {
       const fim = Math.min(N, ini + LOTE);
       for (let d = ini; d < fim; d++) {
         const t = livros[docs[d].l].trechos[docs[d].i];
         const corpo = tokens(t.t);
-        const titulo = tokens((t.c || '').replace(/^\d+\s*/, ''));
+        const titulo = tokens((t.c || '').replace(/^[\d.]+\s*/, ''));
         const todos = corpo.concat(titulo, titulo, titulo);   // título pesa 3x
         const cont = new Map();
         for (const w of todos) cont.set(w, (cont.get(w) || 0) + 1);
@@ -318,138 +320,289 @@ h2{font-size:21px;letter-spacing:-.5px;margin:0 0 6px}h3{font-size:16px;margin:0
         docLen[d] = todos.length;
         somaLen += todos.length;
       }
-      if (onProgresso) onProgresso(`Indexando base de conhecimento… ${Math.round(fim / N * 100)}%`);
+      if (onProgresso) onProgresso(`Preparando base de livros… ${Math.round(fim / N * 100)}%`);
       await new Promise(r => setTimeout(r, 0));
     }
     mediaLen = N ? somaLen / N : 1;
     pronto = N > 0;
-    if (onProgresso) onProgresso(N ? `Base pronta: ${estado().livros.length} livro(s), ${N} trechos.` : 'Nenhuma base importada.');
-  }
-
-  // ---------- API pública ----------
-  async function carregar(onProgresso) {
-    try {
-      const salvos = await lerTodos();
-      if (salvos.length) await definirLivros(salvos, onProgresso);
-      else if (onProgresso) onProgresso('Nenhuma base importada.');
-    } catch (e) {
-      console.error('Base de conhecimento:', e);
-      if (onProgresso) onProgresso('Não foi possível abrir a base de conhecimento neste navegador.');
-    }
-  }
-
-  async function importarArquivos(arquivos, onProgresso) {
-    const novos = [];
-    for (const arq of Array.from(arquivos)) {
-      if (onProgresso) onProgresso(`Lendo ${arq.name}…`);
-      let dados;
-      try { dados = JSON.parse(await arq.text()); }
-      catch (e) { return `Arquivo inválido: ${arq.name}`; }
-      if (!dados || !dados.livro || !dados.livro.id || !Array.isArray(dados.trechos)) {
-        return `Formato não reconhecido: ${arq.name}`;
-      }
-      const registro = { id: dados.livro.id, livro: dados.livro, trechos: dados.trechos };
-      await gravar(registro);
-      novos.push(registro);
-    }
-    await definirLivros(await lerTodos(), onProgresso);
-    return `Importado(s): ${novos.map(n => n.livro.titulo).join('; ')}`;
-  }
-
-  async function limpar() {
-    await apagarTudo();
-    livros = []; docs = []; postings = new Map(); pronto = false;
-  }
-
-  function estado() {
-    return {
-      pronto,
-      livros: livros.map(b => ({ id: b.livro.id, titulo: b.livro.titulo, trechos: b.trechos.length }))
-    };
+    if (onProgresso) onProgresso(N ? `Base de livros pronta: ${lista.length} livro(s), ${N} trechos.` : 'Base de livros vazia.');
   }
 
   /**
-   * Busca BM25. Retorna até k trechos: {livro, capitulo, pagina, texto, score}.
-   * opcoes.minScore: abaixo disso retorna [] (a IA deve dizer que não achou).
+   * Carrega os livros da pasta base/ do site. O arquivo base/index.json lista os JSON
+   * ({"versao": "...", "arquivos": ["livro1.json", ...]}). Cada visitante baixa os
+   * arquivos uma vez; depois eles ficam no navegador até a "versao" mudar.
    */
-  function buscar(consulta, k = 5, opcoes = {}) {
+  function carregarRepositorio(onProgresso, baseUrl) {
+    baseUrl = baseUrl || 'base/';
+    carregando = (async () => {
+      let manifesto = null;
+      try {
+        const r = await fetch(baseUrl + 'index.json', { cache: 'no-cache' });
+        if (r.ok) manifesto = await r.json();
+      } catch (e) { /* offline ou arquivo aberto sem servidor */ }
+
+      let salvos = [];
+      try { salvos = await lerTodos(); } catch (e) { /* sem cache local */ }
+      const meta = salvos.find(x => x.id === META_ID);
+      const doCache = salvos.filter(x => x.id !== META_ID);
+
+      if (!manifesto || !Array.isArray(manifesto.arquivos)) {
+        if (doCache.length) return definirLivros(doCache, onProgresso);
+        if (onProgresso) onProgresso('Base de livros não encontrada (a pasta base/ só funciona com o site publicado).');
+        return;
+      }
+      if (meta && meta.versao === manifesto.versao && doCache.length) {
+        return definirLivros(doCache, onProgresso);
+      }
+      const novos = [];
+      for (const nome of manifesto.arquivos) {
+        if (onProgresso) onProgresso(`Baixando base de livros… (${novos.length + 1}/${manifesto.arquivos.length})`);
+        const r = await fetch(baseUrl + nome);
+        if (!r.ok) throw new Error('Falha ao baixar ' + nome);
+        const d = await r.json();
+        if (!d || !d.livro || !d.livro.id || !Array.isArray(d.trechos)) throw new Error('Formato inválido: ' + nome);
+        novos.push({ id: d.livro.id, livro: d.livro, trechos: d.trechos });
+      }
+      try { await gravarVarios(novos.concat([{ id: META_ID, versao: manifesto.versao }]), true); }
+      catch (e) { console.warn('Cache local indisponível:', e); }
+      return definirLivros(novos, onProgresso);
+    })().catch(e => {
+      console.error('Base de livros:', e);
+      if (onProgresso) onProgresso('Não foi possível carregar a base de livros.');
+    });
+    return carregando;
+  }
+
+  /** Espera o carregamento terminar (até ms milissegundos), para a 1ª pergunta não ir sem os livros. */
+  function aguardar(ms) {
+    const espera = new Promise(r => setTimeout(r, ms || 20000));
+    return Promise.race([carregando || Promise.resolve(), espera]);
+  }
+
+  function estado() {
+    return { pronto, livros: livros.map(b => ({ id: b.livro.id, titulo: b.livro.titulo, trechos: b.trechos.length })) };
+  }
+
+  // ---------- busca BM25 ----------
+  function idfDe(w) {
+    let v = idfCache.get(w);
+    if (v === undefined) {
+      const p = postings.get(w);
+      const df = p ? p.length / 2 : 0;
+      v = Math.log(1 + (docs.length - df + 0.5) / (df + 0.5));
+      idfCache.set(w, v);
+    }
+    return v;
+  }
+
+  function buscar(consulta, k, opcoes) {
+    k = k || 5; opcoes = opcoes || {};
     if (!pronto) return [];
     const minScore = opcoes.minScore != null ? opcoes.minScore : 3;
     const termos = Array.from(new Set(tokens(consulta)));
-    const N = docs.length;
     const score = new Map();
-    const casou = new Map();   // quantos termos distintos da pergunta cada trecho contém
+    const casou = new Map();
     const minTermos = termos.length <= 1 ? 1 : Math.ceil(termos.length * 0.6);
     for (const w of termos) {
       const p = postings.get(w);
       if (!p) continue;
-      const df = p.length / 2;
-      const idf = Math.log(1 + (N - df + 0.5) / (df + 0.5));
+      const idf = idfDe(w);
       for (let j = 0; j < p.length; j += 2) {
         const d = p[j], f = p[j + 1];
-        const s = idf * f * 2.2 / (f + 1.2 * (0.25 + 0.75 * docLen[d] / mediaLen));
-        score.set(d, (score.get(d) || 0) + s);
+        score.set(d, (score.get(d) || 0) + idf * f * 2.2 / (f + 1.2 * (0.25 + 0.75 * docLen[d] / mediaLen)));
         casou.set(d, (casou.get(d) || 0) + 1);
       }
     }
-    const ordem = Array.from(score.entries())
-      .filter(([d]) => casou.get(d) >= minTermos)
-      .sort((a, b) => b[1] - a[1]);
+    const ordem = Array.from(score.entries()).filter(([d]) => casou.get(d) >= minTermos).sort((a, b) => b[1] - a[1]);
     const out = [];
     const porCapitulo = new Map();
     for (const [d, s] of ordem) {
       if (s < minScore || out.length >= k) break;
       const t = livros[docs[d].l].trechos[docs[d].i];
       const chave = livros[docs[d].l].livro.id + '|' + t.c;
-      if ((porCapitulo.get(chave) || 0) >= 3) continue;   // evita encher com um só capítulo
+      if ((porCapitulo.get(chave) || 0) >= 3) continue;
       porCapitulo.set(chave, (porCapitulo.get(chave) || 0) + 1);
-      out.push({
-        livro: livros[docs[d].l].livro.titulo,
-        capitulo: t.c || '',
-        pagina: t.p,
-        texto: t.t,
-        score: Math.round(s * 10) / 10
-      });
+      out.push({ livro: livros[docs[d].l].livro.titulo, capitulo: t.c || '', pagina: t.p, texto: t.t, score: Math.round(s * 10) / 10 });
     }
     return out;
   }
 
-  /** Texto pronto para colocar no início do prompt do Gemini ('' se nada relevante). */
-  function contextoParaPrompt(pergunta, k = 4) {
-    const achados = buscar(pergunta, k);
-    if (!achados.length) return '';
-    const blocos = achados.map((a, n) =>
-      `[Trecho ${n + 1}] ${a.livro}, cap. ${a.capitulo}, pág. ${a.pagina} do PDF\n${a.texto.slice(0, 2200)}`);
-    return 'Você é o tutor do VetSim, um simulador educacional de medicina veterinária. ' +
-      'Responda usando SOMENTE os trechos de livros abaixo. Cite a fonte no formato (livro, pág. X do PDF). ' +
-      'Se os trechos não bastarem para responder, diga claramente que a base de livros não cobre ' +
-      'isso, sem inventar. Não apresente doses ou condutas como validadas para uso clínico real.\n\n' +
-      blocos.join('\n\n');
-  }
-
-
-  /** Só os blocos de trechos (sem instruções), para encaixar em prompts existentes. '' se nada relevante. */
-  function trechosParaPrompt(consulta, k = 4) {
-    const achados = buscar(consulta, k);
-    return achados.map((a, n) =>
-      `[Trecho ${n + 1}] ${a.livro}, cap. ${a.capitulo}, pág. ${a.pagina} do PDF\n${a.texto.slice(0, 2200)}`).join('\n\n');
-  }
-
-  /** Referências (um por capítulo): [{livro, capitulo, pagina}] — sem copiar o texto do livro. */
-  function referencias(consulta, k = 3) {
-    const vistos = new Set();
-    const out = [];
-    for (const a of buscar(consulta, k * 4)) {
+  /** Fontes agrupadas por livro+capítulo: [{livro, capitulo, paginas:[...]}] */
+  function agruparFontes(achados) {
+    const mapa = new Map();
+    for (const a of achados) {
       const chave = a.livro + '|' + a.capitulo;
-      if (vistos.has(chave)) continue;
-      vistos.add(chave);
-      out.push({ livro: a.livro, capitulo: a.capitulo, pagina: a.pagina });
-      if (out.length >= k) break;
+      if (!mapa.has(chave)) mapa.set(chave, { livro: a.livro, capitulo: a.capitulo, paginas: [] });
+      const f = mapa.get(chave);
+      if (!f.paginas.includes(a.pagina)) f.paginas.push(a.pagina);
     }
-    return out;
+    mapa.forEach(f => f.paginas.sort((x, y) => x - y));
+    return Array.from(mapa.values());
   }
 
-  global.BaseConhecimento = { carregar, importarArquivos, limpar, estado, buscar, contextoParaPrompt, trechosParaPrompt, referencias, definirLivros };
+  /** Para prompts do Gemini: {contexto, fontes}. contexto = '' se nada relevante. */
+  function consultar(consulta, k) {
+    const achados = buscar(consulta, k || 4);
+    return {
+      contexto: achados.map((a, n) =>
+        `[Trecho ${n + 1}] ${a.livro}, cap. ${a.capitulo}\n${a.texto.slice(0, 2200)}`).join('\n\n'),
+      fontes: agruparFontes(achados)
+    };
+  }
+
+  // ---------- IA Nativa: resposta montada a partir dos livros (extrativa) ----------
+  function limparFrase(s) {
+    return s
+      .replace(/\((?:Fig|Figura|Tab|Tabela|Quadro)[^)]*\)/gi, '')
+      .replace(/\[\d+(?:[,\u2013-]\s*\d+)*\]/g, '')
+      .replace(/\s*[•■▪●]\s*/g, ' ')
+      .replace(/\s{2,}/g, ' ')
+      .trim();
+  }
+  function dividirFrases(texto) {
+    return texto.replace(/\s+/g, ' ')
+      .split(/\.\s+(?=[A-ZÀ-Ú])/)
+      .map((f, i, arr) => limparFrase(i < arr.length - 1 && !/[.!?]$/.test(f) ? f + '.' : f))
+      .filter(f => f.length >= 50 && f.length <= 420 && /[a-zà-ú]{4}/i.test(f));
+  }
+
+  // palavras que dizem o QUE o aluno quer saber (tratamento, diagnóstico...): pesam mais na escolha da passagem
+  const INTENCAO = new Set(['tratam', 'diagno', 'sinais', 'sintom', 'manejo', 'terapi', 'condut', 'preven', 'etiolo', 'progno']);
+
+  /**
+   * Monta uma resposta com a passagem mais relevante dos melhores trechos (frases contínuas,
+   * não soltas). Retorna {texto, fontes} ou null se os livros não cobrirem a pergunta.
+   */
+  function responderComBase(consulta, opcoes) {
+    opcoes = opcoes || {};
+    const nFrases = opcoes.frases || 5;
+    const achados = buscar(consulta, 6);
+    if (!achados.length) return null;
+    const termos = Array.from(new Set(tokens(consulta)));
+    const TAM = 3;                       // frases por passagem
+    const janelas = [];
+    achados.forEach((a, rank) => {
+      const fr = dividirFrases(a.texto);
+      const pont = fr.map(f => {
+        const tf = new Set(tokens(f));
+        let s = 0, c = 0;
+        for (const w of termos) if (tf.has(w)) { s += idfDe(w) * (INTENCAO.has(w) ? 2.5 : 1); c++; }
+        return c ? s * (1 + c / termos.length) : 0;
+      });
+      for (let i = 0; i < fr.length; i++) {
+        if (!pont[i]) continue;          // a passagem começa numa frase relevante
+        const fim = Math.min(fr.length, i + TAM);
+        let s = 0;
+        for (let j = i; j < fim; j++) s += pont[j];
+        janelas.push({ rank, ini: i, fim, fr, a, s: s / (1 + rank * 0.3) });
+      }
+    });
+    if (!janelas.length) return null;
+    janelas.sort((x, y) => y.s - x.s);
+    const usados = new Set();
+    const esc = [];
+    let total = 0;
+    for (const j of janelas) {
+      if (usados.has(j.rank)) continue;  // no máximo uma passagem por trecho
+      usados.add(j.rank);
+      esc.push(j);
+      total += j.fim - j.ini;
+      if (total >= nFrases) break;
+    }
+    esc.sort((x, y) => x.rank - y.rank);
+    return {
+      texto: esc.map(j => j.fr.slice(j.ini, j.fim).join(' ')).join('\n\n'),
+      fontes: agruparFontes(esc.map(j => j.a))
+    };
+  }
+
+  global.BaseConhecimento = { carregarRepositorio, aguardar, estado, buscar, consultar, responderComBase, definirLivros };
+
+  // =====================================================================
+  // 2) TEXTO DA IA -> HTML SEGURO (markdown simples + fórmulas em texto)
+  // =====================================================================
+  const escHtml = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+  function latexParaTexto(t) {
+    return t
+      .replace(/\\\[([\s\S]*?)\\\]/g, '$1').replace(/\\\(([\s\S]*?)\\\)/g, '$1')
+      .replace(/\$\$([\s\S]*?)\$\$/g, '$1')
+      .replace(/\$([^$\n]*[\\^_{}][^$\n]*)\$/g, '$1')
+      .replace(/\\text(?:bf|it|rm)?\{([^{}]*)\}/g, '$1')
+      .replace(/\\mathrm\{([^{}]*)\}/g, '$1')
+      .replace(/\\frac\{([^{}]*)\}\{([^{}]*)\}/g, '($1) / ($2)')
+      .replace(/\\times/g, '×').replace(/\\cdot/g, '·').replace(/\\div/g, '÷')
+      .replace(/\\approx/g, '≈').replace(/\\leq?\b/g, '≤').replace(/\\geq?\b/g, '≥')
+      .replace(/\\pm/g, '±').replace(/\\mu\b/g, 'µ').replace(/\\Delta/g, 'Δ').replace(/\\rightarrow|\\to\b/g, '→')
+      .replace(/\\%/g, '%').replace(/\\[,;! ]/g, ' ').replace(/\\(?:left|right)\b/g, '')
+      .replace(/\^\{([^{}]*)\}/g, '^$1').replace(/_\{([^{}]*)\}/g, '_$1');
+  }
+
+  function inline(s) {
+    return s
+      .replace(/`([^`]+)`/g, '<code>$1</code>')
+      .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+      .replace(/__([^_]+)__/g, '<strong>$1</strong>')
+      .replace(/(^|[\s(])\*([^*\s][^*]*?)\*(?=[\s).,;:!?]|$)/g, '$1<em>$2</em>');
+  }
+
+  function mdParaHtml(texto) {
+    const linhas = escHtml(latexParaTexto(String(texto == null ? '' : texto))).replace(/\r/g, '').split('\n');
+    const out = [];
+    let lista = null;       // 'ul' | 'ol'
+    let tabela = null;      // linhas da tabela em construção
+    let par = [];
+    const fecharPar = () => { if (par.length) { out.push('<p>' + par.join('<br>') + '</p>'); par = []; } };
+    const fecharLista = () => { if (lista) { out.push('</' + lista + '>'); lista = null; } };
+    const fecharTabela = () => {
+      if (!tabela) return;
+      const [cab, ...corpo] = tabela;
+      const cel = (l, tag) => '<tr>' + l.map(c => `<${tag}>${inline(c)}</${tag}>`).join('') + '</tr>';
+      out.push('<table>' + cel(cab, 'th') + corpo.map(l => cel(l, 'td')).join('') + '</table>');
+      tabela = null;
+    };
+    for (const bruta of linhas) {
+      const l = bruta.trim();
+      if (/^\|.*\|$/.test(l)) {
+        fecharPar(); fecharLista();
+        if (/^\|[\s:|-]+\|$/.test(l)) continue;          // linha separadora
+        (tabela = tabela || []).push(l.slice(1, -1).split('|').map(c => c.trim()));
+        continue;
+      }
+      fecharTabela();
+      if (!l) { fecharPar(); fecharLista(); continue; }
+      let m;
+      if ((m = l.match(/^#{1,6}\s+(.*)$/))) { fecharPar(); fecharLista(); out.push('<p><strong>' + inline(m[1]) + '</strong></p>'); continue; }
+      if ((m = l.match(/^[-*•]\s+(.*)$/))) {
+        fecharPar();
+        if (lista !== 'ul') { fecharLista(); out.push('<ul>'); lista = 'ul'; }
+        out.push('<li>' + inline(m[1]) + '</li>'); continue;
+      }
+      if ((m = l.match(/^\d+[.)]\s+(.*)$/))) {
+        fecharPar();
+        if (lista !== 'ol') { fecharLista(); out.push('<ol>'); lista = 'ol'; }
+        out.push('<li>' + inline(m[1]) + '</li>'); continue;
+      }
+      fecharLista();
+      par.push(inline(l));
+    }
+    fecharPar(); fecharLista(); fecharTabela();
+    return '<div class="md">' + out.join('') + '</div>';
+  }
+
+  /** Bloco "Fontes consultadas" (HTML) a partir de [{livro, capitulo, paginas}] */
+  function fontesHtml(fontes) {
+    if (!fontes || !fontes.length) return '';
+    const itens = fontes.map(f => {
+      const pg = f.paginas.slice(0, 4).join(', ') + (f.paginas.length > 4 ? '…' : '');
+      return `• ${escHtml(f.livro)} — cap. ${escHtml(f.capitulo)} (pág. ${pg} do PDF)`;
+    });
+    return '<div class="md"><div class="fontes">📚 <strong>Fontes consultadas:</strong><br>' + itens.join('<br>') + '</div></div>';
+  }
+
+  global.mdParaHtml = mdParaHtml;
+  global.fontesHtml = fontesHtml;
 })(typeof window !== 'undefined' ? window : globalThis);
 </script>
 <script>
@@ -1330,6 +1483,12 @@ async function finishCase(){
  // Avaliação inicial via IA Nativa
  let rx = evaluateWithNativeAI(activeCase, session.prescription, session.reason, session.diagnosis);
 
+ // Livros da base: busca pelo diagnóstico correto do caso
+ await BaseConhecimento.aguardar(4000);
+ const kbDxCorreto = activeCase.diagnoses[activeCase.correct];
+ const kbCaso = BaseConhecimento.consultar(kbDxCorreto, 3);
+ let usouGemini = false;
+
  // Avaliação com Gemini + RAG
  const activeKey = apiKey || safeStorage.get("vetsim_gemini_key") || "";
  if(activeKey){
@@ -1341,12 +1500,10 @@ async function finishCase(){
    toast("Consultando IA na nuvem...");
    
    try {
-     const kbTrechos = BaseConhecimento.trechosParaPrompt(activeCase.diagnoses[activeCase.correct], 3);
-     const kbCaso = kbTrechos ? "Trechos de livros de referência (priorize-os na avaliação):\n" + kbTrechos : "";
      const promptText = `
        Você é um avaliador educacional de medicina veterinária.
        Consulte este Banco de Dados de Referência: ${JSON.stringify(VET_KNOWLEDGE_BASE)}
-       ${kbCaso}
+       ${kbCaso.contexto ? "Trechos de livros de referência (base principal da avaliação):\n" + kbCaso.contexto : ""}
 
        Paciente: ${activeCase.patient} (${activeCase.species}, ${activeCase.breed}, ${activeCase.weight}).
        Diagnóstico verdadeiro: ${activeCase.diagnoses[activeCase.correct]}.
@@ -1356,6 +1513,7 @@ async function finishCase(){
        Plano terapêutico: ${session.prescription || "Não informado"}.
 
        Avalie de forma didática e detalhada. Dê uma nota de 0 a 10.
+       No campo feedback escreva em português, em texto corrido, sem LaTeX, cifrão ou barra invertida (negrito com ** é permitido) e sem citar capítulos ou páginas: as fontes são anexadas automaticamente.
        Responda APENAS em JSON no formato exato:
        {"score": number, "label": "string curta", "feedback": "texto explicativo completo"}
      `;
@@ -1368,8 +1526,9 @@ async function finishCase(){
          score: Math.max(0, Math.min(10, Number(parsed.score) || 0)),
          label: parsed.label || `Gemini (${result.modelUsed})`,
          color: parsed.score >= 8 ? "green" : parsed.score >= 5 ? "yellow" : "red",
-         feedback: `<strong>Análise Gemini (${result.modelUsed}):</strong><br>` + parsed.feedback
+         feedback: `<strong>Análise Gemini (${result.modelUsed}):</strong><br>` + mdParaHtml(parsed.feedback)
        };
+       usouGemini = true;
      } else {
        toast(`Gemini indisponível. Usando IA Nativa.`);
      }
@@ -1385,13 +1544,17 @@ async function finishCase(){
  }
 
 
- // Referências dos livros importados (apenas citações; o texto dos livros não entra no histórico)
+ // Livros: com Gemini só anexa as fontes; com a IA Nativa mostra o que os livros dizem sobre o diagnóstico
  try {
-   const refsCaso = BaseConhecimento.referencias(activeCase.diagnoses[activeCase.correct], 3);
-   if(refsCaso.length){
-     rx.feedback += `<br><br>📚 <strong>Para aprofundar nos livros</strong> <span class="muted small">(sugestão automática, confira a relevância)</span>:<ul style="margin:6px 0 0 18px">` + refsCaso.map(r => `<li>${esc(r.livro)} — cap. ${esc(r.capitulo)}, pág. ${r.pagina} do PDF</li>`).join("") + `</ul>`;
+   if(usouGemini){
+     rx.feedback += fontesHtml(kbCaso.fontes);
+   } else {
+     const respLivro = BaseConhecimento.responderComBase(kbDxCorreto, { frases: 4 });
+     if(respLivro){
+       rx.feedback += `<br><br>📖 <strong>O que os livros dizem sobre ${esc(kbDxCorreto)}:</strong>` + mdParaHtml(respLivro.texto) + fontesHtml(respLivro.fontes);
+     }
    }
- } catch(e) { console.warn("Referências dos livros indisponíveis:", e); }
+ } catch(e) { console.warn("Livros indisponíveis:", e); }
 
  const total = session.score + dxScore + rx.score;
  session.score = total;
@@ -1496,25 +1659,6 @@ function clearData(){
 }
 
 function setKbStatus(msg){ const el = $("kb-status"); if(el) el.textContent = msg; }
-async function importKb(input){
- const lista = Array.from(input.files || []);
- input.value = "";
- if(!lista.length) return;
- try {
-   const r = await BaseConhecimento.importarArquivos(lista, setKbStatus);
-   const e = BaseConhecimento.estado();
-   const total = e.livros.reduce((a, l) => a + l.trechos, 0);
-   setKbStatus(r + (e.pronto ? ` · ${e.livros.length} livro(s), ${total} trechos prontos.` : ""));
-   toast("Base de conhecimento atualizada");
- } catch(err){
-   setKbStatus("Erro ao importar: " + err.message);
- }
-}
-async function removeKb(){
- if(!confirm("Remover os livros importados deste navegador?")) return;
- await BaseConhecimento.limpar();
- setKbStatus("Base removida.");
-}
 function saveApiKey(){
  const keyInput = $("gemini-key").value.trim();
  if(!keyInput){
@@ -1620,19 +1764,23 @@ document.addEventListener("DOMContentLoaded", () => {
         
         const activeKey = apiKey || safeStorage.get("vetsim_gemini_key") || "";
         if(!activeKey){
-          let semChave = "Sem chave do Gemini configurada. Insira uma chave de API do Gemini no painel ao lado para liberar o chat em tempo real.";
-          const refsChat = BaseConhecimento.referencias(msg, 4);
-          if(refsChat.length){
-            semChave += "\n\nTrechos relacionados nos livros importados:\n" + refsChat.map(r => `• ${r.livro} — cap. ${r.capitulo}, pág. ${r.pagina} do PDF`).join("\n");
+          const bolhaNativa = addBubble("Consultando os livros…", "assistant");
+          await BaseConhecimento.aguardar(8000);
+          const respNativa = BaseConhecimento.responderComBase(msg);
+          if(respNativa){
+            bolhaNativa.style.whiteSpace = "normal";
+            bolhaNativa.innerHTML = '<div class="md"><p><strong>IA Nativa · passagens dos livros sobre o tema</strong></p></div>' + mdParaHtml(respNativa.texto) + fontesHtml(respNativa.fontes) + '<div class="md"><p class="muted small" style="margin-top:8px">Para uma resposta explicada, conecte a chave do Gemini no painel ao lado. A IA Nativa mostra o que os livros dizem.</p></div>';
+          } else {
+            bolhaNativa.textContent = "Não encontrei esse assunto nos livros da base. Para uma resposta explicada, conecte uma chave do Gemini no painel ao lado.";
           }
-          addBubble(semChave, "assistant");
           return;
         }
         
         const waiting = addBubble("Pensando…", "assistant");
         try {
-          const livrosCtx = BaseConhecimento.trechosParaPrompt(msg, 4);
-          const livrosBloco = livrosCtx ? "Trechos de livros de referência (priorize-os; cite livro e pág. do PDF; se divergirem do banco resumido acima, aponte a divergência):\n" + livrosCtx + "\n" : "";
+          await BaseConhecimento.aguardar(15000);
+          const kbInfo = BaseConhecimento.consultar(msg, 4);
+          const livrosBloco = kbInfo.contexto ? "Trechos de livros de referência (use-os como base principal da resposta; se divergirem do banco resumido acima, aponte a divergência):\n" + kbInfo.contexto + "\n" : "";
           const context = activeCase ? `\nCaso Clínico Atual: ${activeCase.title}. Paciente: ${activeCase.patient} (${activeCase.species}). Histórico: ${activeCase.history}.` : "";
           const systemPrompt = `Você é um Tutor Clínico Veterinário Sênior. 
 Acesse este Banco de Dados de Referência Veterinária para embasar suas respostas com clareza, exatidão e riqueza de detalhes:
@@ -1641,7 +1789,10 @@ ${livrosBloco}
 
 Diretrizes:
 - Responda de forma direta, técnica, completa e encorpada.
-- Não corte frases. Explique o raciocínio clínico por trás de cada conduta.` + context;
+- Não corte frases. Explique o raciocínio clínico por trás de cada conduta.
+- Baseie a resposta nos trechos de livros fornecidos. Se eles não cobrirem a pergunta, diga isso e complemente com conhecimento geral, deixando claro o que não veio dos livros.
+- Não cite capítulos nem páginas no corpo da resposta: as fontes são anexadas automaticamente ao final.
+- Escreva em português, em texto corrido, com listas simples iniciadas por hífen. Use **negrito** só para destacar termos-chave. NUNCA use LaTeX, cifrão ou barra invertida: escreva fórmulas em texto simples, por exemplo: Déficit (L) = peso (kg) × % de desidratação ÷ 100.` + context;
           
           const result = await fetchGeminiWithFallback(activeKey, {
             systemInstruction: { parts: [{ text: systemPrompt }] },
@@ -1651,14 +1802,15 @@ Diretrizes:
           
           if (!result.ok) throw new Error(result.error?.message || "Modelo indisponível");
           const answer = result.data.candidates?.[0]?.content?.parts?.map(p => p.text || "").join("\n") || "Não foi possível obter resposta.";
-          waiting.textContent = answer;
+          waiting.style.whiteSpace = "normal";
+          waiting.innerHTML = mdParaHtml(answer) + fontesHtml(kbInfo.fontes);
         } catch(err) {
           waiting.textContent = "❌ Falha na consulta ao Gemini: " + err.message;
         }
       });
     }
 
-    BaseConhecimento.carregar(setKbStatus);
+    setTimeout(() => BaseConhecimento.carregarRepositorio(setKbStatus), 300);
     loadState();
     navigate("dashboard");
     renderPrompts();
