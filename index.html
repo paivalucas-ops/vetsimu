@@ -79,20 +79,19 @@ h2{font-size:21px;letter-spacing:-.5px;margin:0 0 6px}h3{font-size:16px;margin:0
 .notice{padding:13px 15px;border-radius:12px;background:#edf5ff;color:#315c8b;font-size:13px;border:1px solid #dceaff}.notice.warn{background:#fff7e5;border-color:#f5e4b5;color:#805c13}.notice.danger{background:#fff0f0;border-color:#f4d1d1;color:#9e3333}
 .report-score{font-size:44px;letter-spacing:-2px;font-weight:900}.report-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
 .history-row{display:grid;grid-template-columns:1.3fr 1fr .7fr auto;gap:12px;align-items:center;padding:14px 0;border-bottom:1px solid var(--line)}.history-row:last-child{border:0}
-.ai-layout{grid-template-columns:minmax(0,1fr) minmax(270px,.7fr)}.ai-chat{height:360px;overflow:auto;border:1px solid var(--line);border-radius:13px;padding:14px;background:#f8fafc;display:flex;flex-direction:column;gap:10px;margin:12px 0}.bubble{max-width:92%;padding:11px 13px;border-radius:13px;font-size:13px;white-space:pre-wrap}.bubble.user{align-self:flex-end;background:#dff6f1}.bubble.assistant{align-self:flex-start;background:white;border:1px solid var(--line)}.chat-form{display:flex;gap:8px}.chat-form input{flex:1;min-width:0}
 .empty{padding:32px;text-align:center;color:var(--muted)}.empty .emoji{font-size:38px;margin-bottom:8px}
 .footer-note{font-size:11px;color:var(--muted);margin-top:18px}
 .modal-backdrop{position:fixed;inset:0;background:#081b2bd1;z-index:20;display:none;align-items:center;justify-content:center;padding:18px}.modal-backdrop.open{display:flex}.modal{background:white;border-radius:20px;max-width:510px;width:100%;padding:24px;box-shadow:0 24px 80px #0003}.modal h2{margin-bottom:10px}.modal-actions{display:flex;justify-content:flex-end;gap:9px;margin-top:20px}
 .toast{position:fixed;bottom:20px;right:20px;background:#10283f;color:white;padding:13px 17px;border-radius:12px;box-shadow:var(--shadow);z-index:40;display:none;max-width:min(400px,90vw)}
 @media(max-width:1150px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.case-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.consult-layout{grid-template-columns:minmax(0,1fr) 240px}}
-@media(max-width:850px){.app{grid-template-columns:1fr}.sidebar{min-height:0;padding:12px;gap:10px}.brand{padding:4px 8px 10px}.brand-mark{width:36px;height:36px}.brand strong{font-size:18px}.nav-label,.sidebar-bottom{display:none}.nav{display:flex;overflow:auto}.nav button{white-space:nowrap;padding:9px 11px;font-size:12px}.main{padding:20px 14px 35px}.hero{grid-template-columns:1fr;padding:23px}.hero-art{display:none}.two-col,.consult-layout,.ai-layout{grid-template-columns:1fr}.sidebar-card{position:static}.topbar{align-items:flex-start}.history-row{grid-template-columns:1fr auto}.history-row>*:nth-child(2),.history-row>*:nth-child(3){grid-column:1}.history-row .history-actions{grid-column:2;grid-row:1/4}}
-@media(max-width:560px){.stats,.case-grid,.exam-grid,.report-grid{grid-template-columns:1fr}.topbar{display:block}.top-actions{margin-top:14px}.data-list{grid-template-columns:1fr}.patient-banner{align-items:flex-start}.section-head{align-items:flex-start;flex-direction:column}.hero h2{font-size:25px}.case-mini{align-items:flex-start}.history-row{grid-template-columns:1fr}.history-row .history-actions{grid-column:1;grid-row:auto}.chat-form{flex-wrap:wrap}.chat-form input{flex-basis:100%}}
+@media(max-width:850px){.app{grid-template-columns:1fr}.sidebar{min-height:0;padding:12px;gap:10px}.brand{padding:4px 8px 10px}.brand-mark{width:36px;height:36px}.brand strong{font-size:18px}.nav-label,.sidebar-bottom{display:none}.nav{display:flex;overflow:auto}.nav button{white-space:nowrap;padding:9px 11px;font-size:12px}.main{padding:20px 14px 35px}.hero{grid-template-columns:1fr;padding:23px}.hero-art{display:none}.two-col,.consult-layout{grid-template-columns:1fr}.sidebar-card{position:static}.topbar{align-items:flex-start}.history-row{grid-template-columns:1fr auto}.history-row>*:nth-child(2),.history-row>*:nth-child(3){grid-column:1}.history-row .history-actions{grid-column:2;grid-row:1/4}}
+@media(max-width:560px){.stats,.case-grid,.exam-grid,.report-grid{grid-template-columns:1fr}.topbar{display:block}.top-actions{margin-top:14px}.data-list{grid-template-columns:1fr}.patient-banner{align-items:flex-start}.section-head{align-items:flex-start;flex-direction:column}.hero h2{font-size:25px}.case-mini{align-items:flex-start}.history-row{grid-template-columns:1fr}.history-row .history-actions{grid-column:1;grid-row:auto}}
 @media print{.sidebar,.topbar,.btn,.workflow,.footer-note{display:none!important}.main{padding:0}.view{display:none!important}#view-report{display:block!important}.card{box-shadow:none}}
 .md p{margin:0 0 8px}.md p:last-child{margin-bottom:0}.md ul,.md ol{margin:4px 0 8px 18px;padding:0}.md li{margin:2px 0}
 .md table{border-collapse:collapse;margin:6px 0;font-size:12px;display:block;overflow-x:auto}.md th,.md td{border:1px solid var(--line);padding:4px 8px;text-align:left}.md th{background:var(--surface2)}
 .md code{background:#eef2f7;padding:1px 5px;border-radius:5px;font-size:12px}.md .fontes{margin-top:10px;padding-top:8px;border-top:1px solid var(--line);color:var(--muted);font-size:12px;line-height:1.55}
 
-/* MODO BUSCA LOCAL (IA NATIVA) */
+/* MODO BUSCA LOCAL DE LITERATURA */
 .busca-local-container {
   background-color: #f8f9fa;
   border-left: 4px solid #0d6efd;
@@ -117,34 +116,6 @@ h2{font-size:21px;letter-spacing:-.5px;margin:0 0 6px}h3{font-size:16px;margin:0
   border-radius: 12px;
   font-weight: normal;
 }
-.livro-card {
-  background: #ffffff;
-  border: 1px solid #dee2e6;
-  border-radius: 6px;
-  padding: 10px 12px;
-  margin-top: 8px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-}
-.livro-card-header {
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.82rem;
-  border-bottom: 1px solid #f0f0f0;
-  padding-bottom: 4px;
-  margin-bottom: 6px;
-}
-.livro-titulo {
-  font-weight: bold;
-  color: #0d6efd;
-}
-.livro-meta {
-  color: #6c757d;
-}
-.livro-card-body {
-  font-size: 0.88rem;
-  color: #333333;
-  line-height: 1.45;
-}
 </style>
 </head>
 <body>
@@ -156,10 +127,9 @@ h2{font-size:21px;letter-spacing:-.5px;margin:0 0 6px}h3{font-size:16px;margin:0
     <button class="active" data-view="dashboard"><span class="ico">▦</span> Visão geral</button>
     <button data-view="library"><span class="ico">▤</span> Casos clínicos</button>
     <button data-view="history"><span class="ico">◷</span> Prontuários</button>
-    <button data-view="ai"><span class="ico">✧</span> Tutor IA</button>
     <button data-view="settings"><span class="ico">⚙</span> Configurações</button>
   </nav>
-  <div class="sidebar-bottom"><strong>Escala Ponderada 0-100</strong>Investigação (30%), Diagnóstico (30%), Conduta & Segurança (40%).</div>
+  <div class="sidebar-bottom"><strong>IA Nativa & Base Local</strong>Avaliação estruturada de condutas, alertas de segurança e suporte da literatura (base/).</div>
 </aside>
 <main class="main">
 <header class="topbar">
@@ -168,7 +138,7 @@ h2{font-size:21px;letter-spacing:-.5px;margin:0 0 6px}h3{font-size:16px;margin:0
 </header>
 
 <section id="view-dashboard" class="view active">
- <div class="hero"><div><div class="eyebrow">SIMULAÇÃO • AVALIAÇÃO NORMALIZADA • APRENDIZADO</div><h2>Raciocínio clínico com escala de desempenho padronizada.</h2><p>Investigue com critério, selecione exames essenciais e estruture condutas seguras para atingir o nível de excelência.</p><button class="btn btn-primary" onclick="navigate('library')">Explorar casos clínicos <span>→</span></button></div><div class="hero-art"><div class="paw-circle">🐾</div></div></div>
+ <div class="hero"><div><div class="eyebrow">SIMULAÇÃO • AVALIAÇÃO NORMALIZADA • IA NATIVA</div><h2>Raciocínio clínico com escala de desempenho padronizada.</h2><p>Investigue com critério, selecione exames essenciais e estruture condutas seguras para atingir o nível de excelência.</p><button class="btn btn-primary" onclick="navigate('library')">Explorar casos clínicos <span>→</span></button></div><div class="hero-art"><div class="paw-circle">🐾</div></div></div>
  <div class="grid stats">
   <div class="card stat"><div><div class="label">Atendimentos iniciados</div><div class="value" id="stat-started">0</div></div><div class="stat-ico">🩺</div></div>
   <div class="card stat"><div><div class="label">Atendimentos concluídos</div><div class="value" id="stat-completed">0</div></div><div class="stat-ico">✓</div></div>
@@ -177,7 +147,7 @@ h2{font-size:21px;letter-spacing:-.5px;margin:0 0 6px}h3{font-size:16px;margin:0
  </div>
  <div class="grid two-col">
   <div class="card"><div class="section-head" style="margin-top:0"><div><h2>Continue aprendendo</h2><p>Casos sugeridos para sua próxima sessão.</p></div><button class="btn btn-soft" onclick="navigate('library')">Ver biblioteca →</button></div><div id="recommended-cases"></div></div>
-  <div class="card"><h2>Seu progresso</h2><p class="muted small">Acompanhe sua prática ao longo do tempo.</p><div style="margin:23px 0 9px;display:flex;justify-content:space-between"><strong>Casos concluídos</strong><strong id="progress-count">0 / 20</strong></div><div class="progress"><span id="progress-bar" style="width:0%"></span></div><div class="info-block" style="margin-top:20px"><strong>💡 Dica clínica da v3.1</strong><p class="small muted" style="margin:5px 0 0">Exames desnecessários ou inadequados agora reduzem a nota de Investigação Diagnóstica. Solicite apenas os testes indispensáveis.</p></div><button class="btn btn-outline" style="width:100%" onclick="navigate('ai')">Conversar com o Tutor IA ✧</button></div>
+  <div class="card"><h2>Seu progresso</h2><p class="muted small">Acompanhe sua prática ao longo do tempo.</p><div style="margin:23px 0 9px;display:flex;justify-content:space-between"><strong>Casos concluídos</strong><strong id="progress-count">0 / 20</strong></div><div class="progress"><span id="progress-bar" style="width:0%"></span></div><div class="info-block" style="margin-top:20px"><strong>💡 Dica clínica da v3.1</strong><p class="small muted" style="margin:5px 0 0">Exames desnecessários ou inadequados reduzem a nota de Investigação Diagnóstica. Solicite apenas os testes indispensáveis.</p></div></div>
  </div>
  <div class="footer-note">VetSim é um protótipo educacional. Casos e parâmetros demonstrativos precisam de revisão profissional antes de uso formativo formal.</div>
 </section>
@@ -219,7 +189,7 @@ h2{font-size:21px;letter-spacing:-.5px;margin:0 0 6px}h3{font-size:16px;margin:0
     </div>
     <div class="field" style="margin-top:16px"><label>Justificativa clínica</label><textarea id="diagnosis-reason" placeholder="Quais achados sustentam sua hipótese? Quais diferenciais ainda precisam ser considerados?"></textarea></div>
     <div class="field" style="margin-top:16px"><label>Prescrição ou plano terapêutico (educacional)</label><textarea id="prescription" placeholder="Descreva estabilização, tratamento, monitoramento e contraindicações observadas."></textarea></div>
-    <div class="notice warn" style="margin:14px 0">O simulador avalia seu plano com a IA Nativa integrada na escala padronizada de 0 a 100 pts. Se desejar conectar a API do Gemini opcionalmente, configure sua chave na aba Tutor IA.</div>
+    <div class="notice warn" style="margin:14px 0">O simulador avalia seu plano com a IA Nativa e a base de literatura local (livros em base/) na escala padronizada de 0 a 100 pts.</div>
     <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:16px"><button class="btn btn-outline" onclick="goStep(1)">← Exames</button><button class="btn btn-primary" id="btn-finish-case" onclick="finishCase()">Concluir atendimento ✓</button></div>
    </div>
    <div class="card clinical-panel" id="step-3">
@@ -249,48 +219,26 @@ h2{font-size:21px;letter-spacing:-.5px;margin:0 0 6px}h3{font-size:16px;margin:0
  <div class="card"><div class="section-head" style="margin-top:0"><div><h2>Histórico de atendimentos</h2><p>Dados salvos localmente no navegador.</p></div><button class="btn btn-outline" onclick="document.getElementById('import-file').click()">⇧ Importar JSON</button><input type="file" id="import-file" accept=".json,application/json" hidden></div><div id="history-list"></div></div>
 </section>
 
-<section id="view-ai" class="view">
- <div class="section-head" style="margin-top:0"><div><div class="eyebrow">APRENDIZAGEM ASSISTIDA</div><h2>Tutor clínico com IA</h2><p>Estude hipóteses e condutas com suporte da IA Nativa ou do Gemini.</p></div><span class="pill teal">Integração opcional</span></div>
- <div class="grid ai-layout">
-  <div class="card"><h2>Converse com o tutor</h2><p class="muted small">A IA atua como suporte didático educacional. Não use as respostas como prescrição clínica real.</p>
-   <div class="ai-chat" id="ai-chat"><div class="bubble assistant">Olá! Sou o tutor de aprendizagem do VetSim 3.1. Posso ajudar você a interpretar achados, pensar em diagnósticos diferenciais e entender as diretrizes de avaliação. O sistema possui busca direta em livros locais e suporte opcional ao Gemini.</div></div>
-   <form id="ai-form" class="chat-form"><input id="ai-message" placeholder="Ex.: Como diferenciar DRC de diabetes em um gato?" autocomplete="off"><button class="btn btn-primary" type="submit">Enviar ↑</button></form>
-   <div class="footer-note">Evite inserir dados identificáveis de tutores ou pacientes reais.</div>
-  </div>
-  <div class="card"><h2>Configurar conexão Gemini</h2><p class="muted small">Insira uma chave da API do Gemini para expandir o tutor com IA generativa na nuvem.</p>
-   <div class="field" style="margin:15px 0"><label>Chave de API do Gemini</label><input id="gemini-key" type="password" placeholder="Cole sua chave aqui (ex: AIzaSy...)" autocomplete="off"></div>
-   <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn-primary" onclick="saveApiKey()">Salvar Chave</button><button class="btn btn-soft" onclick="testApiKey()">Testar Conexão</button><button class="btn btn-outline" onclick="clearApiKey()">Limpar chave</button></div>
-   <div id="api-test-result" style="margin-top:10px"></div>
-   <div class="notice warn" style="margin-top:14px">Por segurança, a chave fica salva localmente no navegador e não é enviada para backups. Para disponibilização pública da plataforma a múltiplos usuários, recomenda-se intermediar chamadas via servidor seguro para evitar exposição da chave no cliente.</div>
-   <h3 style="margin-top:22px">Base de conhecimento (livros)</h3>
-   <p class="muted small">O tutor e o feedback dos casos consultam os livros da pasta <code>base/</code> do site, carregados automaticamente.</p>
-   <div id="kb-status" class="small muted" style="margin-top:8px">Carregando base de livros…</div>
-   <h3 style="margin-top:22px">Temas para estudar</h3><div class="choice-list" id="study-prompts"></div>
-   <p class="small muted">Obtenha uma chave gratuita no <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener">Google AI Studio</a>.</p>
-  </div>
- </div>
-</section>
-
 <section id="view-settings" class="view">
  <div class="section-head" style="margin-top:0"><div><div class="eyebrow">PREFERÊNCIAS</div><h2>Configurações e dados</h2><p>Gerencie o histórico e faça cópias de segurança.</p></div></div>
  <div class="grid two-col">
   <div class="card"><h2>Backup dos dados</h2><p class="muted">Exporte seu histórico para guardar uma cópia ou importar em outro navegador.</p><div style="display:flex;gap:9px;flex-wrap:wrap;margin-top:15px"><button class="btn btn-primary" onclick="exportData()">⇩ Exportar JSON</button><button class="btn btn-outline" onclick="document.getElementById('import-file').click()">⇧ Importar JSON</button></div></div>
   <div class="card"><h2>Privacidade e armazenamento</h2><p class="muted">O progresso é armazenado localmente neste navegador. O backup JSON permite migrar ou recuperar os dados a qualquer momento.</p><div class="notice warn" style="margin-top:14px">Este protótipo não é um prontuário para uso em clínica real e não oferece sincronização entre dispositivos.</div></div>
   <div class="card"><h2>Reiniciar progresso</h2><p class="muted">Apaga os atendimentos salvos neste navegador. Esta ação não pode ser desfeita sem backup.</p><button class="btn btn-danger" style="margin-top:12px" onclick="clearData()">Apagar progresso local</button></div>
-  <div class="card"><h2>Sobre o VetSim 3.1</h2><p>Motor de Pontuação Normalizado (0-100), Validação de Exames Essenciais, Regras Estruturadas de IA Nativa e RAG de Conhecimento Veterinário Completo.</p><p class="small muted">Os casos, valores laboratoriais, critérios de pontuação e feedbacks são exemplos educacionais simplificados. Devem ser revisados por profissional veterinário antes de uso acadêmico formal.</p></div>
+  <div class="card"><h2>Sobre o VetSim 3.1</h2><p>Motor de Pontuação Normalizado (0-100), Validação de Exames Essenciais, IA Nativa Estruturada e RAG de Conhecimento Veterinário Local (base/).</p><p class="small muted">Os casos, valores laboratoriais, critérios de pontuação e feedbacks são exemplos educacionais simplificados. Devem ser revisados por profissional veterinário antes de uso acadêmico formal.</p></div>
  </div>
 </section>
 </main>
 </div>
 
 <div class="modal-backdrop" id="confirm-modal" role="dialog" aria-modal="true">
- <div class="modal"><div class="eyebrow">CONFIRMAR SOLICITAÇÃO</div><h2 id="modal-title">Solicitar exame?</h2><p id="modal-text"></p><div class="notice warn" id="modal-note">Exames de baixa pertinência aplicam penalidades na pontuação de investigação. A avaliação e o resultado serão exibidos somente após confirmar.</div><div class="modal-actions"><button class="btn btn-outline" onclick="closeModal()">Voltar</button><button class="btn btn-primary" id="modal-confirm">Confirmar solicitação</button></div></div>
+ <div class="modal"><div class="eyebrow">CONFIRMAR SOLICITAÇÃO</div><h2 id="modal-title">Solicitar exame?</h2><p id="modal-text"></p><div class="notice warn" id="modal-note">Exames desnecessários aplicam penalidades na pontuação de investigação. A avaliação e o resultado serão exibidos somente após confirmar.</div><div class="modal-actions"><button class="btn btn-outline" onclick="closeModal()">Voltar</button><button class="btn btn-primary" id="modal-confirm">Confirmar solicitação</button></div></div>
 </div>
 <div class="toast" id="toast"></div>
 
 <script>
 // ==========================================
-// BASE DE CONHECIMENTO (livros em base/) + FORMATAÇÃO DAS RESPOSTAS DA IA
+// BASE DE CONHECIMENTO (livros em base/)
 // ==========================================
 (function (global) {
   'use strict';
@@ -392,7 +340,7 @@ h2{font-size:21px;letter-spacing:-.5px;margin:0 0 6px}h3{font-size:16px;margin:0
 
       if (!manifesto || !Array.isArray(manifesto.arquivos)) {
         if (doCache.length) return definirLivros(doCache, onProgresso);
-        if (onProgresso) onProgresso('Base de livros não encontrada (a pasta base/ só funciona com o site publicado).');
+        if (onProgresso) onProgresso('Base de livros não encontrada.');
         return;
       }
       if (meta && meta.versao === manifesto.versao && doCache.length) {
@@ -420,10 +368,6 @@ h2{font-size:21px;letter-spacing:-.5px;margin:0 0 6px}h3{font-size:16px;margin:0
   function aguardar(ms) {
     const espera = new Promise(r => setTimeout(r, ms || 20000));
     return Promise.race([carregando || Promise.resolve(), espera]);
-  }
-
-  function estado() {
-    return { pronto, livros: livros.map(b => ({ id: b.livro.id, titulo: b.livro.titulo, trechos: b.trechos.length })) };
   }
 
   function idfDe(w) {
@@ -479,15 +423,6 @@ h2{font-size:21px;letter-spacing:-.5px;margin:0 0 6px}h3{font-size:16px;margin:0
     }
     mapa.forEach(f => f.paginas.sort((x, y) => x - y));
     return Array.from(mapa.values());
-  }
-
-  function consultar(consulta, k) {
-    const achados = buscar(consulta, k || 4);
-    return {
-      contexto: achados.map((a, n) =>
-        `[Trecho ${n + 1}]${a.livro}, cap. ${a.capitulo}\n${a.texto.slice(0, 2200)}`).join('\n\n'),
-      fontes: agruparFontes(achados)
-    };
   }
 
   function limparFrase(s) {
@@ -550,24 +485,9 @@ h2{font-size:21px;letter-spacing:-.5px;margin:0 0 6px}h3{font-size:16px;margin:0
     };
   }
 
-  global.BaseConhecimento = { carregarRepositorio, aguardar, estado, buscar, consultar, responderComBase, definirLivros };
+  global.BaseConhecimento = { carregarRepositorio, aguardar, buscar, responderComBase };
 
   const escHtml = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-
-  function latexParaTexto(t) {
-    return t
-      .replace(/\\\[([\s\S]*?)\\\]/g, '$1').replace(/\\\(([\s\S]*?)\\\)/g, '$1')
-      .replace(/\$\$([\s\S]*?)\$\$/g, '$1')
-      .replace(/\$([^$\n]*[\\^_{}][^$\n]*)\$/g, '$1')
-      .replace(/\\text(?:bf|it|rm)?\{([^{}]*)\}/g, '$1')
-      .replace(/\\mathrm\{([^{}]*)\}/g, '$1')
-      .replace(/\\frac\{([^{}]*)\}\{([^{}]*)\}/g, '($1) / ($2)')
-      .replace(/\\times/g, '×').replace(/\\cdot/g, '·').replace(/\\div/g, '÷')
-      .replace(/\\approx/g, '≈').replace(/\\leq?\b/g, '≤').replace(/\\geq?\b/g, '≥')
-      .replace(/\\pm/g, '±').replace(/\\mu\b/g, 'µ').replace(/\\Delta/g, 'Δ').replace(/\\rightarrow|\\to\b/g, '→')
-      .replace(/\\%/g, '%').replace(/\\[,;! ]/g, ' ').replace(/\\(?:left|right)\b/g, '')
-      .replace(/\^\{([^{}]*)\}/g, '^$1').replace(/_\{([^{}]*)\}/g, '_$1');
-  }
 
   function inline(s) {
     return s
@@ -578,46 +498,16 @@ h2{font-size:21px;letter-spacing:-.5px;margin:0 0 6px}h3{font-size:16px;margin:0
   }
 
   function mdParaHtml(texto) {
-    const linhas = escHtml(latexParaTexto(String(texto == null ? '' : texto))).replace(/\r/g, '').split('\n');
+    const linhas = escHtml(String(texto == null ? '' : texto)).replace(/\r/g, '').split('\n');
     const out = [];
-    let lista = null;       
-    let tabela = null;      
     let par = [];
     const fecharPar = () => { if (par.length) { out.push('<p>' + par.join('<br>') + '</p>'); par = []; } };
-    const fecharLista = () => { if (lista) { out.push('</' + lista + '>'); lista = null; } };
-    const fecharTabela = () => {
-      if (!tabela) return;
-      const [cab, ...corpo] = tabela;
-      const cel = (l, tag) => '<tr>' + l.map(c => `<${tag}>${inline(c)}</${tag}>`).join('') + '</tr>';
-      out.push('<table>' + cel(cab, 'th') + corpo.map(l => cel(l, 'td')).join('') + '</table>');
-      tabela = null;
-    };
     for (const bruta of linhas) {
       const l = bruta.trim();
-      if (/^\|.*\|$/.test(l)) {
-        fecharPar(); fecharLista();
-        if (/^\|[\s:|-]+\|$/.test(l)) continue;          
-        (tabela = tabela || []).push(l.slice(1, -1).split('|').map(c => c.trim()));
-        continue;
-      }
-      fecharTabela();
-      if (!l) { fecharPar(); fecharLista(); continue; }
-      let m;
-      if ((m = l.match(/^#{1,6}\s+(.*)$/))) { fecharPar(); fecharLista(); out.push('<p><strong>' + inline(m[1]) + '</strong></p>'); continue; }
-      if ((m = l.match(/^[-*•]\s+(.*)$/))) {
-        fecharPar();
-        if (lista !== 'ul') { fecharLista(); out.push('<ul>'); lista = 'ul'; }
-        out.push('<li>' + inline(m[1]) + '</li>'); continue;
-      }
-      if ((m = l.match(/^\d+[.)]\s+(.*)$/))) {
-        fecharPar();
-        if (lista !== 'ol') { fecharLista(); out.push('<ol>'); lista = 'ol'; }
-        out.push('<li>' + inline(m[1]) + '</li>'); continue;
-      }
-      fecharLista();
+      if (!l) { fecharPar(); continue; }
       par.push(inline(l));
     }
-    fecharPar(); fecharLista(); fecharTabela();
+    fecharPar();
     return '<div class="md">' + out.join('') + '</div>';
   }
 
@@ -627,13 +517,14 @@ h2{font-size:21px;letter-spacing:-.5px;margin:0 0 6px}h3{font-size:16px;margin:0
       const pg = f.paginas.slice(0, 4).join(', ') + (f.paginas.length > 4 ? '…' : '');
       return `• ${escHtml(f.livro)} — cap. ${escHtml(f.capitulo)} (pág. ${pg} do PDF)`;
     });
-    return '<div class="md"><div class="fontes">📚 <strong>Fontes consultadas:</strong><br>' + itens.join('<br>') + '</div></div>';
+    return '<div class="md"><div class="fontes">📚 <strong>Fontes consultadas na base/:</strong><br>' + itens.join('<br>') + '</div></div>';
   }
 
   global.mdParaHtml = mdParaHtml;
   global.fontesHtml = fontesHtml;
 })(typeof window !== 'undefined' ? window : globalThis);
 </script>
+
 <script>
 // ==========================================
 // 0. ISOLAMENTO SEGURO DE ARMAZENAMENTO
@@ -651,110 +542,7 @@ const safeStorage = {
 };
 
 // ==========================================
-// 1. GERENCIADOR OTIMIZADO DE GEMINI COM CACHE
-// ==========================================
-const CANDIDATE_MODELS = [
-  "gemini-2.5-flash",
-  "gemini-2.0-flash",
-  "gemini-1.5-flash",
-  "gemini-1.5-pro",
-  "gemini-1.0-pro",
-  "gemini-pro"
-];
-
-let cachedWorkingModel = safeStorage.get("vetsim_cached_model") || null;
-
-async function fetchGeminiWithFallback(apiKey, bodyObj) {
-  let lastError = null;
-  const cleanKey = apiKey.trim();
-
-  if (cachedWorkingModel) {
-    try {
-      const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${cachedWorkingModel}:generateContent?key=${encodeURIComponent(cleanKey)}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(bodyObj)
-      });
-      const data = await resp.json();
-      if (resp.ok && data.candidates?.[0]) {
-        return { ok: true, modelUsed: cachedWorkingModel, data };
-      }
-    } catch (e) {
-      cachedWorkingModel = null;
-    }
-  }
-
-  try {
-    const listResp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${encodeURIComponent(cleanKey)}`);
-    if (listResp.ok) {
-      const listData = await listResp.json();
-      const validModels = (listData.models || [])
-        .filter(m => m.supportedGenerationMethods && m.supportedGenerationMethods.includes("generateContent"))
-        .map(m => m.name.replace("models/", ""));
-      
-      for (const modelName of validModels) {
-        try {
-          const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${encodeURIComponent(cleanKey)}`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(bodyObj)
-          });
-          const data = await resp.json();
-          if (resp.ok && data.candidates?.[0]) {
-            cachedWorkingModel = modelName;
-            safeStorage.set("vetsim_cached_model", modelName);
-            return { ok: true, modelUsed: modelName, data };
-          }
-        } catch (e) {
-          lastError = e;
-        }
-      }
-    }
-  } catch (e) {
-    console.warn("Consulta dinâmica falhou, iniciando varredura manual...", e);
-  }
-
-  for (const modelName of CANDIDATE_MODELS) {
-    try {
-      const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${encodeURIComponent(cleanKey)}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(bodyObj)
-      });
-      const data = await resp.json();
-      if (resp.ok && data.candidates?.[0]) {
-        cachedWorkingModel = modelName;
-        safeStorage.set("vetsim_cached_model", modelName);
-        return { ok: true, modelUsed: modelName, data };
-      }
-      if (data.error) lastError = new Error(data.error.message || `Erro HTTP ${resp.status}`);
-    } catch (e) {
-      lastError = e;
-    }
-  }
-
-  return { ok: false, error: lastError || new Error("Nenhum modelo do Gemini respondeu.") };
-}
-
-// ==========================================
-// 2. BANCO DE CONHECIMENTO VETERINÁRIO (RAG INTEGRADO)
-// ==========================================
-const VET_KNOWLEDGE_BASE = {
-  fluidoterapia: "Cães: 50-60 mL/kg/dia. Gatos: 40-50 mL/kg/dia. Déficit de Desidratação (L) = Peso (kg) x % Desidratação. Choque hipovolêmico: Cão 80-90 mL/kg/h; Gato 40-50 mL/kg/h.",
-  emergencias: {
-    cetoacidose: "Fluidoterapia com NaCl 0,9% IV imediata. Reposição de Potássio (KCl) OBRIGATÓRIA antes ou junto da insulina regular (0,1 UI/kg/h).",
-    botropico: "Soro Antibotrópico IV em até 6h. Contraindicado torniquete e cortes no local.",
-    colica_equina: "Sondagem nasogástrica para descompressão. Analgesia visceral com Flunixin Meglumine (1,1 mg/kg IV)."
-  },
-  farmacos_chave: {
-    doxiciclina: "10 mg/kg SID ou 5 mg/kg BID por 28 dias para Erliquiose.",
-    trilostano: "1 a 2 mg/kg/dia VO para Cushing. Requer monitoramento com teste de ACTH.",
-    furosemida: "2 a 4 mg/kg IV/IM/VO no edema agudo de pulmão."
-  }
-};
-
-// ==========================================
-// 3. IA NATIVA (AVALIAÇÃO OFFLINE ESTRUTURADA)
+// 1. IA NATIVA (AVALIAÇÃO ESTRUTURADA OFFLINE)
 // ==========================================
 const NATIVE_AI_RULES = {
   parvo: {
@@ -775,7 +563,7 @@ const NATIVE_AI_RULES = {
       { regex: /pressão|hipertens|amlodipin|ieca|benazepril/i, foundMsg: "Atentou-se para o controle da pressão arterial e lesão de órgão-alvo.", missingMsg: "Considere a mensuração e manejo da pressão arterial sistêmica." }
     ],
     contraindicated: [
-      { regex: /meloxicam|carprofeno|aine|anti-inflamatório não esteroide/i, msg: "AINEs são altamente nefrotóxicos em pacientes com Doença Renal Crônica!", penalty: 3.0 }
+      { regex: /meloxicam|carprofeno|aine|anti-inflamatório não esteroide/i, msg: "AINEs são highly nefrotóxicos em pacientes com Doença Renal Crônica!", penalty: 3.0 }
     ]
   },
   piometra: {
@@ -965,7 +753,7 @@ function evaluateWithNativeAI(caseData, prescription, reason, chosenIndex) {
   let color = score >= 8 ? "green" : (score >= 5 ? "yellow" : "red");
 
   let feedbackHtml = `
-    <strong>Avaliação da IA Nativa do VetSim v3.1:</strong><br>
+    <strong>Avaliação da IA Nativa do VetSim 3.1:</strong><br>
     ${strengths.length ? `<br>✅ <strong>Pontos Fortes:</strong> <ul style="margin:4px 0; padding-left:20px;">${strengths.map(s => `<li>${s}</li>`).join('')}</ul>` : ''}
     ${omissions.length ? `<br>⚠️ <strong>Pontos de Melhoria:</strong> <ul style="margin:4px 0; padding-left:20px;">${omissions.map(o => `<li>${o}</li>`).join('')}</ul>` : ''}
     ${risks.length ? `<br>🚨 <strong>Alertas de Segurança:</strong> <ul style="margin:4px 0; padding-left:20px;">${risks.map(r => `<li>${r}</li>`).join('')}</ul>` : ''}
@@ -976,7 +764,7 @@ function evaluateWithNativeAI(caseData, prescription, reason, chosenIndex) {
 }
 
 // ==========================================
-// 4. BANCO DE CASOS CLÍNICOS (20 CASOS COMPLETOS)
+// 2. BANCO DE CASOS CLÍNICOS (20 CASOS COMPLETOS)
 // ==========================================
 const CASES = [
   {
@@ -1209,10 +997,10 @@ const CASES = [
 ];
 
 // ==========================================
-// 5. ESTADO DA APLICAÇÃO E LÓGICA DO SIMULADOR (V3.1 NORMALIZADA)
+// 3. ESTADO DA APLICAÇÃO E LÓGICA DO SIMULADOR (V3.1 NORMALIZADA)
 // ==========================================
 let appState = { started: 0, completed: 0, totalScore: 0, history: [] };
-let activeCase = null, session = null, pendingExam = null, apiKey = "";
+let activeCase = null, session = null, pendingExam = null;
 
 const $ = id => document.getElementById(id);
 const esc = s => String(s??"").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -1224,12 +1012,6 @@ function loadState(){
       const s = JSON.parse(sRaw);
       if(s && Array.isArray(s.history)) appState = { ...appState, ...s };
     } catch(e){}
-  }
-  
-  const savedKey = safeStorage.get("vetsim_gemini_key") || "";
-  if(savedKey){
-    apiKey = savedKey;
-    if($("gemini-key")) $("gemini-key").value = savedKey;
   }
 }
 
@@ -1259,11 +1041,10 @@ function navigate(view){
     });
 
     const meta = {
-      dashboard: ["CENTRO DE SIMULAÇÃO", "Bom dia, futuro(a) veterinário(a).", "Pratique o raciocínio clínico com escala de desempenho padronizada."],
+      dashboard: ["CENTRO DE SIMULAÇÃO", "Bom dia, futuro(a) veterinário(a).", "Pratique o raciocínio clínico com avaliação padronizada."],
       library: ["BIBLIOTECA", "Escolha seu próximo caso.", "Cada paciente tem uma história, achados e desafios próprios."],
       consult: ["ATENDIMENTO CLÍNICO", "Atendimento em andamento", "Investigue, justifique e aprenda com suas decisões."],
       history: ["REGISTROS", "Prontuários e desempenho", "Consulte atendimentos avaliados na escala de 0 a 100."],
-      ai: ["APRENDIZAGEM ASSISTIDA", "Tutor clínico com IA", "Explore hipóteses e interpretações com apoio educacional."],
       settings: ["PREFERÊNCIAS", "Configurações e dados", "Gerencie seu progresso e suas cópias de segurança."]
     }[view] || ["SISTEMA", "VetSim 3.1", "Simulador Veterinário"];
 
@@ -1438,7 +1219,7 @@ function requestExam(i){
  pendingExam = i;
  $("modal-title").textContent = "Confirmar solicitação de exame";
  $("modal-text").innerHTML = `Você está prestes a solicitar <strong>${esc(ex.name)}</strong>.<br><br><span class="muted small">${esc(ex.indication||"Exame complementar")}</span>`;
- $("modal-note").textContent = "Exames desnecessários aplicam penalidade na dimensão de Investigação Diagnóstica.";
+ $("modal-note").textContent = "Exames desnecessários aplicam penalidades na pontuação de investigação.";
  $("modal-confirm").textContent = "Confirmar e revelar resultado";
  $("modal-confirm").onclick = confirmExam;
  $("confirm-modal").classList.add("open");
@@ -1488,7 +1269,7 @@ function updateSessionSummary(){
  $("session-checklist").innerHTML = checks.map(([t,ok]) => `<div class="check-row"><span style="color:${ok ? "var(--green)" : "var(--muted)"}">${ok ? "✓" : "○"}</span><span>${t}</span></div>`).join("");
 }
 
-// MOTOR DE AVALIAÇÃO NORMALIZADO (ESCALA 0-100)
+// MOTOR DE AVALIAÇÃO NORMALIZADO (0-100 PTS) COM IA NATIVA E BASE LOCAL
 async function finishCase(){
  if(session.diagnosis === undefined || !session.diagnosisLocked){
    toast("Selecione e confirme o diagnóstico antes de concluir.");
@@ -1517,77 +1298,20 @@ async function finishCase(){
  const scoreJustificativa = Math.min(10, Math.floor(session.reason.length / 20));
  const scoreDiagnostico = Math.min(30, scoreDiagBase + scoreJustificativa);
 
- // DIMENSÃO 3: CONDUTA E SEGURANÇA (0 A 40 PONTOS)
+ // DIMENSÃO 3: CONDUTA E SEGURANÇA (0 A 40 PONTOS) VIA IA NATIVA
  let rx = evaluateWithNativeAI(activeCase, session.prescription, session.reason, session.diagnosis);
 
- await BaseConhecimento.aguardar(2000);
- const kbDxCorreto = activeCase.diagnoses[activeCase.correct];
- const kbCaso = BaseConhecimento.consultar(kbDxCorreto, 3);
- let usouGemini = false;
-
- const activeKey = apiKey || safeStorage.get("vetsim_gemini_key") || "";
- if(activeKey){
-   const btnFinish = $("btn-finish-case");
-   if(btnFinish) {
-     btnFinish.disabled = true;
-     btnFinish.textContent = "Avaliando conduta via Gemini…";
-   }
-   toast("Consultando IA na nuvem...");
-   
-   try {
-     const promptText = `
-       Você é um avaliador educacional e tutor de medicina veterinária.
-       Consulte este Banco de Dados de Referência: ${JSON.stringify(VET_KNOWLEDGE_BASE)}
-       ${kbCaso.contexto ? "Trechos de livros de referência:\n" + kbCaso.contexto : ""}
-
-       Paciente: ${activeCase.patient} (${activeCase.species}, ${activeCase.breed}, ${activeCase.weight}).
-       Diagnóstico verdadeiro: ${activeCase.diagnoses[activeCase.correct]}.
-       Diagnóstico escolhido pelo aluno: ${activeCase.diagnoses[session.diagnosis]}.
-       Exames solicitados: ${session.examIds.map(i => activeCase.exams[i].name).join(", ") || "Nenhum"}.
-       Justificativa: ${session.reason || "Não informada"}.
-       Plano terapêutico: ${session.prescription || "Não informado"}.
-
-       Avalie a conduta de forma didática e detalhada. Dê uma nota de 0 a 10.
-       No campo feedback escreva em português, em texto corrido, sem LaTeX, cifrão ou barra invertida (negrito com ** é permitido) e sem citar capítulos ou páginas.
-       Responda APENAS em JSON no formato exato:
-       {"score": number, "label": "string curta", "feedback": "texto explicativo completo"}
-     `;
-
-     const result = await fetchGeminiWithFallback(activeKey, { contents: [{ parts: [{ text: promptText }] }] });
-     if (result.ok && result.data.candidates?.[0]?.content?.parts?.[0]?.text) {
-       const rawText = result.data.candidates[0].content.parts[0].text.replace(/```json|```/g, '').trim();
-       const parsed = JSON.parse(rawText);
-       rx = {
-         score: Math.max(0, Math.min(10, Number(parsed.score) || 0)),
-         label: parsed.label || `Gemini (${result.modelUsed})`,
-         color: parsed.score >= 8 ? "green" : parsed.score >= 5 ? "yellow" : "red",
-         feedback: `<strong>Análise Gemini (${result.modelUsed}):</strong><br>` + mdParaHtml(parsed.feedback)
-       };
-       usouGemini = true;
-     } else {
-       toast(`Gemini indisponível. Usando IA Nativa.`);
-     }
-   } catch(err) {
-     console.warn("Erro no Gemini:", err);
-     toast("Usando IA Nativa local para o relatório.");
-   } finally {
-     if(btnFinish) {
-       btnFinish.disabled = false;
-       btnFinish.textContent = "Concluir atendimento ✓";
-     }
-   }
- }
-
+ // CONSULTA COMPLEMENTAR À BASE DE LITERATURA LOCAL (base/)
  try {
-   if(usouGemini){
-     rx.feedback += fontesHtml(kbCaso.fontes);
-   } else {
-     const respLivro = BaseConhecimento.responderComBase(kbDxCorreto, { frases: 4 });
-     if(respLivro){
-       rx.feedback += `<br><br><div class="busca-local-container"><div class="busca-header"><span>📖 O que os livros dizem sobre ${esc(kbDxCorreto)}:</span><span class="badge-modo">Busca Direta</span></div>` + mdParaHtml(respLivro.texto) + fontesHtml(respLivro.fontes) + `</div>`;
-     }
+   await BaseConhecimento.aguardar(2000);
+   const kbDxCorreto = activeCase.diagnoses[activeCase.correct];
+   const respLivro = BaseConhecimento.responderComBase(kbDxCorreto, { frases: 4 });
+   if (respLivro) {
+     rx.feedback += `<br><br><div class="busca-local-container"><div class="busca-header"><span>📖 O que a literatura local (base/) diz sobre ${esc(kbDxCorreto)}:</span><span class="badge-modo">Base de Livros</span></div>` + mdParaHtml(respLivro.texto) + fontesHtml(respLivro.fontes) + `</div>`;
    }
- } catch(e) { console.warn("Livros indisponíveis:", e); }
+ } catch(e) { 
+   console.warn("Base de livros local:", e); 
+ }
 
  const scoreConduta = Math.round((rx.score / 10) * 40);
  const totalScore = Math.min(100, Math.max(0, scoreInvestigacao + scoreDiagnostico + scoreConduta));
@@ -1694,71 +1418,11 @@ function clearData(){
  if(confirm("Apagar permanentemente o progresso local? Exporte um backup antes, se quiser guardar os registros.")){
    safeStorage.remove("vetsim_v3_state");
    safeStorage.remove("vetsim_v2_state");
-   safeStorage.remove("vetsim_cached_model");
    appState = { started: 0, completed: 0, totalScore: 0, history: [] };
    updateDashboard();
    renderHistory();
    toast("Progresso local apagado.");
  }
-}
-
-function setKbStatus(msg){ const el = $("kb-status"); if(el) el.textContent = msg; }
-function saveApiKey(){
- const keyInput = $("gemini-key").value.trim();
- if(!keyInput){
-   toast("Por favor, informe uma chave de API válida.");
-   return;
- }
- apiKey = keyInput;
- safeStorage.set("vetsim_gemini_key", apiKey);
- toast("Chave salva! Clique em 'Testar Conexão' para validar.");
-}
-
-function clearApiKey(){
- apiKey = "";
- safeStorage.remove("vetsim_gemini_key");
- safeStorage.remove("vetsim_cached_model");
- cachedWorkingModel = null;
- if($("gemini-key")) $("gemini-key").value = "";
- if($("api-test-result")) $("api-test-result").innerHTML = "";
- toast("Chave e modelo em cache removidos.");
-}
-
-async function testApiKey(){
- const key = ($("gemini-key")?.value || apiKey).trim();
- const resDiv = $("api-test-result");
- if(!key){
-   if(resDiv) resDiv.innerHTML = `<div class="notice danger">Por favor, insira uma chave primeiro.</div>`;
-   return;
- }
- if(resDiv) resDiv.innerHTML = `<div class="notice">Buscando modelo do Gemini compatível...</div>`;
- 
- const result = await fetchGeminiWithFallback(key, { contents: [{ parts: [{ text: "Responda apenas: OK" }] }] });
- 
- if(result.ok){
-   if(resDiv) resDiv.innerHTML = `<div class="notice" style="background:#e7f7ef; border-color:#bcebd0; color:#14744e;">✅ Conexão bem-sucedida! Modelo ativo: <strong>${esc(result.modelUsed)}</strong>.</div>`;
- } else {
-   if(resDiv) resDiv.innerHTML = `<div class="notice danger">❌ <strong>Falha na API:</strong> ${esc(result.error?.message || "Erro de validação")}</div>`;
- }
-}
-
-const PROMPTS = ["Como organizar uma lista de diagnósticos diferenciais?", "Como interpretar um exame sem tirar conclusões precipitadas?", "Como priorizar exames com base na anamnese?", "Quais são os limites de um resultado negativo?"];
-function renderPrompts(){
-  if($("study-prompts")) {
-    $("study-prompts").innerHTML = PROMPTS.map(p => `<button class="choice" type="button" style="text-align:left;width:100%" onclick="usePrompt(${JSON.stringify(p).replace(/"/g,'&quot;')})"><span>✧ ${esc(p)}</span></button>`).join("");
-  }
-}
-function usePrompt(p){ if($("ai-message")) { $("ai-message").value = p; $("ai-message").focus(); } }
-
-function addBubble(text, role){
-  const div = document.createElement("div");
-  div.className = "bubble " + role;
-  div.textContent = text;
-  if($("ai-chat")){
-    $("ai-chat").appendChild(div);
-    $("ai-chat").scrollTop = $("ai-chat").scrollHeight;
-  }
-  return div;
 }
 
 // INICIALIZAÇÃO SEGURA DA APLICAÇÃO
@@ -1798,97 +1462,9 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
 
-    if($("ai-form")) {
-      $("ai-form").addEventListener("submit", async e => {
-        e.preventDefault();
-        const msg = $("ai-message").value.trim();
-        if(!msg) return;
-        $("ai-message").value = "";
-        addBubble(msg, "user");
-        
-        const activeKey = apiKey || safeStorage.get("vetsim_gemini_key") || "";
-        
-        if(!activeKey){
-          const bolhaNativa = addBubble("Consultando acervo dos livros locais...", "assistant");
-          await BaseConhecimento.aguardar(8000);
-          const achados = BaseConhecimento.buscar(msg, 4);
-          
-          if(achados && achados.length > 0){
-            bolhaNativa.style.whiteSpace = "normal";
-            
-            let cardsHtml = `
-              <div class="busca-local-container">
-                <div class="busca-header">
-                  <span>📚 Trechos mais relevantes encontrados na base:</span>
-                  <span class="badge-modo">Modo Consulta Direta • Sem Chave API</span>
-                </div>
-            `;
-            
-            achados.forEach(item => {
-              cardsHtml += `
-                <div class="livro-card">
-                  <div class="livro-card-header">
-                    <span class="livro-titulo">${esc(item.livro || 'Livro da Base')}</span>
-                    <span class="livro-meta">Cap. ${esc(item.capitulo || '-')} • pág. ${esc(item.pagina || '-')}</span>
-                  </div>
-                  <div class="livro-card-body">
-                    "${esc(item.texto)}"
-                  </div>
-                </div>
-              `;
-            });
-
-            cardsHtml += `
-                <div class="md" style="margin-top:10px;">
-                  <p class="muted small">💡 <em>A IA Nativa atua como busca direta na literatura. Para obter uma resposta sintetizada e explicada, conecte uma chave do Gemini no painel ao lado.</em></p>
-                </div>
-              </div>
-            `;
-            
-            bolhaNativa.innerHTML = cardsHtml;
-          } else {
-            bolhaNativa.textContent = "Nenhum trecho correspondente foi encontrado na base de livros. Para uma resposta explicada, conecte uma chave do Gemini no painel ao lado.";
-          }
-          return;
-        }
-        
-        const waiting = addBubble("Sintetizando resposta pedagógica...", "assistant");
-        try {
-          await BaseConhecimento.aguardar(15000);
-          const kbInfo = BaseConhecimento.consultar(msg, 4);
-          const livrosBloco = kbInfo.contexto ? "Trechos de livros de referência (use-os como base principal da resposta; se divergirem do banco resumido acima, aponte a divergência):\n" + kbInfo.contexto + "\n" : "";
-          const context = activeCase ? `\nCaso Clínico Atual: ${activeCase.title}. Paciente: ${activeCase.patient} (${activeCase.species}). Histórico: ${activeCase.history}.` : "";
-          const systemPrompt = `Você é o Tutor IA Pedagógico do VetSim, um professor sênior em Medicina Veterinária.
-Acesse este Banco de Dados de Referência Veterinária para embasar suas respostas com clareza, exatidão e riqueza de detalhes:
-${JSON.stringify(VET_KNOWLEDGE_BASE)}
-${livrosBloco}
-
-Diretrizes do Tutor Pedagógico:
-1. Resposta Explicativa e Didática: Responda diretamente e explique os conceitos e o raciocínio clínico por trás de cada conduta para sanar a dúvida do aluno com tom encorajador e acadêmico.
-2. Base de Conhecimento: Baseie sua explicação APENAS nos trechos de livros e conhecimentos veterinários fornecidos. Se o contexto não contiver dados suficientes para responder integralmente à dúvida, responda o que for possível com base nos trechos e informe educadamente a limitação.
-3. Formatação: Escreva em português, com linguagem limpa e acessível. Use listas simples com hífen e **negrito** para destacar termos importantes. NUNCA use LaTeX, cifrão ($) ou barra invertida (\\): escreva equações em texto simples (ex: Déficit (L) = peso (kg) × % de desidratação ÷ 100).
-4. Referências: Não cite capítulos nem páginas no corpo da resposta: as fontes serão anexadas automaticamente ao final pelo sistema.` + context;
-          
-          const result = await fetchGeminiWithFallback(activeKey, {
-            systemInstruction: { parts: [{ text: systemPrompt }] },
-            contents: [{ role: "user", parts: [{ text: msg }] }],
-            generationConfig: { temperature: 0.3, maxOutputTokens: 2540 }
-          });
-          
-          if (!result.ok) throw new Error(result.error?.message || "Modelo indisponível");
-          const answer = result.data.candidates?.[0]?.content?.parts?.map(p => p.text || "").join("\n") || "Não foi possível obter resposta.";
-          waiting.style.whiteSpace = "normal";
-          waiting.innerHTML = mdParaHtml(answer) + fontesHtml(kbInfo.fontes);
-        } catch(err) {
-          waiting.textContent = "❌ Falha na consulta ao Gemini: " + err.message;
-        }
-      });
-    }
-
-    setTimeout(() => BaseConhecimento.carregarRepositorio(setKbStatus), 300);
+    setTimeout(() => BaseConhecimento.carregarRepositorio(), 300);
     loadState();
     navigate("dashboard");
-    renderPrompts();
   } catch(err) {
     console.error("Erro na inicialização:", err);
   }
