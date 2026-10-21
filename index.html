@@ -206,6 +206,11 @@ h2{font-size:21px;letter-spacing:-.5px;margin:0 0 6px}h3{font-size:16px;margin:0
    <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn-primary" onclick="saveApiKey()">Salvar Chave</button><button class="btn btn-soft" onclick="testApiKey()">Testar Conexão</button><button class="btn btn-outline" onclick="clearApiKey()">Limpar chave</button></div>
    <div id="api-test-result" style="margin-top:10px"></div>
    <div class="notice warn" style="margin-top:14px">Por segurança, a chave fica salva localmente no navegador e não é enviada para backups.</div>
+   <h3 style="margin-top:22px">Base de conhecimento (livros)</h3>
+   <p class="muted small">Importe os arquivos <code>conhecimento_*.json</code> gerados a partir dos seus livros. Eles ficam apenas neste navegador e alimentam o tutor e o feedback dos casos.</p>
+   <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn-primary" onclick="document.getElementById('kb-file').click()">⇧ Importar livros</button><button class="btn btn-outline" onclick="removeKb()">Remover base</button></div>
+   <input type="file" id="kb-file" accept=".json" multiple hidden onchange="importKb(this)">
+   <div id="kb-status" class="small muted" style="margin-top:8px">Nenhuma base importada.</div>
    <h3 style="margin-top:22px">Temas para estudar</h3><div class="choice-list" id="study-prompts"></div>
    <p class="small muted">Obtenha uma chave gratuita no <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener">Google AI Studio</a>.</p>
   </div>
@@ -229,6 +234,224 @@ h2{font-size:21px;letter-spacing:-.5px;margin:0 0 6px}h3{font-size:16px;margin:0
 </div>
 <div class="toast" id="toast"></div>
 
+<script>
+// ==========================================
+// BASE DE CONHECIMENTO LOCAL (livros importados pelo usuário, guardados só no navegador)
+// ==========================================
+(function (global) {
+  'use strict';
+
+  const DB_NOME = 'vetsim-conhecimento';
+  const STORE = 'livros';
+
+  const STOP = new Set(('de da do das dos em no na nos nas um uma uns umas para por com sem sob ' +
+    'sobre entre ate que como mais menos ser sao foi pode podem tem ter seu sua seus suas ao aos ' +
+    'as os se ou').split(' '));
+
+  const norm = s => s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  const radical = w => (w.length > 6 ? w.slice(0, 6) : w);
+  const tokens = s => norm(s).split(/[^a-z0-9]+/)
+    .filter(w => w.length > 2 && !STOP.has(w)).map(radical);
+
+  // ---------- estado em memória ----------
+  let livros = [];            // [{livro:{id,titulo,...}, trechos:[{c,p,t}]}]
+  let docs = [];              // [{l: índice do livro, i: índice do trecho}]
+  let docLen = new Uint32Array(0);
+  let postings = new Map();   // termo -> [doc, tf, doc, tf, ...]
+  let mediaLen = 1;
+  let pronto = false;
+
+  // ---------- IndexedDB ----------
+  function abrirDB() {
+    return new Promise((ok, erro) => {
+      const req = indexedDB.open(DB_NOME, 1);
+      req.onupgradeneeded = () => req.result.createObjectStore(STORE, { keyPath: 'id' });
+      req.onsuccess = () => ok(req.result);
+      req.onerror = () => erro(req.error);
+    });
+  }
+  const pedido = r => new Promise((ok, erro) => { r.onsuccess = () => ok(r.result); r.onerror = () => erro(r.error); });
+
+  async function lerTodos() {
+    const db = await abrirDB();
+    return pedido(db.transaction(STORE).objectStore(STORE).getAll());
+  }
+  async function gravar(registro) {
+    const db = await abrirDB();
+    const tx = db.transaction(STORE, 'readwrite');
+    tx.objectStore(STORE).put(registro);
+    return new Promise((ok, erro) => { tx.oncomplete = ok; tx.onerror = () => erro(tx.error); });
+  }
+  async function apagarTudo() {
+    const db = await abrirDB();
+    const tx = db.transaction(STORE, 'readwrite');
+    tx.objectStore(STORE).clear();
+    return new Promise((ok, erro) => { tx.oncomplete = ok; tx.onerror = () => erro(tx.error); });
+  }
+
+  // ---------- indexação (em lotes, para não travar a tela) ----------
+  async function definirLivros(lista, onProgresso) {
+    livros = lista;
+    docs = [];
+    postings = new Map();
+    pronto = false;
+    lista.forEach((b, l) => b.trechos.forEach((_, i) => docs.push({ l, i })));
+    const N = docs.length;
+    docLen = new Uint32Array(N);
+    let somaLen = 0;
+
+    const LOTE = 300;
+    for (let ini = 0; ini < N; ini += LOTE) {
+      const fim = Math.min(N, ini + LOTE);
+      for (let d = ini; d < fim; d++) {
+        const t = livros[docs[d].l].trechos[docs[d].i];
+        const corpo = tokens(t.t);
+        const titulo = tokens((t.c || '').replace(/^\d+\s*/, ''));
+        const todos = corpo.concat(titulo, titulo, titulo);   // título pesa 3x
+        const cont = new Map();
+        for (const w of todos) cont.set(w, (cont.get(w) || 0) + 1);
+        for (const [w, f] of cont) {
+          let p = postings.get(w);
+          if (!p) postings.set(w, p = []);
+          p.push(d, f);
+        }
+        docLen[d] = todos.length;
+        somaLen += todos.length;
+      }
+      if (onProgresso) onProgresso(`Indexando base de conhecimento… ${Math.round(fim / N * 100)}%`);
+      await new Promise(r => setTimeout(r, 0));
+    }
+    mediaLen = N ? somaLen / N : 1;
+    pronto = N > 0;
+    if (onProgresso) onProgresso(N ? `Base pronta: ${estado().livros.length} livro(s), ${N} trechos.` : 'Nenhuma base importada.');
+  }
+
+  // ---------- API pública ----------
+  async function carregar(onProgresso) {
+    try {
+      const salvos = await lerTodos();
+      if (salvos.length) await definirLivros(salvos, onProgresso);
+      else if (onProgresso) onProgresso('Nenhuma base importada.');
+    } catch (e) {
+      console.error('Base de conhecimento:', e);
+      if (onProgresso) onProgresso('Não foi possível abrir a base de conhecimento neste navegador.');
+    }
+  }
+
+  async function importarArquivos(arquivos, onProgresso) {
+    const novos = [];
+    for (const arq of Array.from(arquivos)) {
+      if (onProgresso) onProgresso(`Lendo ${arq.name}…`);
+      let dados;
+      try { dados = JSON.parse(await arq.text()); }
+      catch (e) { return `Arquivo inválido: ${arq.name}`; }
+      if (!dados || !dados.livro || !dados.livro.id || !Array.isArray(dados.trechos)) {
+        return `Formato não reconhecido: ${arq.name}`;
+      }
+      const registro = { id: dados.livro.id, livro: dados.livro, trechos: dados.trechos };
+      await gravar(registro);
+      novos.push(registro);
+    }
+    await definirLivros(await lerTodos(), onProgresso);
+    return `Importado(s): ${novos.map(n => n.livro.titulo).join('; ')}`;
+  }
+
+  async function limpar() {
+    await apagarTudo();
+    livros = []; docs = []; postings = new Map(); pronto = false;
+  }
+
+  function estado() {
+    return {
+      pronto,
+      livros: livros.map(b => ({ id: b.livro.id, titulo: b.livro.titulo, trechos: b.trechos.length }))
+    };
+  }
+
+  /**
+   * Busca BM25. Retorna até k trechos: {livro, capitulo, pagina, texto, score}.
+   * opcoes.minScore: abaixo disso retorna [] (a IA deve dizer que não achou).
+   */
+  function buscar(consulta, k = 5, opcoes = {}) {
+    if (!pronto) return [];
+    const minScore = opcoes.minScore != null ? opcoes.minScore : 3;
+    const termos = Array.from(new Set(tokens(consulta)));
+    const N = docs.length;
+    const score = new Map();
+    const casou = new Map();   // quantos termos distintos da pergunta cada trecho contém
+    const minTermos = termos.length <= 1 ? 1 : Math.ceil(termos.length * 0.6);
+    for (const w of termos) {
+      const p = postings.get(w);
+      if (!p) continue;
+      const df = p.length / 2;
+      const idf = Math.log(1 + (N - df + 0.5) / (df + 0.5));
+      for (let j = 0; j < p.length; j += 2) {
+        const d = p[j], f = p[j + 1];
+        const s = idf * f * 2.2 / (f + 1.2 * (0.25 + 0.75 * docLen[d] / mediaLen));
+        score.set(d, (score.get(d) || 0) + s);
+        casou.set(d, (casou.get(d) || 0) + 1);
+      }
+    }
+    const ordem = Array.from(score.entries())
+      .filter(([d]) => casou.get(d) >= minTermos)
+      .sort((a, b) => b[1] - a[1]);
+    const out = [];
+    const porCapitulo = new Map();
+    for (const [d, s] of ordem) {
+      if (s < minScore || out.length >= k) break;
+      const t = livros[docs[d].l].trechos[docs[d].i];
+      const chave = livros[docs[d].l].livro.id + '|' + t.c;
+      if ((porCapitulo.get(chave) || 0) >= 3) continue;   // evita encher com um só capítulo
+      porCapitulo.set(chave, (porCapitulo.get(chave) || 0) + 1);
+      out.push({
+        livro: livros[docs[d].l].livro.titulo,
+        capitulo: t.c || '',
+        pagina: t.p,
+        texto: t.t,
+        score: Math.round(s * 10) / 10
+      });
+    }
+    return out;
+  }
+
+  /** Texto pronto para colocar no início do prompt do Gemini ('' se nada relevante). */
+  function contextoParaPrompt(pergunta, k = 4) {
+    const achados = buscar(pergunta, k);
+    if (!achados.length) return '';
+    const blocos = achados.map((a, n) =>
+      `[Trecho ${n + 1}] ${a.livro}, cap. ${a.capitulo}, pág. ${a.pagina} do PDF\n${a.texto.slice(0, 2200)}`);
+    return 'Você é o tutor do VetSim, um simulador educacional de medicina veterinária. ' +
+      'Responda usando SOMENTE os trechos de livros abaixo. Cite a fonte no formato (livro, pág. X do PDF). ' +
+      'Se os trechos não bastarem para responder, diga claramente que a base de livros não cobre ' +
+      'isso, sem inventar. Não apresente doses ou condutas como validadas para uso clínico real.\n\n' +
+      blocos.join('\n\n');
+  }
+
+
+  /** Só os blocos de trechos (sem instruções), para encaixar em prompts existentes. '' se nada relevante. */
+  function trechosParaPrompt(consulta, k = 4) {
+    const achados = buscar(consulta, k);
+    return achados.map((a, n) =>
+      `[Trecho ${n + 1}] ${a.livro}, cap. ${a.capitulo}, pág. ${a.pagina} do PDF\n${a.texto.slice(0, 2200)}`).join('\n\n');
+  }
+
+  /** Referências (um por capítulo): [{livro, capitulo, pagina}] — sem copiar o texto do livro. */
+  function referencias(consulta, k = 3) {
+    const vistos = new Set();
+    const out = [];
+    for (const a of buscar(consulta, k * 4)) {
+      const chave = a.livro + '|' + a.capitulo;
+      if (vistos.has(chave)) continue;
+      vistos.add(chave);
+      out.push({ livro: a.livro, capitulo: a.capitulo, pagina: a.pagina });
+      if (out.length >= k) break;
+    }
+    return out;
+  }
+
+  global.BaseConhecimento = { carregar, importarArquivos, limpar, estado, buscar, contextoParaPrompt, trechosParaPrompt, referencias, definirLivros };
+})(typeof window !== 'undefined' ? window : globalThis);
+</script>
 <script>
 // ==========================================
 // 0. ISOLAMENTO SEGURO DE ARMAZENAMENTO
@@ -1118,9 +1341,12 @@ async function finishCase(){
    toast("Consultando IA na nuvem...");
    
    try {
+     const kbTrechos = BaseConhecimento.trechosParaPrompt(activeCase.diagnoses[activeCase.correct], 3);
+     const kbCaso = kbTrechos ? "Trechos de livros de referência (priorize-os na avaliação):\n" + kbTrechos : "";
      const promptText = `
        Você é um avaliador educacional de medicina veterinária.
        Consulte este Banco de Dados de Referência: ${JSON.stringify(VET_KNOWLEDGE_BASE)}
+       ${kbCaso}
 
        Paciente: ${activeCase.patient} (${activeCase.species}, ${activeCase.breed}, ${activeCase.weight}).
        Diagnóstico verdadeiro: ${activeCase.diagnoses[activeCase.correct]}.
@@ -1157,6 +1383,15 @@ async function finishCase(){
      }
    }
  }
+
+
+ // Referências dos livros importados (apenas citações; o texto dos livros não entra no histórico)
+ try {
+   const refsCaso = BaseConhecimento.referencias(activeCase.diagnoses[activeCase.correct], 3);
+   if(refsCaso.length){
+     rx.feedback += `<br><br>📚 <strong>Para aprofundar nos livros</strong> <span class="muted small">(sugestão automática, confira a relevância)</span>:<ul style="margin:6px 0 0 18px">` + refsCaso.map(r => `<li>${esc(r.livro)} — cap. ${esc(r.capitulo)}, pág. ${r.pagina} do PDF</li>`).join("") + `</ul>`;
+   }
+ } catch(e) { console.warn("Referências dos livros indisponíveis:", e); }
 
  const total = session.score + dxScore + rx.score;
  session.score = total;
@@ -1260,6 +1495,26 @@ function clearData(){
  }
 }
 
+function setKbStatus(msg){ const el = $("kb-status"); if(el) el.textContent = msg; }
+async function importKb(input){
+ const lista = Array.from(input.files || []);
+ input.value = "";
+ if(!lista.length) return;
+ try {
+   const r = await BaseConhecimento.importarArquivos(lista, setKbStatus);
+   const e = BaseConhecimento.estado();
+   const total = e.livros.reduce((a, l) => a + l.trechos, 0);
+   setKbStatus(r + (e.pronto ? ` · ${e.livros.length} livro(s), ${total} trechos prontos.` : ""));
+   toast("Base de conhecimento atualizada");
+ } catch(err){
+   setKbStatus("Erro ao importar: " + err.message);
+ }
+}
+async function removeKb(){
+ if(!confirm("Remover os livros importados deste navegador?")) return;
+ await BaseConhecimento.limpar();
+ setKbStatus("Base removida.");
+}
 function saveApiKey(){
  const keyInput = $("gemini-key").value.trim();
  if(!keyInput){
@@ -1365,16 +1620,24 @@ document.addEventListener("DOMContentLoaded", () => {
         
         const activeKey = apiKey || safeStorage.get("vetsim_gemini_key") || "";
         if(!activeKey){
-          addBubble("Sem chave do Gemini configurada. Insira uma chave de API do Gemini no painel ao lado para liberar o chat em tempo real.", "assistant");
+          let semChave = "Sem chave do Gemini configurada. Insira uma chave de API do Gemini no painel ao lado para liberar o chat em tempo real.";
+          const refsChat = BaseConhecimento.referencias(msg, 4);
+          if(refsChat.length){
+            semChave += "\n\nTrechos relacionados nos livros importados:\n" + refsChat.map(r => `• ${r.livro} — cap. ${r.capitulo}, pág. ${r.pagina} do PDF`).join("\n");
+          }
+          addBubble(semChave, "assistant");
           return;
         }
         
         const waiting = addBubble("Pensando…", "assistant");
         try {
+          const livrosCtx = BaseConhecimento.trechosParaPrompt(msg, 4);
+          const livrosBloco = livrosCtx ? "Trechos de livros de referência (priorize-os; cite livro e pág. do PDF; se divergirem do banco resumido acima, aponte a divergência):\n" + livrosCtx + "\n" : "";
           const context = activeCase ? `\nCaso Clínico Atual: ${activeCase.title}. Paciente: ${activeCase.patient} (${activeCase.species}). Histórico: ${activeCase.history}.` : "";
           const systemPrompt = `Você é um Tutor Clínico Veterinário Sênior. 
 Acesse este Banco de Dados de Referência Veterinária para embasar suas respostas com clareza, exatidão e riqueza de detalhes:
 ${JSON.stringify(VET_KNOWLEDGE_BASE)}
+${livrosBloco}
 
 Diretrizes:
 - Responda de forma direta, técnica, completa e encorpada.
@@ -1395,6 +1658,7 @@ Diretrizes:
       });
     }
 
+    BaseConhecimento.carregar(setKbStatus);
     loadState();
     navigate("dashboard");
     renderPrompts();
